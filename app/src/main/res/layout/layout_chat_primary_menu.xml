@@ -28,7 +28,7 @@
             android:background="@drawable/ease_chatting_setmode_voice_btn"
             android:visibility="visible" />
 
-        <Button
+        <TextView
             android:id="@+id/btn_set_mode_keyboard"
             android:layout_width="32dp"
             android:layout_height="32dp"
