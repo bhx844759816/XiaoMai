@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.guangzhida.xiaomai.view.SwipeItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="76dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/ivHeaderView"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="@mipmap/test_header"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:text="大山"
+            android:textColor="#141414"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toRightOf="@id/ivHeaderView"
+            app:layout_constraintTop_toTopOf="@id/ivHeaderView" />
+
+        <TextView
+            android:id="@+id/tvChatMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="30dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="经历一个从简单到复杂再到纯粹的过程！如履薄冰!年复一年、日复一日！精进！"
+            android:textColor="#999999"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="@id/tvName"
+            app:layout_constraintRight_toLeftOf="@id/tvTime"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvName" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:text="19:00"
+            android:textColor="#141414"
+            android:textSize="10sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvName" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/stick"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/btn_stick"
+            android:text="置顶"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/delete"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:background="@drawable/btn_delete"
+            android:text="删除s"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+    </LinearLayout>
+</com.guangzhida.xiaomai.view.SwipeItemLayout>

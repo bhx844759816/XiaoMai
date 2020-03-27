@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <ImageView
+        android:id="@+id/idCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="18dp"
+        android:background="@mipmap/icon_cancel"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/idLogoIv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:background="@mipmap/icon_login_logo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/idInputPhoneParent"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/idLogoIv">
+
+        <EditText
+            android:id="@+id/inputPhone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:drawableLeft="@mipmap/icon_login_phone"
+            android:drawablePadding="8dp"
+            android:hint="请输入手机号"
+            android:textColor="@color/defaultTextColor"
+            android:textColorHint="@color/hintTextColor" />
+
+        <View
+            style="@style/DividerLineTheme"
+            android:layout_gravity="bottom" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/idInputCodeParent"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/idInputPhoneParent">
+
+        <EditText
+            android:id="@+id/inputCode"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:drawableLeft="@mipmap/icon_login_phone"
+            android:drawablePadding="8dp"
+            android:hint="请输入验证码"
+            android:textColor="@color/defaultTextColor"
+            android:textColorHint="@color/hintTextColor" />
+
+        <TextView
+            android:id="@+id/tvSendSmsCode"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right|center_vertical"
+            android:gravity="center"
+            android:text="发送验证码" />
+
+        <View
+            style="@style/DividerLineTheme"
+            android:layout_gravity="bottom" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/idInputPassWordParent"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/idInputCodeParent">
+
+        <EditText
+            android:id="@+id/inputPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:drawableLeft="@mipmap/icon_login_password"
+            android:drawablePadding="8dp"
+            android:hint="请设置登录密码"
+            android:textColor="@color/defaultTextColor"
+            android:textColorHint="@color/hintTextColor" />
+
+        <View
+            style="@style/DividerLineTheme"
+            android:layout_gravity="bottom" />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp" />
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/tvRegister"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/shape_half_circle_rectangle"
+        android:gravity="center"
+        android:text="@string/register"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="@id/idInputPassWordParent"
+        app:layout_constraintRight_toRightOf="@id/idInputPassWordParent"
+        app:layout_constraintTop_toBottomOf="@id/idInputPassWordParent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

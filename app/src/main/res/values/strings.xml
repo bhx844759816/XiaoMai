@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">XiaoMai</string>
+    <string name="now_loading">正在加载</string>
+    <string name="app_home_title">校麦-连接校园生活</string>
+    <string name="bindAccount">绑定账号</string>
+    <string name="userRegister">用户注册</string>
+    <string name="accountRecharge">账户充值</string>
+    <string name="setMealModify">套餐修改</string>
+    <string name="balanceQuery">余额查询</string>
+    <string name="netDiagnosis">网络诊断</string>
+    <string name="aboutPassword">关于密码</string>
+    <string name="artificialService">人工客服</string>
+    <string name="onekeyAuthentication">一键认证</string>
+    <string name="exitAuthentication">退出认证</string>
+    <string name="forgetPassword">忘记密码</string>
+    <string name="login">登录</string>
+    <string name="register">注册</string>
+    <string name="createAccount">创建账号</string>
+    <string name="or">OR</string>
+    <string name="wxAccountLogin">微信账号登录</string>
+    <string name="messageCenter">消息中心</string>
+    <string name="onLineServiceChatRecord">查看与客服的沟通记录</string>
+    <string name="onLineService">在线客服</string>
+    <string name="activityMessage">活动消息</string>
+    <string name="activityMessageTips">你的地球日优惠福利来了</string>
+    <string name="serviceMessage">服务消息</string>
+    <string name="serviceMessageTips">你有一张优惠卷到账了</string>
+    <string name="systemMessage">系统消息</string>
+    <string name="hotSchool">热门学校</string>
+    <string name="cancel">取消</string>
+    <string name="addFriend">添加好友</string>
+    <string name="button_pushtotalk">按住说话</string>
+    <string name="button_send">发送</string>
+</resources>
