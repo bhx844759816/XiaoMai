@@ -1,5 +1,9 @@
 package com.guangzhida.xiaomai.ext
 
+import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import com.guangzhida.xiaomai.utils.Base64Utils
 import com.guangzhida.xiaomai.utils.RSAUtil
 
@@ -38,4 +42,24 @@ fun String.rsADecode(): String {
         e.printStackTrace()
     }
     return ""
+}
+
+/**
+ * 隐藏软键盘
+ */
+fun View.hideKeyboard() {
+    val inputMethodManager =
+        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+
+}
+
+
+internal fun EditText.showSoftInput() {
+    this.isFocusable = true
+    this.isFocusableInTouchMode = true
+    this.requestFocus()
+    val inputManager =
+        this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    inputManager.showSoftInput(this, 0)
 }

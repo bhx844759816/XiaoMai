@@ -5,6 +5,7 @@ import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.model.AccountModel
 import com.guangzhida.xiaomai.model.PingResultModel
+import com.guangzhida.xiaomai.model.SchoolModel
 import com.guangzhida.xiaomai.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,8 +15,12 @@ class HomeViewModel : BaseViewModel() {
     private val homeRepository = InjectorUtil.getHomeRepository()
 
     val mAccountModelData = MutableLiveData<AccountModel>()
-    val bindResult = MutableLiveData<Boolean>() //绑定结果
+    val mSchoolModelData = MutableLiveData<SchoolModel>()
+    val bindResult = MutableLiveData<Int>() //绑定结果
+    val verifyResultData = MutableLiveData<Boolean>() //绑定结果
     val netWorkCheckResult = MutableLiveData<Pair<String, PingResultModel>>()
+
+
     /**
      * 获取用户信息
      */
@@ -29,17 +34,46 @@ class HomeViewModel : BaseViewModel() {
     }
 
     /**
+     * 获取学校信息
+     * @param schoolName 学校名称
+     */
+    fun getSchoolInfo(schoolName: String) {
+        launchGo(
+            {
+                val schoolModel = homeRepository.getSchoolInfoByName(schoolName)
+                LogUtils.i("SchoolModel=$schoolModel")
+                if (schoolModel.status == 200) {
+                    mSchoolModelData.postValue(schoolModel.data)
+                }
+            }, isShowDialog = false
+        )
+    }
+
+    /**
      * 绑定手机号
      */
     fun bindAccount(account: String, password: String) {
-        if (account == "0" && password == "0") {
-            bindResult.postValue(true)
-        } else {
-            bindResult.postValue(false)
+        launchUI {
+            val accountModel = withContext(Dispatchers.IO) {
+                homeRepository.getAccountInfo(account)
+            }
+            if (accountModel.success == "1") {//有这个用户
+                if (password == accountModel.pass) {
+                    bindResult.postValue(1) //绑定成功
+                    mAccountModelData.postValue(accountModel)
+                } else {
+                    bindResult.postValue(-1) //密码错误
+                }
+            } else {
+                bindResult.postValue(0) //没有这个用户
+            }
         }
 
     }
 
+    /**
+     * 网络诊断
+     */
     fun doNetWorkCheck() {
         launchUI {
             try {
@@ -78,5 +112,31 @@ class HomeViewModel : BaseViewModel() {
      */
     fun cancelNetWorkCheck() {
         NetworkDiagnosisManager.cancelExecute()
+    }
+
+    /**
+     * 一键认证
+     */
+    fun doAccountVerify(url: String, params: Map<String, String?>) {
+        LogUtils.i("TAG","doAccountVerify params=$params")
+        launchGo(
+            {
+                homeRepository.doAccountVerify(url, params)
+            },{
+                verifyResultData.postValue(false)
+            }
+        )
+    }
+
+    /**
+     * 退出认证
+     */
+    fun quitAccountVerify(url: String, params: Map<String, String?>) {
+        LogUtils.i("TAG","quitAccountVerify params=$params")
+        launchGo(
+            {
+                homeRepository.exitAccountVerify(url, params)
+            }
+        )
     }
 }

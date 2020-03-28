@@ -12,6 +12,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86'
         }
@@ -63,11 +64,14 @@ dependencies {
     implementation "com.just.agentweb:agentweb:4.1.2"
     //TabLayout
     implementation 'com.flyco.tablayout:FlycoTabLayout_Lib:2.1.2@aar'
-    //环信SDK
-    api 'com.hyphenate:hyphenate-sdk-lite:3.6.1'
     //glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
+    //
+    implementation 'com.android.support:multidex:1.0.2'
+    implementation 'com.hyphenate:hyphenate-sdk-lite:3.6.1'
+    implementation project(':library')
+//    implementation project(':chatlibrary')
     //recyclerView
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.1'
     testImplementation 'junit:junit:4.12'

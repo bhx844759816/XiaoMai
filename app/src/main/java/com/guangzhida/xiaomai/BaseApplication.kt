@@ -6,6 +6,7 @@ import android.app.ActivityManager.RunningAppProcessInfo
 import android.app.Application
 import android.content.Context
 import android.os.Process
+import androidx.multidex.MultiDexApplication
 import com.guangzhida.xiaomai.model.UserModel
 import com.guangzhida.xiaomai.utils.LogUtils
 import com.guangzhida.xiaomai.utils.SPUtils
@@ -14,7 +15,7 @@ import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMOptions
 
 
-class BaseApplication : Application() {
+class BaseApplication : MultiDexApplication() {
     //存储用户信息
     var userModel: UserModel.Data? = null //存储用户信息
     var mToken: String? = null

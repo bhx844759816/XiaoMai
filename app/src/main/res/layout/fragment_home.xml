@@ -118,6 +118,7 @@
             <include layout="@layout/layout_home_center_grid"/>
 
             <TextView
+                android:id="@+id/tvVerify"
                 android:layout_width="160dp"
                 android:layout_height="55dp"
                 android:layout_gravity="center_horizontal"
@@ -129,6 +130,7 @@
                 android:background="@drawable/shape_half_circle_rectangle"
                 />
             <TextView
+                android:id="@+id/tvQuitVerify"
                 android:layout_width="160dp"
                 android:layout_height="55dp"
                 android:layout_gravity="center_horizontal"

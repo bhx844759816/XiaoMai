@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
@@ -17,6 +18,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -180,7 +182,25 @@ public class NetworkUtils {
         return cm != null && cm.getActiveNetworkInfo() != null
                 && cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI;
     }
+    public static String getConnectedWifiMacAddress(Context context) {
+        String connectedWifiMacAddress = null;
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        List<ScanResult> wifiList;
 
+        if (wifiManager != null) {
+            wifiList = wifiManager.getScanResults();
+            WifiInfo info = wifiManager.getConnectionInfo();
+            if (wifiList != null && info != null) {
+                for (int i = 0; i < wifiList.size(); i++) {
+                    ScanResult result = wifiList.get(i);
+                    if (info.getBSSID().equals(result.BSSID)) {
+                        connectedWifiMacAddress = result.BSSID;
+                    }
+                }
+            }
+        }
+        return connectedWifiMacAddress;
+    }
     /**
      * 判断wifi数据是否可用
      * <p>需添加权限 {@code <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>}</p>

@@ -1,6 +1,9 @@
 package com.guangzhida.xiaomai.data.home
 
+import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.model.AccountModel
+import com.guangzhida.xiaomai.model.SchoolInfoModel
+import com.guangzhida.xiaomai.model.SchoolModel
 import com.guangzhida.xiaomai.model.SchoolModelWrap
 import retrofit2.Call
 import retrofit2.http.*
@@ -14,4 +17,26 @@ interface HomeService {
 
     @POST("schoolinfo/get_list")
     suspend fun getSchoolInfo(): SchoolModelWrap
+
+    /**
+     * 获取学校信息
+     */
+    @FormUrlEncoded
+    @POST("schoolinfo/get_by_name")
+    suspend fun getSchoolInfoByName(@Field("name") phone: String): SchoolInfoModel
+
+    /**http://192.168.1.110/portal/api/v1/login
+     * http://192.168.1.110/portal/api/v1/login
+     * 一键认证
+     */
+    @FormUrlEncoded
+    @POST("")
+    suspend fun doAccountVerify(@Url url: String, @FieldMap params: Map<String, String?>):String
+
+    /**
+     * 退出认证
+     */
+    @FormUrlEncoded
+    @POST("")
+    suspend fun exitAccountVerify(@Url url: String, @FieldMap params: Map<String, String?>):String
 }

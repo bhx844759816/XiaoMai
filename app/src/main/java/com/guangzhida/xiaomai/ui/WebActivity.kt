@@ -25,6 +25,8 @@ class WebActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web)
         val url = intent.getStringExtra("url")
+        val type = intent.getStringExtra("type")
+        val params = intent.getStringExtra("params")
         LogUtils.i("web url=$url")
         initListener()
         mAgentWeb = AgentWeb.with(this)
@@ -33,7 +35,17 @@ class WebActivity : AppCompatActivity() {
             .setWebChromeClient(mTitleWebClient)
             .createAgentWeb()
             .ready()
-            .go(url)
+            .go("")
+        if (type == "AccountRegister") {
+            //用户注册
+            mAgentWeb?.urlLoader?.loadUrl(url)
+        } else if (type == "AccountRecharge") {
+            mAgentWeb?.urlLoader?.postUrl(
+                url, params?.toByteArray()
+            );
+        } else if (type == "ForgetPassword") {
+            mAgentWeb?.urlLoader?.loadUrl(url)
+        }
     }
 
     private fun initListener() {

@@ -43,10 +43,10 @@ class RetrofitManager {
 
     private fun getOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(10L, TimeUnit.SECONDS)
+            .connectTimeout(40L, TimeUnit.SECONDS)
             .addInterceptor(LoggingInterceptor())
             .addInterceptor(BaseInterceptor())
-            .writeTimeout(10L, TimeUnit.SECONDS)
+            .writeTimeout(40L, TimeUnit.SECONDS)
             .connectionPool(ConnectionPool(8, 15, TimeUnit.SECONDS))
             .build()
     }

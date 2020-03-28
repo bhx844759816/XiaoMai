@@ -32,7 +32,8 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <LinearLayout
+    <github.ll.emotionboard.EmoticonsBoard
+        android:id="@+id/emoticonsBoard"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#ffe4e4e4"
@@ -43,8 +44,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="11" />
-        <include layout="@layout/layout_chat_primary_menu" />
-    </LinearLayout>
+            android:layout_height="match_parent" />
+    </github.ll.emotionboard.EmoticonsBoard>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
