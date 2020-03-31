@@ -51,10 +51,10 @@ dependencies {
     def extensions_version = "2.2.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$extensions_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$extensions_version"
-    def room_version = "2.2.3"
-    implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
+//    def room_version = "2.2.3"
+//    implementation "androidx.room:room-runtime:$room_version"
+//    annotationProcessor "androidx.room:room-compiler:$room_version"
+//    implementation "androidx.room:room-ktx:$room_version"
 
     implementation 'androidx.annotation:annotation:1.1.0'
     //Glide
@@ -85,8 +85,6 @@ dependencies {
 //    implementation project(':easeui')
     implementation 'com.github.w446108264:AndroidEmoji:1.1'
     //room
-
-
     //recyclerView适配器
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.1'
     testImplementation 'junit:junit:4.12'

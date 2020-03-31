@@ -448,9 +448,9 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
 
     private fun showBindAccountDialog() {
         activity?.let {
-            LogUtils.i(mAccountModel?.user)
-            LogUtils.i(mAccountModel?.pass)
-            LogUtils.i(mAccountModel?.proxy_user)
+//            LogUtils.i(mAccountModel?.user)
+//            LogUtils.i(mAccountModel?.pass)
+//            LogUtils.i(mAccountModel?.proxy_user)
             BindAccountDialog.showDialog(it, it,mAccountModel?.user,mAccountModel?.pass,mAccountModel?.proxy_user) { account, password ->
                 viewModel.bindAccount(account, password)
             }
