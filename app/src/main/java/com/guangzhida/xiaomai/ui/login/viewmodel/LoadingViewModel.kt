@@ -4,9 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
-import com.guangzhida.xiaomai.data.login.LoginNetwork
-import com.guangzhida.xiaomai.data.login.LoginRepository
 import com.guangzhida.xiaomai.utils.LogUtils
+import com.hyphenate.EMCallBack
+import com.hyphenate.chat.EMClient
 
 /**
  * 首页Loading页面
@@ -29,10 +29,32 @@ class LoadingViewModel : BaseViewModel() {
                 }
             },
             complete = {
-                loginFinish.postValue(true)
+                doChatLogin(phone, password)
             },
             isShowDialog = false
         )
+    }
+
+    fun doChatLogin(phone: String, password: String) {
+        if (EMClient.getInstance().isLoggedInBefore) {
+            //加载全部会话
+            EMClient.getInstance().chatManager().loadAllConversations()
+            loginFinish.postValue(true)
+        } else {
+            EMClient.getInstance().login(phone, password, object : EMCallBack {
+                override fun onSuccess() {
+                    loginFinish.postValue(true)
+                }
+
+                override fun onProgress(progress: Int, status: String?) {
+                }
+
+                override fun onError(code: Int, error: String?) {
+                    loginFinish.postValue(true)
+                }
+
+            })
+        }
     }
 
 }

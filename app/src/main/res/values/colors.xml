@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#32cd99</color>
-    <color name="colorPrimaryDark">#32cd99</color>
-    <color name="colorAccent">#32cd99</color>
-    <color name="bottom_bar_default_text">#8a8a8a</color>
-    <color name="bottom_bar_select_text">#32cd99</color>
+    <color name="colorPrimary">#9245ec</color>
+    <color name="colorPrimaryDark">#9245ec</color>
+    <color name="colorAccent">#9245ec</color>
+    <color name="bottom_bar_default_text">#999999</color>
+    <color name="bottom_bar_select_text">#9245ec</color>
     <color name="divider_line">#bbbbbb</color>
     <color name="white">#fff</color>
     <color name="background">#fff</color>

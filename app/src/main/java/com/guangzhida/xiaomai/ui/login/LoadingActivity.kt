@@ -42,28 +42,7 @@ class LoadingActivity : BaseActivity<LoadingViewModel>() {
         })
 
 
-//        EMClient.getInstance().login("bhx", "123", object : EMCallBack {
-//            override fun onSuccess() {
-//                runOnUiThread {
-//                    ToastUtils.toastShort("登录成功")
-//                    // 加载所有会话到内存
-//                    EMClient.getInstance().chatManager().loadAllConversations()
-//                    // 加载所有群组到内存
-//                    EMClient.getInstance().groupManager().loadAllGroups();
-//                    //跳转到主界面
-//                    startActivity(Intent(this@LoadingActivity, MainActivity::class.java))
-//                }
-//            }
-//
-//            override fun onProgress(progress: Int, status: String?) {
-//            }
-//
-//            override fun onError(code: Int, error: String?) {
-//                //登录失败
-//                ToastUtils.toastShort("登录失败")
-//            }
-//
-//        })
+
     }
 
     override fun onDestroy() {

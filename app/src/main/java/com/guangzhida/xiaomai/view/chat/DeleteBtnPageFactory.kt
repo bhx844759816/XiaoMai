@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat
+package com.guangzhida.xiaomai.view.chat
 
 import android.content.Context
 import android.view.ViewGroup
@@ -31,7 +31,7 @@ open class DeleteBtnPageFactory<T: Emoticon>: GridPageFactory<T>() {
 
     override fun <T : Emoticon> createAdapter(context: Context, emoticons: List<T>, clickListener: OnEmoticonClickListener<Emoticon>?): BaseAdapter {
         if (deleteIconUri == null) {
-            deleteIconUri = context.getResourceUri(R.drawable.icon_del)
+            deleteIconUri = context.getResourceUri(R.mipmap.icon_del)
         }
         val adapter = DeleteBtnAdapter(context, emoticons, clickListener)
         adapter.line = line

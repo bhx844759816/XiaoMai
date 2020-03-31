@@ -12,6 +12,7 @@ import com.guangzhida.xiaomai.model.ChatUserModel
 import com.guangzhida.xiaomai.ui.chat.ChatMessageActivity
 import com.guangzhida.xiaomai.ui.chat.adapter.ContactListAdapter
 import com.guangzhida.xiaomai.ui.chat.viewmodel.ContactListViewModel
+import com.guangzhida.xiaomai.utils.LogUtils
 import com.guangzhida.xiaomai.view.SwipeItemLayout.OnSwipeItemTouchListener
 import kotlinx.android.synthetic.main.fragment_contact_list_layout.*
 
@@ -32,8 +33,14 @@ class ContactListFragment : BaseFragment<ContactListViewModel>() {
         mAdapter.addHeaderView(getHeaderView(), 0)
         recyclerView.adapter = mAdapter
         recyclerView.addOnItemTouchListener(OnSwipeItemTouchListener(context))
-        mAdapter.setOnItemClickListener { adapter, view, position ->
-            startActivity(Intent(context, ChatMessageActivity::class.java))
+        mAdapter.setOnItemClickListener { _, _, position ->
+            val intent = Intent(context, ChatMessageActivity::class.java)
+            LogUtils.i("mChatUserModelList[position] = ${mChatUserModelList[position]}")
+            intent.putExtra("friendId",mChatUserModelList[position].id)
+            intent.putExtra("friendName",mChatUserModelList[position].nickName)
+            intent.putExtra("userName",mChatUserModelList[position].mobilePhone)
+            intent.putExtra("userAvatar",mChatUserModelList[position].headUrl)
+            startActivity(intent)
         }
         viewModel.getContactList()
         registerLiveDataObserver()

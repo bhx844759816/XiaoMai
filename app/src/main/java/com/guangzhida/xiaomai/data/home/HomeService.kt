@@ -1,10 +1,7 @@
 package com.guangzhida.xiaomai.data.home
 
 import com.guangzhida.xiaomai.base.BaseResult
-import com.guangzhida.xiaomai.model.AccountModel
-import com.guangzhida.xiaomai.model.SchoolInfoModel
-import com.guangzhida.xiaomai.model.SchoolModel
-import com.guangzhida.xiaomai.model.SchoolModelWrap
+import com.guangzhida.xiaomai.model.*
 import retrofit2.Call
 import retrofit2.http.*
 import java.util.concurrent.Callable
@@ -31,12 +28,11 @@ interface HomeService {
      */
     @FormUrlEncoded
     @POST("")
-    suspend fun doAccountVerify(@Url url: String, @FieldMap params: Map<String, String?>):String
+    suspend fun doAccountVerify(@Url url: String, @FieldMap params: Map<String, String?>): VerifyModel
 
     /**
      * 退出认证
      */
-    @FormUrlEncoded
-    @POST("")
-    suspend fun exitAccountVerify(@Url url: String, @FieldMap params: Map<String, String?>):String
+    @GET("")
+    suspend fun exitAccountVerify(@Url url: String, @QueryMap params: Map<String, String?>):VerifyModel
 }

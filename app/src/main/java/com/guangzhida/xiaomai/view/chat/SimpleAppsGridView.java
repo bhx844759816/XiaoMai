@@ -1,6 +1,8 @@
-package com.guangzhida.xiaomai.ui.chat.adapter;
+package com.guangzhida.xiaomai.view.chat;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,15 +31,12 @@ public class SimpleAppsGridView extends RelativeLayout {
 
     protected void init(){
         GridView gv_apps = (GridView) view.findViewById(R.id.gv_apps);
+        gv_apps.setSelector(new ColorDrawable(Color.TRANSPARENT));
+        gv_apps.setNumColumns(2);
         ArrayList<AppBean> mAppBeanList = new ArrayList<>();
-        mAppBeanList.add(new AppBean(R.mipmap.icon_photo, "图片"));
-        mAppBeanList.add(new AppBean(R.mipmap.icon_audio, "视频"));
-//        mAppBeanList.add(new AppBean(R.mipmap.icon_camera, "拍照"));
-//        mAppBeanList.add(new AppBean(R.mipmap.icon_qzone, "空间"));
-//        mAppBeanList.add(new AppBean(R.mipmap.icon_contact, "联系人"));
-        mAppBeanList.add(new AppBean(R.mipmap.icon_file, "文件"));
-        mAppBeanList.add(new AppBean(R.mipmap.icon_loaction, "位置"));
-        FuncsAdapter adapter = new FuncsAdapter(getContext(), mAppBeanList);
+        mAppBeanList.add(new AppBean(R.mipmap.chatting_photo, "图片"));
+        mAppBeanList.add(new AppBean(R.mipmap.chatting_camera, "拍照"));
+        ChattingAppsAdapter adapter = new ChattingAppsAdapter(getContext(), mAppBeanList);
         gv_apps.setAdapter(adapter);
     }
 }

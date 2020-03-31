@@ -2,10 +2,7 @@ package com.guangzhida.xiaomai.data.home
 
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.http.RetrofitManager
-import com.guangzhida.xiaomai.model.AccountModel
-import com.guangzhida.xiaomai.model.SchoolInfoModel
-import com.guangzhida.xiaomai.model.SchoolModel
-import com.guangzhida.xiaomai.model.SchoolModelWrap
+import com.guangzhida.xiaomai.model.*
 import com.guangzhida.xiaomai.utils.LogUtils
 import retrofit2.Call
 import java.util.concurrent.Callable
@@ -33,7 +30,7 @@ class HomeNetWork {
      * 一键认证
      */
 
-    suspend fun doAccountVerify(url: String, params: Map<String, String?>): String {
+    suspend fun doAccountVerify(url: String, params: Map<String, String?>): VerifyModel {
         LogUtils.i("一键认证:${params.toString()}")
         return mService.doAccountVerify(url,params)
     }
@@ -41,7 +38,7 @@ class HomeNetWork {
     /**
      * 退出认证
      */
-    suspend fun exitAccountVerify(url: String, params: Map<String, String?>): String {
+    suspend fun exitAccountVerify(url: String, params: Map<String, String?>): VerifyModel {
         return mService.exitAccountVerify(url, params)
     }
 

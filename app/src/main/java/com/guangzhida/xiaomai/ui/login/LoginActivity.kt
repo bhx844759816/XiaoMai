@@ -49,7 +49,11 @@ class LoginActivity : BaseActivity<LoginViewModel>() {
                 SPUtils.put(this, USER_ACCOUNT_KEY, phone)
                 SPUtils.put(this, USER_PASSWORD_KEY, Base64Util.encodeWord(password))
             }
-            finish()
+        })
+        mViewModel.mLoginResult.observe(this, Observer {
+            if (it) {
+                finish()
+            }
         })
     }
 

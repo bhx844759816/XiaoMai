@@ -12,7 +12,7 @@ data class ChatUserModel(
     val createTime: Long,
     val createUser: Any,
     val headId: Any,
-    val headUrl: Any,
+    val headUrl: String,
     val id: String,
     val isDelete: Boolean,
     val message: Any,

@@ -17,7 +17,6 @@ dependencies {
     implementation 'com.android.support:support-v4:23.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:recyclerview-v7:23.1.1'
-    api files('libs/AndroidEmoji-1.0.0.aar')
 }
 
 repositories {

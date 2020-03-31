@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat;
+package com.guangzhida.xiaomai.view.chat;
 
 import android.text.Spannable;
 import android.widget.EditText;

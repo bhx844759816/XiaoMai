@@ -26,6 +26,7 @@ class BaseApplication : MultiDexApplication() {
         mToken = SPUtils.get(this, USER_TOKEN_KEY, "") as String
         LogUtils.init()
         ToastUtils.init(this)
+//        EaseUiHelper.init(this.applicationContext)
         initChat()
     }
 

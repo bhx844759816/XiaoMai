@@ -9,6 +9,7 @@ import com.guangzhida.xiaomai.model.SchoolModel
 import com.guangzhida.xiaomai.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.SocketTimeoutException
 
 class HomeViewModel : BaseViewModel() {
 
@@ -16,8 +17,10 @@ class HomeViewModel : BaseViewModel() {
 
     val mAccountModelData = MutableLiveData<AccountModel>()
     val mSchoolModelData = MutableLiveData<SchoolModel>()
+    val mSchoolModelListData = MutableLiveData<List<SchoolModel>>()
     val bindResult = MutableLiveData<Int>() //绑定结果
     val verifyResultData = MutableLiveData<Boolean>() //绑定结果
+    val ourtVerifyResultData = MutableLiveData<Boolean>() //绑定结果
     val netWorkCheckResult = MutableLiveData<Pair<String, PingResultModel>>()
 
 
@@ -44,6 +47,20 @@ class HomeViewModel : BaseViewModel() {
                 LogUtils.i("SchoolModel=$schoolModel")
                 if (schoolModel.status == 200) {
                     mSchoolModelData.postValue(schoolModel.data)
+                }
+            }, isShowDialog = false
+        )
+    }
+
+    /**
+     * 获取全部学校信息
+     */
+    fun getAllSchoolInfo() {
+        launchGo(
+            {
+                val schoolModelWrap = homeRepository.getSchoolInfo()
+                if (schoolModelWrap.status == 200) {
+                    mSchoolModelListData.postValue(schoolModelWrap.result)
                 }
             }, isShowDialog = false
         )
@@ -118,12 +135,15 @@ class HomeViewModel : BaseViewModel() {
      * 一键认证
      */
     fun doAccountVerify(url: String, params: Map<String, String?>) {
-        LogUtils.i("TAG","doAccountVerify params=$params")
         launchGo(
             {
-                homeRepository.doAccountVerify(url, params)
-            },{
-                verifyResultData.postValue(false)
+                val model = homeRepository.doAccountVerify(url, params)
+                LogUtils.i("doAccountVerify=$model")
+                if (model.code == 200) {//
+                    verifyResultData.postValue(true)
+                } else {
+                    defUI.toastEvent.postValue(model.data.errMessage ?: "认证失败")
+                }
             }
         )
     }
@@ -132,10 +152,15 @@ class HomeViewModel : BaseViewModel() {
      * 退出认证
      */
     fun quitAccountVerify(url: String, params: Map<String, String?>) {
-        LogUtils.i("TAG","quitAccountVerify params=$params")
         launchGo(
             {
-                homeRepository.exitAccountVerify(url, params)
+                val model = homeRepository.exitAccountVerify(url, params)
+                if (model.code == 200) {//
+                    ourtVerifyResultData.postValue(true)
+                } else {
+                    defUI.toastEvent.postValue(model.data.errMessage ?: "退出认证失败")
+                    ourtVerifyResultData.postValue(false)
+                }
             }
         )
     }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,14 +12,16 @@ import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseFragment
 import com.guangzhida.xiaomai.ui.chat.viewmodel.ConversationViewModel
 import com.guangzhida.xiaomai.ui.chat.adapter.ConversationAdapter
+import com.guangzhida.xiaomai.utils.LogUtils
 import com.guangzhida.xiaomai.view.SwipeItemLayout
+import com.hyphenate.chat.EMConversation
 import kotlinx.android.synthetic.main.fragment_conversation_layout.*
 
 /**
  * 会话Fragment
  */
 class ConversationFragment : BaseFragment<ConversationViewModel>() {
-    private val mList = mutableListOf("", "", "")
+    private val mList = mutableListOf<EMConversation>()
     private val mAdapter by lazy { ConversationAdapter(mList) }
     override fun layoutId(): Int = R.layout.fragment_conversation_layout
 
@@ -30,7 +33,21 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
         mAdapter.animationEnable = true
         mAdapter.addHeaderView(getHeaderView(), 0)
         recyclerView.adapter = mAdapter
+        initLiveDataObserver()
+        viewModel.loadConversationList()
     }
+
+    /**
+     * 初始化数据观察
+     */
+    private fun initLiveDataObserver() {
+        viewModel.mConversationListLiveData.observe(this, Observer {
+            mList.clear()
+            mList.addAll(it)
+            mAdapter.notifyDataSetChanged()
+        })
+    }
+
 
     private fun getHeaderView(): View {
         return LayoutInflater.from(context)

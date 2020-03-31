@@ -2,23 +2,20 @@ package com.guangzhida.xiaomai.ui.chat.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.flyco.tablayout.listener.OnTabSelectListener
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseFragment
 import com.guangzhida.xiaomai.model.TabEntity
 import com.guangzhida.xiaomai.ui.chat.AddFriendsActivity
-import com.guangzhida.xiaomai.ui.chat.viewmodel.MessageViewModel
+import com.guangzhida.xiaomai.ui.chat.viewmodel.ChatViewModel
 import kotlinx.android.synthetic.main.fragment_message.*
 import java.util.ArrayList
 
 /**
  * 互动的fragment
  */
-class ChatFragment : BaseFragment<MessageViewModel>() {
+class ChatFragment : BaseFragment<ChatViewModel>() {
     private val mTitles = arrayOf("消息", "联系人")
     private val mFragments = listOf(
         ConversationFragment(),

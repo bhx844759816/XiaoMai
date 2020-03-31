@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat;
+package com.guangzhida.xiaomai.view.chat;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -32,7 +32,7 @@ public class SimpleCommonUtils {
                 spannableStringBuilder,
                 content,
                 EmoticonsKeyboardUtils.getFontHeight(tv_content));
-
+//
 //        spannable = XhsFilter.spannableFilter(tv_content.getContext(),
 //                spannable,
 //                content,
@@ -40,4 +40,6 @@ public class SimpleCommonUtils {
 //                null);
         tv_content.setText(spannable);
     }
+
+
 }

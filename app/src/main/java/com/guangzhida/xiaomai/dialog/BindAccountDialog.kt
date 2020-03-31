@@ -17,17 +17,33 @@ object BindAccountDialog {
     private var dialog: MaterialDialog? = null
     /**
      * 展示对话框
+     * @param phone 手机号
+     * @param passWord 密码
+     * @param schoolPhone 校园卡账号
      */
     fun showDialog(
         context: Context,
         owner: LifecycleOwner,
+        phone: String?,
+        passWord: String?,
+        schoolPhone: String?,
         callBack: ((String, String) -> Unit)? = null
     ) {
         val view =
             LayoutInflater.from(context).inflate(R.layout.dialog_bind_account_layout, null)
         val bindBtn = view.findViewById<TextView>(R.id.tvBindAccount)
+        val tvSchoolAccount = view.findViewById<TextView>(R.id.tvSchoolAccount)
         val inputPhone = view.findViewById<EditText>(R.id.etInputAccount)
         val inputPassword = view.findViewById<EditText>(R.id.etInputPassword)
+        if (phone != null && phone.isNotEmpty()) {
+            inputPhone.setText(phone)
+        }
+        if (passWord != null && passWord.isNotEmpty()) {
+            inputPassword.setText(passWord)
+        }
+        if (schoolPhone != null && schoolPhone.isNotEmpty()) {
+            tvSchoolAccount.text = schoolPhone
+        }
         bindBtn.setOnClickListener {
             val phone = inputPhone.text.toString().trim()
             val password = inputPassword.text.toString().trim()

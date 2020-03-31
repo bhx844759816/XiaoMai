@@ -11,10 +11,12 @@ import com.guangzhida.xiaomai.base.BaseFragment
 import com.guangzhida.xiaomai.dialog.BindAccountDialog
 import com.guangzhida.xiaomai.dialog.NetworkCheckDialog
 import com.guangzhida.xiaomai.dialog.QueryBalanceDialog
+import com.guangzhida.xiaomai.dialog.SelectSchoolDialog
 import com.guangzhida.xiaomai.event.netChangeLiveData
+import com.guangzhida.xiaomai.ext.loadCircleImage
+import com.guangzhida.xiaomai.http.BASE_URL
 import com.guangzhida.xiaomai.model.AccountModel
 import com.guangzhida.xiaomai.model.SchoolModel
-import com.guangzhida.xiaomai.receiver.WifiStateManager
 import com.guangzhida.xiaomai.ui.WebActivity
 import com.guangzhida.xiaomai.ui.home.viewmodel.HomeViewModel
 import com.guangzhida.xiaomai.ui.login.LoginActivity
@@ -32,6 +34,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
     private val mNetworkCheckSb = StringBuilder()
     private var isNetError = false
     private var mAccountModel: AccountModel? = null
+    private var mSchoolModelList: List<SchoolModel>? = null
     private var mSchoolModel: SchoolModel? = null
 
     private lateinit var schoolName: String
@@ -58,6 +61,14 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         if (schoolName.isNotEmpty()) {
             viewModel.getSchoolInfo(schoolName)
         }
+        if (BaseApplication.instance().userModel != null) {
+            ivMessageNotify.loadCircleImage(
+                BASE_URL.substring(
+                    0,
+                    BASE_URL.length - 1
+                ) + BaseApplication.instance().userModel!!.headUrl
+            )
+        }
     }
 
     private fun initData() {
@@ -65,8 +76,6 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         val mWifiName = NetworkUtils.getWifiName(activity)
         val mIpAddress = NetworkUtils.getIPAddress(true)
         mAccountInfoMaps["wifi名称"] = ""
-        mAccountInfoMaps["所在院校"] =
-            SPUtils.get(context, SEARCH_SCHOOL_KEY, "") as String
         mAccountInfoMaps["IP地址"] = ""
         mAccountInfoMaps["账号"] = ""
         mAccountInfoMaps["使用套餐"] = ""
@@ -94,14 +103,10 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         idBindAccount.setOnClickListener {
             if (mSchoolModel == null) {
                 ToastUtils.toastShort("请选择学校")
-                jumpToSelectSchool()
+                showSelectSchoolDialog()
             } else {
+                showBindAccountDialog()
                 //获取账号信息
-                activity?.let {
-                    BindAccountDialog.showDialog(it, it) { account, password ->
-                        viewModel.bindAccount(account, password)
-                    }
-                }
             }
 
         }
@@ -109,7 +114,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         llRegister.setOnClickListener {
             if (mSchoolModel == null) {
                 ToastUtils.toastShort("请先选择学校")
-                jumpToSelectSchool()
+                showSelectSchoolDialog()
             } else {
                 val intent = Intent(context, WebActivity::class.java)
                 intent.putExtra("url", mSchoolModel!!.regiestNewUser)
@@ -121,9 +126,17 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         idConnectWifiBtn.setOnClickListener {
             startActivity(Intent(android.provider.Settings.ACTION_WIFI_SETTINGS))
         }
-        //点击选择学校
-        ivSearchSchool.setOnClickListener {
-            jumpToSelectSchool()
+        //选择学校
+        rlSelectSchool.setOnClickListener {
+            activity?.let {
+                if (mSchoolModelList.isNullOrEmpty()) {
+                    viewModel.getAllSchoolInfo()
+                } else {
+                    showSelectSchoolDialog()
+                }
+
+            }
+
         }
         //消息中心
         ivMessageNotify.setOnClickListener {
@@ -184,11 +197,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         }
         //我的客服
         llService.setOnClickListener {
-            if (BaseApplication.instance().userModel == null) {
-                startActivity(Intent(context, LoginActivity::class.java))
-            } else {
-
-            }
+            startActivity(Intent(context, LoginActivity::class.java))
         }
         //网络诊断
         llNetworkDiagnosis.setOnClickListener {
@@ -221,10 +230,10 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 val url = mSchoolModel!!.keyAuthentication
                 val params = mapOf(
                     "wlanuserip" to NetworkUtils.getIPAddress(true),
-                    "wlanapmac" to NetworkUtils.getMac(),
+                    "wlanapmac" to NetworkUtils.getLocalMacAddressFromIp(),
                     "username" to mAccountModel?.user,
                     "password" to mAccountModel?.pass,
-                    "line" to "4"
+                    "line" to "2"
                 )
                 LogUtils.i(params.toString())
                 viewModel.doAccountVerify(url, params)
@@ -239,19 +248,12 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
             if (checkAccountAndSchoolIsExit()) {
                 val url = mSchoolModel!!.logoutLogin
                 val params = mapOf(
-                    "ip" to NetworkUtils.getIPAddress(true),
-                    "mac" to NetworkUtils.getConnectedWifiMacAddress(context)
+                    "wlanuserip" to NetworkUtils.getIPAddress(true),
+                    "wlanapmac" to NetworkUtils.getLocalMacAddressFromIp()
                 )
                 viewModel.quitAccountVerify(url, params = params)
             }
         }
-
-
-//        wlanuserip=192.168.11.248,
-//        wlanapmac=8E:5F:12:02:6B:B2,
-//        username=19137629693,
-//        password=123456,
-//        line=4
     }
 
     /**
@@ -306,7 +308,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
             mAccountInfoMaps["账号"] = it.user
             mAccountInfoMaps["使用套餐"] = it.servername
             mAccountInfoMaps["到期时间"] = it.expiretime
-            mAccountInfoMaps["所在院校"] = it.name
+            tvSchoolName.text = it.name
             updateUserInfo()
         })
         //获取到学校信息
@@ -390,6 +392,46 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
             }
             updateUserInfo()
         })
+
+        viewModel.verifyResultData.observe(this, Observer {
+            if (it) {
+                ToastUtils.toastShort("认证成功")
+            } else {
+                ToastUtils.toastShort("认证失败")
+            }
+        })
+        //t
+        viewModel.ourtVerifyResultData.observe(this, Observer {
+            if (it) {
+                ToastUtils.toastShort("退出认证成功")
+            } else {
+                ToastUtils.toastShort("退出认证失败")
+            }
+        })
+        viewModel.mSchoolModelListData.observe(this, Observer {
+            mSchoolModelList = it
+            showSelectSchoolDialog()
+        })
+    }
+
+    /**
+     * 弹出选择学校的Dialog
+     */
+    private fun showSelectSchoolDialog() {
+        activity?.let {
+            if (mSchoolModelList.isNullOrEmpty()) {
+                viewModel.getAllSchoolInfo()
+            } else {
+                val items = mSchoolModelList!!.map { schoolModel ->
+                    schoolModel.name
+                }
+                SelectSchoolDialog.showDialog(it, it, items) { index ->
+                    mSchoolModel = mSchoolModelList!![index]
+                    tvSchoolName.text = mSchoolModel?.name
+                }
+            }
+
+        }
     }
 
     /**
@@ -404,23 +446,17 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         idUserMessageTv.text = info
     }
 
-    private fun bindAccount() {
+    private fun showBindAccountDialog() {
         activity?.let {
-            BindAccountDialog.showDialog(it, it) { account, password ->
+            LogUtils.i(mAccountModel?.user)
+            LogUtils.i(mAccountModel?.pass)
+            LogUtils.i(mAccountModel?.proxy_user)
+            BindAccountDialog.showDialog(it, it,mAccountModel?.user,mAccountModel?.pass,mAccountModel?.proxy_user) { account, password ->
                 viewModel.bindAccount(account, password)
             }
         }
     }
 
-    /**
-     * 跳转到选择学校
-     */
-    private fun jumpToSelectSchool() {
-        startActivityForResult(
-            Intent(context, SearchSchoolActivity::class.java),
-            REQUEST_CODE_SELECT_SCHOOL
-        )
-    }
 
     /**
      * 检测账号和学校是否存在
@@ -428,12 +464,12 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
     private fun checkAccountAndSchoolIsExit(): Boolean {
         if (mSchoolModel == null) {
             ToastUtils.toastShort("请先选择学校")
-            jumpToSelectSchool()
+            showSelectSchoolDialog()
             return false
         }
         if (mAccountModel == null) {
             ToastUtils.toastShort("请先绑定账号")
-            bindAccount()
+            showBindAccountDialog()
             return false
         }
         return true

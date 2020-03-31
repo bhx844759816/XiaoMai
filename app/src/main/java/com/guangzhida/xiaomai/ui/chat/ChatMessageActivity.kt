@@ -1,148 +1,174 @@
 package com.guangzhida.xiaomai.ui.chat
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
-import android.text.TextUtils
 import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.guangzhida.xiaomai.R
-import com.guangzhida.xiaomai.ui.chat.adapter.SimpleAppsGridView
-import com.sj.emoji.DefEmoticons
-import github.ll.emotionboard.adpater.EmoticonPacksAdapter
+import com.guangzhida.xiaomai.base.BaseActivity
+import com.guangzhida.xiaomai.ui.chat.adapter.ChatMessageAdapter
+import com.guangzhida.xiaomai.ui.chat.adapter.ChatMultipleItem
+import com.guangzhida.xiaomai.ui.chat.viewmodel.ChatMessageViewHolder
+import com.guangzhida.xiaomai.utils.AdapterUtils
+import com.guangzhida.xiaomai.utils.LogUtils
+import com.guangzhida.xiaomai.view.chat.DeleteEmoticon
+import com.guangzhida.xiaomai.view.chat.EmojiFilter
+import com.guangzhida.xiaomai.view.chat.PlaceHoldEmoticon
+import com.guangzhida.xiaomai.view.chat.SimpleAppsGridView
+import com.hyphenate.EMMessageListener
+import com.hyphenate.chat.EMClient
+import com.hyphenate.chat.EMMessage
 import github.ll.emotionboard.data.Emoticon
-import github.ll.emotionboard.data.EmoticonPack
 import github.ll.emotionboard.interfaces.OnEmoticonClickListener
 import github.ll.emotionboard.utils.EmoticonsKeyboardUtils
-import github.ll.emotionboard.utils.getResourceUri
+import github.ll.emotionboard.widget.EmoticonsEditText.OnSizeChangedListener
 import github.ll.emotionboard.widget.FuncLayout
 import kotlinx.android.synthetic.main.activity_chat_message.*
+
 
 /**
  * 聊天界面
  */
-class ChatMessageActivity : AppCompatActivity(), FuncLayout.FuncKeyBoardListener {
+class ChatMessageActivity : BaseActivity<ChatMessageViewHolder>(), FuncLayout.FuncKeyBoardListener {
+    override fun layoutId(): Int = R.layout.activity_chat_message
+    private var mFriendId: String? = null
+    private var mFriendName: String? = null
+    private var mUserName: String? = null
+    private var mUserAvatar: String? = null
+    private lateinit var mAdapter: ChatMessageAdapter
+    private val mChatMultipleItemList = mutableListOf<ChatMultipleItem>()
+    //监听键盘发送事件
+    private val onEmoticonClickListener = OnEmoticonClickListener<Emoticon> {
+        when (it) {
+            is DeleteEmoticon -> {
+                val action = KeyEvent.ACTION_DOWN
+                val code = KeyEvent.KEYCODE_DEL
+                val event = KeyEvent(action, code)
+                emoticonsBoard.etChat.onKeyDown(KeyEvent.KEYCODE_DEL, event)
+            }
+            is PlaceHoldEmoticon -> { // do nothing
+            }
+            is BigEmoticon -> {
 
-    private val mEmojiListener = OnEmoticonClickListener<Emoticon> {
-            if (it is DeleteEmoticon) {
-                SimpleCommonUtils.delClick(emoticonsBoard.etChat)
-            } else if (it is PlaceHoldEmoticon) { // do nothing
-            } else if (it is BigEmoticon) {
-//                sendImage(emoticon.uri)
-            } else {
-                val content = it.code
-                if (!TextUtils.isEmpty(content)) {
+            }
+            else -> {
+                val content: String? = it.code
+                if (!content.isNullOrEmpty()) {
                     val index: Int = emoticonsBoard.etChat.selectionStart
                     val editable: Editable = emoticonsBoard.etChat.text
                     editable.insert(index, content)
                 }
             }
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chat_message)
-        init()
-
-    }
-
-    fun getEmoji(context: Context): EmoticonPack<Emoticon> {
-        val emojiArray = mutableListOf<Emoticon>()
-        DefEmoticons.sEmojiArray.take(60).mapTo(emojiArray) {
-            val emoticon = Emoticon()
-            emoticon.code = it.emoji
-            emoticon.uri = context.getResourceUri(it.icon)
-            return@mapTo emoticon
         }
-        val pack = EmoticonPack<Emoticon>()
-        pack.emoticons = emojiArray
-        pack.iconUri = context.getResourceUri(R.drawable.icon_emoji)
-        val factory = DeleteBtnPageFactory<Emoticon>()
-        factory.deleteIconUri = context.getResourceUri(R.drawable.icon_del)
-        factory.line = 3
-        factory.row = 7
-        pack.pageFactory = factory
-        return pack
     }
 
-    fun init() {
-        val list = getEmoji(this)
-        val packs = mutableListOf<EmoticonPack<Emoticon>>();
-        packs.add(list)
-        val adapter = EmoticonPacksAdapter(packs)
+
+    override fun initView(savedInstanceState: Bundle?) {
+        mFriendId = intent.getStringExtra("friendId")
+        mFriendName = intent.getStringExtra("friendName")
+        mUserName = intent.getStringExtra("userName")
+        mUserAvatar = intent.getStringExtra("userAvatar")
+        LogUtils.i("mFriendId=$mFriendId")
+        LogUtils.i("mFriendName=$mFriendName")
+        tvFriendName.text = mFriendName
+        initRecyclerView()
+        initChatBoard()
+        initLiveDataObserver()
+        mViewModel.init(mUserName, mFriendName, mUserAvatar)
+    }
+
+    /**
+     * 初始化环信的数据
+     * 根据聊天的id加载会话信息
+     */
+    private fun initRecyclerView() {
+        //下拉刷新
+        swipeRefreshLayout.setOnRefreshListener {
+            mViewModel.loadMoreMessage()
+        }
+        mAdapter = ChatMessageAdapter(mChatMultipleItemList, mUserAvatar)
+        recyclerView.layoutManager = LinearLayoutManager(this).apply {
+            stackFromEnd = true
+            reverseLayout = true
+        }
+        recyclerView.adapter = mAdapter
+    }
+
+    /**
+     * 初始化底部聊天板
+     */
+    private fun initChatBoard() {
+        emoticonsBoard.etChat.addEmoticonFilter(EmojiFilter())
+        val adapter = AdapterUtils.getCommonAdapter(this, onEmoticonClickListener)
         emoticonsBoard.setAdapter(adapter)
         emoticonsBoard.addOnFuncKeyBoardListener(this)
         emoticonsBoard.addFuncView(SimpleAppsGridView(this))
-        adapter.clickListener = mEmojiListener
-        emoticonsBoard.etChat
-            .setOnSizeChangedListener { _, _, _, _ -> scrollToBottom() }
+        emoticonsBoard.getEtChat()
+            .setOnSizeChangedListener(OnSizeChangedListener { w, h, oldw, oldh -> scrollToBottom() })
         emoticonsBoard.btnSend.setOnClickListener {
-            sendBtnClick(emoticonsBoard.etChat.text.toString())
-            emoticonsBoard.etChat.setText("")
+            val content = emoticonsBoard.etChat.text.toString().trim()
+            if (content.isNotEmpty() && mFriendId != null) {
+                LogUtils.e("发送消息=$content")
+                emoticonsBoard.etChat.setText("")
+                mUserName?.let {
+                    mViewModel.sendTextMessage(mFriendId!!, content, it)
+                }
+            }
         }
-//        emoticonsBoard.btnVoice.setOnTouchListener { v, event ->
-//            return@setOnTouchListener  true
-//        }
-//        emoticonsBoard.btnVoice.setOnFocusChangeListener { v, hasFocus ->  }
-//        emoticonsBoard.btnVoice.setOnClickListener {  }
-        val width =
-            resources.getDimension(github.ll.emotionboard.R.dimen.bar_tool_btn_width).toInt()
-        val leftView = LayoutInflater.from(this)
-            .inflate(github.ll.emotionboard.R.layout.left_toolbtn, null)
-        var iv_icon =
-            leftView.findViewById<View>(github.ll.emotionboard.R.id.iv_icon) as ImageView
-        val imgParams =
-            LinearLayout.LayoutParams(
-                width,
-                RelativeLayout.LayoutParams.MATCH_PARENT
-            )
-        iv_icon.layoutParams = imgParams
-        iv_icon.setImageResource(R.mipmap.icon_add)
-        leftView.setOnClickListener {
-            Toast.makeText(
-                this,
-                "添加",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        emoticonsBoard.emoticonsToolBarView.addFixedToolItemView(leftView, false)
-
-        val rightView = LayoutInflater.from(this)
-            .inflate(github.ll.emotionboard.R.layout.right_toolbtn, null)
-        iv_icon =
-            rightView.findViewById<View>(github.ll.emotionboard.R.id.iv_icon) as ImageView
-        iv_icon.setImageResource(R.mipmap.icon_setting)
-        iv_icon.layoutParams = imgParams
-        rightView.setOnClickListener {
-            Toast.makeText(
-                this,
-                "设置",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        emoticonsBoard.emoticonsToolBarView.addFixedToolItemView(rightView, true)
     }
 
     override fun onFuncClose() {
     }
 
     override fun onFuncPop(height: Int) {
+        scrollToBottom()
     }
 
-    fun scrollToBottom() {
-        recyclerView.requestLayout()
-        recyclerView.post({
-            //滚动到底部
-
+    /**
+     * 注册监听事件
+     */
+    private fun initLiveDataObserver() {
+        mViewModel.mInitConversationLiveData.observe(this, Observer {
+            val list = it.map { emmMessage ->
+                ChatMultipleItem(emmMessage)
+            }.reversed()
+            mChatMultipleItemList.addAll(list)
+            mAdapter.notifyDataSetChanged()
+            recyclerView.scrollToPosition(0)
         })
+        mViewModel.refreshResultLiveData.observe(this, Observer {
+            swipeRefreshLayout.isRefreshing = false
+        })
+        mViewModel.haveMoreDataLiveData.observe(this, Observer {
+            val list = it.map { emmMessage ->
+                ChatMultipleItem(emmMessage)
+            }.reversed()
+            mChatMultipleItemList.addAll(list)
+            mAdapter.notifyDataSetChanged()
+            recyclerView.post {
+                recyclerView.smoothScrollBy(0, -200)
+            }
+        })
+        //发送消息成功
+        mViewModel.sendMessageSuccessLiveData.observe(this, Observer {
+            val item = ChatMultipleItem(it)
+            mChatMultipleItemList.add(0, item)
+            mAdapter.notifyDataSetChanged()
+        })
+        //接收到消息
+        mViewModel.receiveMessageLiveData.observe(this, Observer {
+            val item = ChatMultipleItem(it)
+            mChatMultipleItemList.add(0, item)
+            mAdapter.notifyDataSetChanged()
+        })
+    }
+
+    /**
+     * 滚动到底部
+     */
+    private fun scrollToBottom() {
+        recyclerView.post { recyclerView.smoothScrollToPosition(0) }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
@@ -155,18 +181,16 @@ class ChatMessageActivity : AppCompatActivity(), FuncLayout.FuncKeyBoardListener
         } else super.dispatchKeyEvent(event)
     }
 
-    fun sendBtnClick(msg: String?) {
-        if (!TextUtils.isEmpty(msg)) {
-//            val bean = ImMsgBean()
-//            bean.setMsgType(ImMsgBean.CHAT_MSGTYPE_TEXT)
-//            bean.setContent(msg)
-//            sendMsg(bean)
-        }
+    override fun onResume() {
+        super.onResume()
+        mViewModel.addListener()
     }
 
     override fun onPause() {
         super.onPause()
         emoticonsBoard.reset()
+        mViewModel.removeListener()
     }
+
 
 }

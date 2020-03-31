@@ -30,8 +30,8 @@
             android:layout_height="match_parent"
             android:background="@null"
             android:hint="请输入校园网账号"
-            android:paddingStart="8dp"
             android:inputType="phone"
+            android:paddingStart="8dp"
             android:paddingLeft="8dp"
             android:textColorHint="@color/hintTextColor"
             android:textSize="15sp" />
@@ -55,6 +55,7 @@
             android:layout_height="match_parent"
             android:background="@null"
             android:hint="请输入密码"
+            android:inputType="textPassword"
             android:paddingStart="8dp"
             android:paddingLeft="8dp"
             android:textColorHint="@color/hintTextColor"
@@ -88,6 +89,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvBindAccount">
 
         <TextView
+            android:id="@+id/tvSchoolAccount"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
@@ -96,6 +98,7 @@
             android:paddingStart="8dp"
             android:paddingLeft="8dp"
             android:textColorHint="@color/hintTextColor"
+            android:textColor="@color/hintTextColor"
             android:textSize="15sp" />
 
         <View
@@ -107,12 +110,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        android:layout_marginBottom="10dp"
         android:text="校园网账号由通讯运营商开通相关业务后才能获取，若已开通无法获取，请联系在线客服"
         android:textColor="#999"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="10dp"
         app:layout_constraintTop_toBottomOf="@id/flAutoInputAccountParent"
 
         />

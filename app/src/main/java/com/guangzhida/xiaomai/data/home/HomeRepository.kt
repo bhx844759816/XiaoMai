@@ -1,10 +1,7 @@
 package com.guangzhida.xiaomai.data.home
 
 import com.guangzhida.xiaomai.base.BaseResult
-import com.guangzhida.xiaomai.model.AccountModel
-import com.guangzhida.xiaomai.model.SchoolInfoModel
-import com.guangzhida.xiaomai.model.SchoolModel
-import com.guangzhida.xiaomai.model.SchoolModelWrap
+import com.guangzhida.xiaomai.model.*
 import retrofit2.Call
 import java.util.concurrent.Callable
 
@@ -23,14 +20,14 @@ class HomeRepository(netWork: HomeNetWork) {
     /**
      * 认证
      */
-    suspend fun doAccountVerify(url: String, params: Map<String, String?>): String {
+    suspend fun doAccountVerify(url: String, params: Map<String, String?>): VerifyModel {
         return mNetWork.doAccountVerify(url, params)
     }
 
     /**
      * 退出认证
      */
-    suspend fun exitAccountVerify(url: String, params: Map<String, String?>): String {
+    suspend fun exitAccountVerify(url: String, params: Map<String, String?>): VerifyModel {
         return mNetWork.exitAccountVerify(url, params)
     }
 

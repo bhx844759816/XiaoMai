@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat.adapter;
+package com.guangzhida.xiaomai.view.chat;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,14 +13,13 @@ import com.guangzhida.xiaomai.R;
 
 import java.util.ArrayList;
 
-
-public class FuncsAdapter extends BaseAdapter {
+public class ChattingAppsAdapter extends BaseAdapter {
 
     private LayoutInflater inflater;
     private Context mContext;
-    private ArrayList<AppBean> mDdata = new ArrayList<AppBean>();
+    private ArrayList<AppBean> mDdata = new ArrayList<>();
 
-    public FuncsAdapter(Context context, ArrayList<AppBean> data) {
+    public ChattingAppsAdapter(Context context, ArrayList<AppBean> data) {
         this.mContext = context;
         this.inflater = LayoutInflater.from(context);
         if (data != null) {
@@ -45,10 +44,10 @@ public class FuncsAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+        ViewHolder viewHolder = null;
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            convertView = inflater.inflate(R.layout.adapter_chat_item_app, null);
+            convertView = inflater.inflate(R.layout.layout_chat_item_app_userdef, null);
             viewHolder.iv_icon = (ImageView) convertView.findViewById(R.id.iv_icon);
             viewHolder.tv_name = (TextView) convertView.findViewById(R.id.tv_name);
             convertView.setTag(viewHolder);

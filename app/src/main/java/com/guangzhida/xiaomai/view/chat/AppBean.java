@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat.adapter;
+package com.guangzhida.xiaomai.view.chat;
 
 public class AppBean {
 

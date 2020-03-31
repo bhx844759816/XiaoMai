@@ -43,7 +43,7 @@ public class EmoticonsBoard extends AutoHeightLayout implements View.OnClickList
 
     protected LayoutInflater inflater;
     protected ImageView btnVoiceOrText;
-    protected Button btnVoice;
+    protected TextView btnVoice;
     protected EmoticonsEditText emoticonsEditText;
     protected ImageView btnFace;
     protected RelativeLayout inputLayout;
@@ -75,7 +75,7 @@ public class EmoticonsBoard extends AutoHeightLayout implements View.OnClickList
 
     protected void initView() {
         btnVoiceOrText = ((ImageView) findViewById(R.id.btn_voice_or_text));
-        btnVoice = ((Button) findViewById(R.id.btn_voice));
+        btnVoice = ((TextView) findViewById(R.id.btn_voice));
         emoticonsEditText = ((EmoticonsEditText) findViewById(R.id.et_chat));
         btnFace = ((ImageView) findViewById(R.id.btn_face));
         inputLayout = ((RelativeLayout) findViewById(R.id.rl_input));
@@ -339,7 +339,7 @@ public class EmoticonsBoard extends AutoHeightLayout implements View.OnClickList
 
     public EmoticonsEditText getEtChat() { return emoticonsEditText; }
 
-    public Button getBtnVoice() { return btnVoice; }
+    public TextView getBtnVoice() { return btnVoice; }
 
     public TextView getBtnSend() {
         return btnSend;

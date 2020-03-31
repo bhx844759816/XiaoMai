@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_main.*
  */
 class MainActivity : AppCompatActivity() {
     private val mFragments = listOf(HomeFragment(),
-        ChatFragment(), UserFragment())
+        ChatFragment())
     private var mOldPos = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
