@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:ignore="smallSp">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@mipmap/icon_back" />
+
+
+    <ImageView
+        android:id="@+id/ivHeaderView"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:background="@mipmap/icon_default_header"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolBar" />
+
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#141414"
+        android:textSize="21sp"
+        app:layout_constraintLeft_toRightOf="@id/ivHeaderView"
+        app:layout_constraintTop_toTopOf="@id/ivHeaderView"
+        tools:text="大汉大汉大汉" />
+
+    <TextView
+        android:id="@+id/tvAccountId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="#6D6D6D"
+        android:textSize="9sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvName"
+        app:layout_constraintTop_toBottomOf="@id/tvName"
+        tools:text="账号ID：354653153" />
+
+    <TextView
+        android:id="@+id/tvSexAge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:textColor="#6D6D6D"
+        android:textSize="9sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvAccountId"
+        app:layout_constraintTop_toBottomOf="@id/tvAccountId"
+        tools:text="男 19岁" />
+
+    <View
+        android:id="@+id/viewSpace"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="30dp"
+        android:background="#fff2f2f2"
+        app:layout_constraintTop_toBottomOf="@id/tvSexAge" />
+
+    <RelativeLayout
+        android:id="@+id/rlSettingRemark"
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="15sp"
+        android:paddingRight="15sp"
+        app:layout_constraintTop_toBottomOf="@id/viewSpace">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置备注"
+            android:textColor="#141414"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvRemarkName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:drawableEnd="@mipmap/icon_right_arrow"
+            android:drawableRight="@mipmap/icon_right_arrow"
+            android:textColor="#141414"
+            android:textSize="14sp"
+            tools:text="小小" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/line"
+        style="@style/DividerLineTheme"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rlSettingRemark" />
+
+    <LinearLayout
+        android:id="@+id/llSignName"
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="15sp"
+        android:paddingRight="15sp"
+        app:layout_constraintTop_toBottomOf="@id/line">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="个性签名"
+            android:textColor="#141414"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvSignName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:textColor="#6D6D6D"
+            android:textSize="14sp"
+            tools:text="现在不努力，拿什么给自己未来" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSendMessage"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/shape_dialog_confirm_btn_bg"
+        android:gravity="center"
+        android:text="发送消息"
+        android:textColor="@color/white"
+        android:textSize="19sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/llSignName" />
+
+    <TextView
+        android:id="@+id/tvDeleteFriend"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/shape_fillet_corner_rectangle_empty_default"
+        android:gravity="center"
+        android:text="删除好友"
+        android:textColor="@color/colorAccent"
+        android:textSize="19sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvSendMessage"
+        app:layout_constraintRight_toRightOf="@id/tvSendMessage"
+        app:layout_constraintTop_toBottomOf="@id/tvSendMessage" />
+</androidx.constraintlayout.widget.ConstraintLayout>

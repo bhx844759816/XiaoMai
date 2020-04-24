@@ -1,9 +1,10 @@
 package com.guangzhida.xiaomai.base
 
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
@@ -11,7 +12,9 @@ import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.event.Message
+import com.guangzhida.xiaomai.utils.StatusBarTextUtils
 import com.guangzhida.xiaomai.utils.ToastUtils
+import com.jaeger.library.StatusBarUtil
 import java.lang.reflect.ParameterizedType
 
 @SuppressLint("Registered")
@@ -22,6 +25,9 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(layoutId())
+        StatusBarUtil.setColor(this,resources.getColor(R.color.white),0)
+//        StatusBarUtil.setColorNoTranslucent(this, resources.getColor(R.color.white))
+        StatusBarTextUtils.setLightStatusBar(this, true)
         createViewModel()
         initView(savedInstanceState)
         initListener()
@@ -72,7 +78,7 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity() {
                 .cornerRadius(8f)
                 .customView(R.layout.custom_progress_dialog_view, noVerticalPadding = true)
                 .lifecycleOwner(this)
-                .maxWidth(R.dimen.dialog_width)
+                .maxWidth(R.dimen.dialog_loading_width)
         }
         dialog?.show()
 
@@ -99,5 +105,21 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity() {
             mViewModel = ViewModelProvider(this).get(tClass) as VM
 
         }
+    }
+
+    fun checkPermission( permissions: List<String>): Boolean {
+        permissions.forEach {
+            val per = ContextCompat.checkSelfPermission(this, it);
+            if (PackageManager.PERMISSION_GRANTED != per) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    fun getStatusBarHeight():Int{
+        val resourceId: Int =
+            resources.getIdentifier("status_bar_height", "dimen", "android")
+        return resources.getDimensionPixelSize(resourceId)
     }
 }

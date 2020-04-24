@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
+import com.guangzhida.xiaomai.utils.LogUtils
 
 /**
  * 网络诊断Dialog
@@ -24,15 +25,18 @@ object NetworkCheckDialog {
             .cornerRadius(8f)
             .title(text = "网络诊断")
             .message(text = content)
-            .lifecycleOwner(owner)
+            .lifecycleOwner(owner).show {
+                setOnDismissListener {
+                    LogUtils.i("OnDismissListener ")
+                    dismissCallBack?.invoke()
+                }
+            }
         dialog?.setOnDismissListener {
-            dismissCallBack?.invoke()
+
+
         }
         dialog?.show()
 
     }
 
-    fun changeDialogMessage(message: String) {
-        dialog?.message(text = message)
-    }
 }

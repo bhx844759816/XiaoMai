@@ -43,7 +43,7 @@ class SearchSchoolActivity : BaseActivity<SearchSchoolViewModel>() {
                 chip.chipBackgroundColor = ColorStateList.valueOf(resources.getColor(R.color.white))
                 chip.chipStrokeWidth = 1f
                 chip.setOnClickListener {
-                    SPUtils.put(this, SEARCH_SCHOOL_KEY, schoolModel.name)
+
                     //注册的url
                     SPUtils.put(
                         this,

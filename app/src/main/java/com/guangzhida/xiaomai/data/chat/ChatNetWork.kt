@@ -3,9 +3,11 @@ package com.guangzhida.xiaomai.data.chat
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.http.RetrofitManager
 import com.guangzhida.xiaomai.model.ChatUserModel
+import com.guangzhida.xiaomai.model.ServiceProblemModel
+import okhttp3.MediaType
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.Body
-import retrofit2.http.Field
+import java.io.File
 
 /**
  * 聊天的网络请求数据
@@ -51,15 +53,33 @@ class ChatNetWork {
     /**
      * 发送图片或者语音
      */
-//    suspend fun sendPicOrVoiceMsg(): BaseResult<String> {
-//       return mService.sendPicOrVoiceMsg(RequestBody.create())
-//    }
+    suspend fun sendPicOrVoiceMsg(
+        friendId: String,
+        fileType: String,
+        file: File
+    ): BaseResult<String> {
+        val body = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+        val part = MultipartBody.Part.createFormData("file", file.name, body)
+        val friendBody = RequestBody.create(MediaType.parse("text/plain"), friendId)
+        val fileTypeBody = RequestBody.create(MediaType.parse("text/plain"), fileType)
+        return mService.sendPicOrVoiceMsg(part, friendBody, fileTypeBody)
+    }
+
     /**
      * 根据昵称和手机号获取用户信息
      */
-    suspend fun getUserInfoByNickNameOrPhone(nickName: String = "",phone: String = ""): BaseResult<List<ChatUserModel>>{
-        return mService.getUserInfoByNickNameOrPhone(nickName,phone)
+    suspend fun getUserInfoByNickNameOrPhone(
+        nickName: String = "",
+        phone: String = ""
+    ): BaseResult<List<ChatUserModel>> {
+        return mService.getUserInfoByNickNameOrPhone(nickName, phone)
     }
+
+    suspend fun getServiceProblemList(): BaseResult<List<ServiceProblemModel>> {
+
+        return mService.getServiceProblemList()
+    }
+
     companion object {
         @Volatile
         private var netWork: ChatNetWork? = null

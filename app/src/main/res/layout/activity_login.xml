@@ -1,159 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/white"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/idCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="18dp"
         android:background="@mipmap/icon_cancel"
-        />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/idLogoIv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="90dp"
+        android:background="@mipmap/icon_logo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="90dp"
-        android:background="@mipmap/icon_login_logo"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
+
     <FrameLayout
         android:id="@+id/idInputPhoneParent"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        app:layout_constraintTop_toBottomOf="@id/idLogoIv"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="40dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginTop="10dp">
+        app:layout_constraintTop_toBottomOf="@id/idLogoIv">
+
         <EditText
             android:id="@+id/inputPhone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:drawableLeft="@mipmap/icon_login_phone"
             android:background="@null"
+            android:drawableLeft="@mipmap/icon_login_phone"
             android:drawablePadding="8dp"
             android:hint="请输入手机号"
             android:textColor="@color/defaultTextColor"
-            android:textColorHint="@color/hintTextColor"
-            />
-        <View style="@style/DividerLineTheme"
-            android:layout_gravity="bottom"
-            />
+            android:textColorHint="@color/hintTextColor" />
+
+        <View
+            style="@style/DividerLineTheme"
+            android:layout_gravity="bottom" />
     </FrameLayout>
 
     <FrameLayout
         android:id="@+id/idInputPassWordParent"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        app:layout_constraintTop_toBottomOf="@id/idInputPhoneParent"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="40dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginTop="10dp">
+        app:layout_constraintTop_toBottomOf="@id/idInputPhoneParent">
+
         <EditText
             android:id="@+id/inputPassword"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:drawableLeft="@mipmap/icon_login_password"
             android:background="@null"
+            android:drawableLeft="@mipmap/icon_login_password"
             android:drawablePadding="8dp"
             android:hint="请输入登录密码"
+            android:inputType="textPassword"
             android:textColor="@color/defaultTextColor"
-            android:textColorHint="@color/hintTextColor"
-            />
-        <View style="@style/DividerLineTheme"
-            android:layout_gravity="bottom"
-            />
+            android:textColorHint="@color/hintTextColor" />
+
+        <View
+            style="@style/DividerLineTheme"
+            android:layout_gravity="bottom" />
+
         <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/cbPassword"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
             android:layout_gravity="right|center_vertical"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp" />
+            android:layout_marginRight="8dp"
+            android:background="@drawable/select_password_check_bg"
+            android:button="@null"
+            android:checked="false" />
     </FrameLayout>
 
     <TextView
         android:id="@+id/idForgetPasswordTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/idInputPassWordParent"
-        app:layout_constraintRight_toRightOf="@id/idInputPassWordParent"
         android:layout_marginTop="10dp"
         android:text="@string/forgetPassword"
-        />
+        app:layout_constraintRight_toRightOf="@id/idInputPassWordParent"
+        app:layout_constraintTop_toBottomOf="@id/idInputPassWordParent" />
 
     <TextView
         android:id="@+id/idLoginTv"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:background="@drawable/shape_half_circle_rectangle"
-        app:layout_constraintTop_toBottomOf="@id/idForgetPasswordTv"
-        app:layout_constraintLeft_toLeftOf="@id/idInputPassWordParent"
-        app:layout_constraintRight_toRightOf="@id/idInputPassWordParent"
         android:layout_marginTop="15dp"
+        android:background="@drawable/shape_half_circle_rectangle"
         android:gravity="center"
+        android:text="@string/login"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:text="@string/login"
-        />
+        app:layout_constraintLeft_toLeftOf="@id/idInputPassWordParent"
+        app:layout_constraintRight_toRightOf="@id/idInputPassWordParent"
+        app:layout_constraintTop_toBottomOf="@id/idForgetPasswordTv" />
 
     <TextView
         android:id="@+id/idCreateAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:text="@string/createAccount"
+        android:textSize="15sp"
         app:layout_constraintLeft_toLeftOf="@id/idLoginTv"
         app:layout_constraintRight_toRightOf="@id/idLoginTv"
-        app:layout_constraintTop_toBottomOf="@id/idLoginTv"
-        android:textSize="15sp"
-        android:layout_marginTop="20dp"
-        />
+        app:layout_constraintTop_toBottomOf="@id/idLoginTv" />
 
 
     <TextView
         android:id="@+id/or"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
         android:text="@string/or"
+        android:textSize="15sp"
         app:layout_constraintLeft_toLeftOf="@id/idCreateAccount"
         app:layout_constraintRight_toRightOf="@id/idCreateAccount"
-        app:layout_constraintTop_toBottomOf="@id/idCreateAccount"
-        android:textSize="15sp"
-        android:layout_marginTop="15dp"
-        />
+        app:layout_constraintTop_toBottomOf="@id/idCreateAccount" />
+
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="15dp"
+        android:background="@drawable/shape_half_circle_empty_rectangle"
         app:layout_constraintLeft_toLeftOf="@id/idLoginTv"
         app:layout_constraintRight_toRightOf="@id/idLoginTv"
-        android:background="@drawable/shape_half_circle_empty_rectangle"
         app:layout_constraintTop_toBottomOf="@id/or">
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@mipmap/icon_login_wx"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="18dp"
-            android:layout_marginLeft="18dp" />
+            android:layout_marginLeft="18dp"
+            android:background="@mipmap/icon_login_wx" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/wxAccountLogin"
             android:layout_gravity="center"
-            android:textSize="16sp"
-            />
+            android:text="@string/wxAccountLogin"
+            android:textSize="16sp" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

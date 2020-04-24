@@ -2,14 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:paddingBottom="10dp">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
-        android:text="绑定账号"
+        android:text="请绑定账号"
         android:textColor="#565656"
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -55,7 +58,6 @@
             android:layout_height="match_parent"
             android:background="@null"
             android:hint="请输入密码"
-            android:inputType="textPassword"
             android:paddingStart="8dp"
             android:paddingLeft="8dp"
             android:textColorHint="@color/hintTextColor"
@@ -71,7 +73,8 @@
         android:layout_width="120dp"
         android:layout_height="45dp"
         android:layout_marginTop="20dp"
-        android:background="@mipmap/icon_bind_account_bg"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/shape_half_circle_rectangle"
         android:gravity="center"
         android:text="立即绑定"
         android:textColor="@color/white"
@@ -80,43 +83,78 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/flPasswordParent" />
 
-    <FrameLayout
-        android:id="@+id/flAutoInputAccountParent"
+    <LinearLayout
+        android:id="@+id/llSchoolAccountParent"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_margin="20dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvBindAccount">
 
         <TextView
-            android:id="@+id/tvSchoolAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="您的校园网账号对应的运营商账号为"
+            android:textColor="#999" />
+
+        <LinearLayout
+            android:id="@+id/flAutoInputAccountParent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@null"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
             android:gravity="center_vertical"
-            android:hint="校园卡账号绑定后自动填入"
-            android:paddingStart="8dp"
-            android:paddingLeft="8dp"
-            android:textColorHint="@color/hintTextColor"
-            android:textColor="@color/hintTextColor"
-            android:textSize="15sp" />
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvBindAccount">
 
-        <View
-            style="@style/DividerLineTheme"
-            android:layout_gravity="bottom" />
-    </FrameLayout>
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="11">
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="校园网账号由通讯运营商开通相关业务后才能获取，若已开通无法获取，请联系在线客服"
-        android:textColor="#999"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/flAutoInputAccountParent"
+                <EditText
+                    android:id="@+id/tvSchoolAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:gravity="center_vertical"
+                    android:hint="校园卡账号绑定后自动填入"
+                    android:paddingStart="8dp"
+                    android:paddingLeft="8dp"
+                    android:textColor="@color/hintTextColor"
+                    android:textColorHint="@color/hintTextColor"
+                    android:textSize="15sp" />
 
-        />
+                <View
+                    style="@style/DividerLineTheme"
+                    android:layout_gravity="bottom" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/shape_half_circle_rectangle"
+                android:paddingLeft="15dp"
+                android:paddingTop="8dp"
+                android:paddingRight="15dp"
+                android:paddingBottom="8dp"
+                android:text="@string/confirm"
+                android:textColor="@color/white"
+                android:textSize="15sp"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

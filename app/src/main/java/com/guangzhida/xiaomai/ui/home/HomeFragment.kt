@@ -3,101 +3,116 @@ package com.guangzhida.xiaomai.ui.home
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.text.InputType
+import android.view.View
+import android.widget.TextView
 import androidx.lifecycle.Observer
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.callbacks.onPreShow
+import com.afollestad.materialdialogs.input.getInputField
+import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.guangzhida.xiaomai.*
 import com.guangzhida.xiaomai.base.BaseFragment
-import com.guangzhida.xiaomai.dialog.BindAccountDialog
-import com.guangzhida.xiaomai.dialog.NetworkCheckDialog
-import com.guangzhida.xiaomai.dialog.QueryBalanceDialog
-import com.guangzhida.xiaomai.dialog.SelectSchoolDialog
+import com.guangzhida.xiaomai.dialog.*
 import com.guangzhida.xiaomai.event.netChangeLiveData
+import com.guangzhida.xiaomai.event.schoolModelChangeLiveData
+import com.guangzhida.xiaomai.event.userModelChangeLiveData
 import com.guangzhida.xiaomai.ext.loadCircleImage
+import com.guangzhida.xiaomai.ext.loadImage
 import com.guangzhida.xiaomai.http.BASE_URL
+import com.guangzhida.xiaomai.ktxlibrary.ext.*
 import com.guangzhida.xiaomai.model.AccountModel
 import com.guangzhida.xiaomai.model.SchoolModel
 import com.guangzhida.xiaomai.ui.WebActivity
+import com.guangzhida.xiaomai.ui.chat.ServiceActivity
 import com.guangzhida.xiaomai.ui.home.viewmodel.HomeViewModel
 import com.guangzhida.xiaomai.ui.login.LoginActivity
+import com.guangzhida.xiaomai.ui.user.UserActivity
 import com.guangzhida.xiaomai.utils.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.layout_home_center_grid.*
-import pub.devrel.easypermissions.EasyPermissions
+import permissions.dispatcher.NeedsPermission
+import permissions.dispatcher.RuntimePermissions
 import java.lang.StringBuilder
 
 /**
  * 首页校园网页面
  */
-class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCallbacks {
+@RuntimePermissions
+class HomeFragment : BaseFragment<HomeViewModel>() {
     private val mAccountInfoMaps = mutableMapOf<String, String>()
-    private val mNetworkCheckSb = StringBuilder()
-    private var isNetError = false
     private var mAccountModel: AccountModel? = null
     private var mSchoolModelList: List<SchoolModel>? = null
     private var mSchoolModel: SchoolModel? = null
-
-    private lateinit var schoolName: String
+    private var mBindAccount: String? = null
+    private var mBindAccountPassword: String? = null
+    private var isModifyPackage = false
+    //存储本地绑定的账号信息
+    private var mSchoolAccountInfoGson by Preference(Preference.SCHOOL_NET_ACCOUNT_GSON, "")
+    //存储学校信息
+    private var mSchoolInfoGson by Preference(Preference.SCHOOL_INFO_GSON, "")
+    private var mSchoolSelectInfoGson by Preference(Preference.SCHOOL_SELECT_INFO_GSON, "")
+    private val mGson by lazy {
+        Gson()
+    }
 
     override fun layoutId(): Int = R.layout.fragment_home
 
     override fun initView(savedInstanceState: Bundle?) {
-        for (index in 0..3) {
-            val view = LayoutInflater.from(context).inflate(R.layout.layout_home_loop_ad, null)
-            idViewFlipper.addView(view)
-        }
-        idViewFlipper.flipInterval = 2000
-        idViewFlipper.startFlipping()
         initListener()
         registerLiveData()
-        requestPermission()
+        showUserInfo()
         //获取账户信息
-        val account = SPUtils.get(context, BIND_ACCOUNT_CARD_KEY, "") as String
-        if (account.isNotEmpty()) {
-            viewModel.getAccountInfo(account)
-        }
-        //获取选中的学校
-        schoolName = SPUtils.get(context, SEARCH_SCHOOL_KEY, "") as String
-        if (schoolName.isNotEmpty()) {
-            viewModel.getSchoolInfo(schoolName)
-        }
-        if (BaseApplication.instance().userModel != null) {
-            ivMessageNotify.loadCircleImage(
-                BASE_URL.substring(
-                    0,
-                    BASE_URL.length - 1
-                ) + BaseApplication.instance().userModel!!.headUrl
-            )
+        mAccountModel =
+            mGson.fromJson<AccountModel>(mSchoolAccountInfoGson, AccountModel::class.java)
+        //获取本地存储的学校信息
+        mSchoolModelList = mGson.fromJson<List<SchoolModel>>(mSchoolInfoGson, object :
+            TypeToken<List<SchoolModel>>() {
+        }.type)
+        //获取选择的学校信息
+        mSchoolModel = mGson.fromJson<SchoolModel>(mSchoolSelectInfoGson, SchoolModel::class.java)
+        viewModel.getAllSchoolInfo()
+        mAccountModel?.let { accountModel ->
+            viewModel.getAccountInfo(accountModel.user)
         }
     }
 
-    private fun initData() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initDataWithPermissionCheck()
+    }
+
+    @NeedsPermission(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+    fun initData() {
         val isWifiConnect = NetworkUtils.isWifiConnected(context)
         val mWifiName = NetworkUtils.getWifiName(activity)
         val mIpAddress = NetworkUtils.getIPAddress(true)
         mAccountInfoMaps["wifi名称"] = ""
         mAccountInfoMaps["IP地址"] = ""
-        mAccountInfoMaps["账号"] = ""
-        mAccountInfoMaps["使用套餐"] = ""
-        mAccountInfoMaps["到期时间"] = ""
+        mAccountInfoMaps["账号"] = mAccountModel?.user ?: ""
+        mAccountInfoMaps["使用套餐"] = mAccountModel?.servername ?: ""
+        mAccountInfoMaps["到期时间"] = mAccountModel?.expiretime ?: ""
+        tvSchoolName.text = mSchoolModel?.name ?: "请选择您的学校"
         if (isWifiConnect) {
             mAccountInfoMaps["wifi名称"] = mWifiName
             mAccountInfoMaps["IP地址"] = mIpAddress
         }
-        updateUserInfo()
+        checkNotifyRemind()
+        updateTopCardInfo()
+        checkAccountState()
     }
 
-    private fun requestPermission() {
-        if (EasyPermissions.hasPermissions(context, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            initData()
-        } else {
-            EasyPermissions.requestPermissions(
-                this, "应用程序需要读取wifi名称需要定位权限",
-                0x01, Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        }
-    }
-
+    /**
+     * 接口监听
+     */
     override fun initListener() {
         //绑定账号
         idBindAccount.setOnClickListener {
@@ -106,9 +121,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 showSelectSchoolDialog()
             } else {
                 showBindAccountDialog()
-                //获取账号信息
             }
-
         }
         //用户注册
         llRegister.setOnClickListener {
@@ -116,10 +129,12 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 ToastUtils.toastShort("请先选择学校")
                 showSelectSchoolDialog()
             } else {
-                val intent = Intent(context, WebActivity::class.java)
-                intent.putExtra("url", mSchoolModel!!.regiestNewUser)
-                intent.putExtra("type", "AccountRegister")
-                startActivity(intent)
+                startKtxActivity<WebActivity>(
+                    values = listOf(
+                        Pair("url", mSchoolModel!!.regiestNewUser),
+                        Pair("type", "AccountRegister")
+                    )
+                )
             }
         }
         //连接wifi
@@ -134,13 +149,14 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 } else {
                     showSelectSchoolDialog()
                 }
-
             }
-
         }
-        //消息中心
+        //个人中心
         ivMessageNotify.setOnClickListener {
-            startActivity(Intent(context, MessageCenterActivity::class.java))
+            val intent = Intent(context, UserActivity::class.java)
+            intent.putExtra("AccountModel", Gson().toJson(mAccountModel))
+            intent.putExtra("SchoolModel", Gson().toJson(mSchoolModel))
+            startActivity(intent)
         }
         //查询余额
         llQueryBalance.setOnClickListener {
@@ -153,71 +169,72 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         //账户充值
         llAccountRecharge.setOnClickListener {
             if (checkAccountAndSchoolIsExit()) {
-                val intent = Intent(context, WebActivity::class.java)
-                intent.putExtra(
-                    "url",
-                    "http://yonghu.guangzhida.cn/lfradius/home.php?a=userlogin&c=login"
-                )
-                intent.putExtra("type", "AccountRecharge")
-                intent.putExtra(
-                    "params",
-                    "username=${mAccountModel?.user}&password=${mAccountModel?.pass}"
-                )
-                startActivity(intent)
+                jumpToAccountRecharge()
             }
         }
         //套餐修改
         llAccountPackageModify.setOnClickListener {
             if (checkAccountAndSchoolIsExit()) {
-                val intent = Intent(context, WebActivity::class.java)
-                intent.putExtra(
-                    "url",
-                    "http://yonghu.guangzhida.cn/lfradius/home.php?a=userlogin&c=login"
+                isModifyPackage = true
+                startKtxActivityForResult<AccountPackageModifyActivity>(
+                    requestCode = 0x01, values = listOf(
+                        Pair("findSecret", mSchoolModel!!.findSecret),
+                        Pair("AccountModel", mAccountModel!!)
+                    )
                 )
-                intent.putExtra("type", "AccountRecharge")
-                intent.putExtra(
-                    "params",
-                    "username=${mAccountModel?.user}&password=${mAccountModel?.pass}"
-                )
-                startActivity(intent)
             }
-
         }
         //关于密码
         aboutPassword.setOnClickListener {
             if (checkAccountAndSchoolIsExit()) {
-                val intent = Intent(context, WebActivity::class.java)
-                intent.putExtra(
-                    "url",
-                    mSchoolModel?.findPwd
-                )
-                intent.putExtra("type", "ForgetPassword")
-                startActivity(intent)
+                activity?.let {
+                    AboutPasswordDialog.showDialog(it, it) { index ->
+                        if (index == 0) {
+                            ModifyPasswordDialog.showDialog(it, it) { _, newPsd ->
+                                mBindAccountPassword = newPsd
+                                viewModel.modifyPassword(
+                                    mAccountModel!!.user,
+                                    newPsd,
+                                    mSchoolModel?.findSecret ?: ""
+                                )
+                            }
+                        } else if (index == 1) {
+                            val intent = Intent(context, WebActivity::class.java)
+                            intent.putExtra("url", mSchoolModel?.findPwd)
+                            intent.putExtra("type", "ForgetPassword")
+                            startActivity(intent)
+                        }
+                    }
+                }
             }
         }
         //我的客服
         llService.setOnClickListener {
-            startActivity(Intent(context, LoginActivity::class.java))
+            if (BaseApplication.instance().mUserModel == null) {
+                activity?.let {
+                    MaterialDialog(it)
+                        .title(text = "提示登录")
+                        .message(text = "请登录后才能使用该功能")
+                        .positiveButton(text = "确定") {
+                            startActivity(Intent(context, LoginActivity::class.java))
+                        }.negativeButton(text = "取消") { dialog ->
+                            dialog.dismiss()
+                        }
+                        .lifecycleOwner(it)
+                        .show()
+                }
+
+            } else {
+                startActivity(Intent(context, ServiceActivity::class.java))
+            }
         }
         //网络诊断
         llNetworkDiagnosis.setOnClickListener {
-            if (NetworkUtils.isConnected(context)) {
-                mNetworkCheckSb.clear()
-                mNetworkCheckSb.append("提示：当前数据连接为")
-                    .append(NetworkUtils.getCurrentNetworkType(context))
-                    .append("\n")
-                    .append("接入点MAC:")
-                    .append(NetworkUtils.getMac())
-                    .append("\n")
-                activity?.let {
-                    isNetError = false
-                    NetworkCheckDialog.showDialog(it, it, mNetworkCheckSb.toString()) {
-                        viewModel.cancelNetWorkCheck()
-                    }
-                    viewModel.doNetWorkCheck()
+            activity?.let {
+                NetworkCheckDialog2.showDialog(it, it) {
+                    viewModel.cancelNetWorkCheck()
                 }
-            } else {
-                ToastUtils.toastShort("请先连接网络")
+                viewModel.doNetWorkCheck(NetworkUtils.isWifiConnected(context))
             }
         }
         //一键认证
@@ -230,7 +247,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 val url = mSchoolModel!!.keyAuthentication
                 val params = mapOf(
                     "wlanuserip" to NetworkUtils.getIPAddress(true),
-                    "wlanapmac" to NetworkUtils.getLocalMacAddressFromIp(),
+                    "wlanapmac" to NetworkUtils.getMac(),
                     "username" to mAccountModel?.user,
                     "password" to mAccountModel?.pass,
                     "line" to "2"
@@ -249,50 +266,9 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 val url = mSchoolModel!!.logoutLogin
                 val params = mapOf(
                     "wlanuserip" to NetworkUtils.getIPAddress(true),
-                    "wlanapmac" to NetworkUtils.getLocalMacAddressFromIp()
+                    "wlanapmac" to NetworkUtils.getMac()
                 )
                 viewModel.quitAccountVerify(url, params = params)
-            }
-        }
-    }
-
-    /**
-     * 权限被拒绝
-     */
-    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>?) {
-        requestPermission()
-    }
-
-    /**
-     *权限申请通过
-     */
-    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>?) {
-        requestPermission()
-    }
-
-    /**
-     * 权限回调结果
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, context)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                REQUEST_CODE_SELECT_SCHOOL -> {
-                    mAccountInfoMaps["所在院校"] = SPUtils.get(context, SEARCH_SCHOOL_KEY, "") as String
-                    mAccountInfoMaps["所在院校"]?.let {
-                        viewModel.getSchoolInfo(it)
-                    }
-                    updateUserInfo()
-                }
             }
         }
     }
@@ -303,18 +279,11 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
     private fun registerLiveData() {
         //获取账号信息
         viewModel.mAccountModelData.observe(this, Observer {
-            SPUtils.put(context, BIND_ACCOUNT_CARD_KEY, it.user)
             mAccountModel = it
             mAccountInfoMaps["账号"] = it.user
             mAccountInfoMaps["使用套餐"] = it.servername
             mAccountInfoMaps["到期时间"] = it.expiretime
-            tvSchoolName.text = it.name
-            updateUserInfo()
-        })
-        //获取到学校信息
-        viewModel.mSchoolModelData.observe(this, Observer {
-            LogUtils.i("SchoolModel=$it")
-            mSchoolModel = it
+            updateTopCardInfo()
         })
         //绑定账号结果
         viewModel.bindResult.observe(this, Observer {
@@ -328,56 +297,63 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 1 -> {//绑定成功
                     ToastUtils.toastShort("绑定成功")
                     BindAccountDialog.dismissDialog()
+                    checkAccountState2()
+                }
+                -2 -> {
+                    ToastUtils.toastShort("网络错误")
                 }
             }
         })
         //网络检测结果
         viewModel.netWorkCheckResult.observe(this, Observer {
-            val str = when (it.first) {
-                "内网" -> {
-                    buildString {
-                        append("内网ping值:")
-                        append(it.second.averageDelay)
-                        append("\n")
-                        append("丢包率:")
-                        append(it.second.lossPackageRate)
-                        append("\n")
-                        if (!it.second.success) {
-                            isNetError = true
-                            append("内网网线or环路or交换机---疑似问题\n")
-                        }
-                    }
+            val mNetworkCheckSb = StringBuilder()
+            mNetworkCheckSb.append("提示：当前数据连接为")
+                .append(NetworkUtils.getCurrentNetworkType(context))
+                .append("\n")
+                .append("接入点MAC:")
+                .append(NetworkUtils.getWifiMAC(context))
+                .append("\n\n")
+            mNetworkCheckSb.append(it)
+            activity?.let { activity ->
+                NetworkCheckDialog.showDialog(activity, activity, mNetworkCheckSb.toString()) {
+                    viewModel.cancelNetWorkCheck()
                 }
-                "外网" -> {
-                    buildString {
-                        append("外网ping值:")
-                        append(it.second.averageDelay)
-                        append("\n")
-                        append("丢包率:")
-                        append(it.second.lossPackageRate)
-                        append("\n")
-                        if (!it.second.success) {
-                            isNetError = true
-                            append("路由器和wan口线路---疑似问题\n")
-                        }
-                    }
-                }
-                "公网" -> {
-                    if (!it.second.success) {
-                        isNetError = true
-                        "路由器和wan口线路---疑似问题\n"
-                    } else {
-                        if (isNetError) {
-                            "网络异常，请联系在线客服\n"
-                        } else {
-                            "检测网络正常\n"
-                        }
-                    }
-                }
-                else -> ""
             }
-            mNetworkCheckSb.append(str)
-            NetworkCheckDialog.changeDialogMessage(mNetworkCheckSb.toString())
+        })
+        //网络检测结果
+        viewModel.netWorkCheckResult2.observe(this, Observer {
+            LogUtils.i("网络检测结果=$it")
+            NetworkCheckDialog2.setNetworkCheckContent(it)
+        })
+        //一键认证结果
+        viewModel.verifyResultData.observe(this, Observer {
+            if (it) {
+                ToastUtils.toastShort("认证成功")
+            } else {
+                ToastUtils.toastShort("认证失败")
+            }
+        })
+        //退出认证
+        viewModel.ourtVerifyResultData.observe(this, Observer {
+            if (it) {
+                ToastUtils.toastShort("退出认证成功")
+            } else {
+                ToastUtils.toastShort("退出认证失败")
+            }
+        })
+        //获取校园列表
+        viewModel.mSchoolModelListData.observe(this, Observer {
+            mSchoolModelList = it
+        })
+        //修改密码成功
+        viewModel.modifyPasswordResultData.observe(this, Observer {
+            if (it) {
+                ModifyPasswordDialog.dismissDialog()
+            }
+        })
+        //绑定校园卡结果
+        viewModel.bindSchoolAccountResultData.observe(this, Observer {
+
         })
         //网络状态切换
         netChangeLiveData.observe(this, Observer {
@@ -390,28 +366,148 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 mAccountInfoMaps["wifi名称"] = ""
                 mAccountInfoMaps["IP地址"] = ""
             }
-            updateUserInfo()
+            updateTopCardInfo()
         })
+        //用户信息改变
+        userModelChangeLiveData.observe(this, Observer {
+            showUserInfo()
+        })
+        //学校信息改变
+        schoolModelChangeLiveData.observe(this, Observer {
+            mSchoolModel = it
+            tvSchoolName.text = mSchoolModel?.name
+        })
+    }
 
-        viewModel.verifyResultData.observe(this, Observer {
-            if (it) {
-                ToastUtils.toastShort("认证成功")
+    /**
+     * 更新用户信息
+     */
+    private fun showUserInfo() {
+        if (BaseApplication.instance().mUserModel != null) {
+            //加载头像
+            ivMessageNotify.loadCircleImage(
+                BASE_URL.substring(
+                    0,
+                    BASE_URL.length - 1
+                ) + BaseApplication.instance().mUserModel!!.headUrl
+            )
+        } else {
+            ivMessageNotify.loadImage(
+                R.mipmap.icon_default_header,
+                R.mipmap.icon_default_header
+            )
+        }
+    }
+
+    /**
+     * 检测账号的状态 是否购买套餐，是否套餐过期
+     */
+    private fun checkAccountState() {
+        mAccountModel?.let { accountModel ->
+            if (accountModel.servername.isEmpty()) {
+                showNoSetMealDialog("您未购买套餐,请先购买套餐")
             } else {
-                ToastUtils.toastShort("认证失败")
+                if (accountModel.proxy_user == "" && accountModel.servername.contains("中国")) {
+                    //提示是否是校园卡账号然后进行绑定
+                    showBindSchoolAccountDialog()
+                } else {
+                    val timeSpace = DateUtils.getTwoDay(
+                        mAccountModel!!.expiretime,
+                        DateUtils.dateToStr(DateUtils.getNow())
+                    )
+                    if (timeSpace < 0) {
+                        showNoSetMealNotifyView()
+                    } else {
+                        llNotifyParent.gone()
+                    }
+                }
             }
-        })
-        //t
-        viewModel.ourtVerifyResultData.observe(this, Observer {
-            if (it) {
-                ToastUtils.toastShort("退出认证成功")
+        }
+    }
+
+    /**
+     * 展示套餐过期的通知
+     */
+    private fun showNoSetMealNotifyView() {
+        llNotifyParent.visible()
+        val textView = TextView(context)
+        textView.setTextColor(Color.parseColor("#666666"))
+        textView.textSize = 10f
+        textView.text = "您的套餐已到期，请及时续费 ！！！"
+        textView.clickN {
+            jumpToAccountRecharge()
+        }
+        viewFlipper.addView(textView)
+    }
+
+    private fun checkAccountState2() {
+        mAccountModel?.let { accountModel ->
+            if (accountModel.servername.isEmpty()) {
+                showNoSetMealDialog("您未购买套餐,请先购买套餐")
             } else {
-                ToastUtils.toastShort("退出认证失败")
+                val timeSpace = DateUtils.getTwoDay(
+                    mAccountModel!!.expiretime,
+                    DateUtils.dateToStr(DateUtils.getNow())
+                )
+                if (timeSpace < 0) {
+                    showNoSetMealDialog("您的套餐已过期,请先充值")
+                    showNoSetMealNotifyView()
+                } else {
+                    //判断通知是否打开提示用户打开通知
+                    if (accountModel.servername.contains("中国")) {
+                        //提示是否是校园卡账号然后进行绑定
+                        showBindSchoolAccountDialog()
+                    }
+                }
             }
-        })
-        viewModel.mSchoolModelListData.observe(this, Observer {
-            mSchoolModelList = it
-            showSelectSchoolDialog()
-        })
+        }
+    }
+
+    /**
+     * 检测通知提醒
+     */
+    private fun checkNotifyRemind() {
+        activity?.let {
+            if (!it.checkNotifyIsEnable()) {
+                NotifyRemindDialog.showDialog(it, it)
+            }
+        }
+    }
+
+    /**
+     * 展示绑定校园卡账号的对话框
+     */
+    private fun showBindSchoolAccountDialog() {
+        activity?.let {
+            var result = ""
+            MaterialDialog(it)
+                .cancelOnTouchOutside(false)
+                .cornerRadius(8f)
+                .title(text = "提示")
+                .message(text = "用户您好，系统检测到您使用的套餐为运营商账号，请确定您使用的运营商账号")
+                .input(
+                    hint = "请输入运营商账号",
+                    inputType = InputType.TYPE_CLASS_PHONE,
+                    waitForPositiveButton = true,
+                    callback = { _, text ->
+                        result = text.toString()
+                    })
+                .lifecycleOwner(it)
+                .positiveButton(text = "确定") { dialog ->
+                    dialog.dismiss()
+                    viewModel.bindSchoolAccount(
+                        account = mAccountModel!!.user,
+                        proxy_user = result,
+                        proxy_vlan = NetworkUtils.getWifiName(context),
+                        apiPass = mSchoolModel?.findSecret ?: ""
+                    )
+                }.show {
+                    val inputField = getInputField()
+                    if (mAccountModel?.user?.length == 11 && mAccountModel?.user?.startsWith("1") == true) {
+                        inputField.setText(mAccountModel?.user)
+                    }
+                }
+        }
     }
 
     /**
@@ -427,6 +523,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
                 }
                 SelectSchoolDialog.showDialog(it, it, items) { index ->
                     mSchoolModel = mSchoolModelList!![index]
+                    mSchoolSelectInfoGson = Gson().toJson(mSchoolModel)
                     tvSchoolName.text = mSchoolModel?.name
                 }
             }
@@ -437,7 +534,7 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
     /**
      * 更新卡片上的信息
      */
-    private fun updateUserInfo() {
+    private fun updateTopCardInfo() {
         val info = buildString {
             mAccountInfoMaps.forEach {
                 append("${it.key} : ${it.value}\n")
@@ -446,17 +543,31 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
         idUserMessageTv.text = info
     }
 
+    /**
+     * 展示绑定账号的对话框
+     */
     private fun showBindAccountDialog() {
         activity?.let {
-//            LogUtils.i(mAccountModel?.user)
-//            LogUtils.i(mAccountModel?.pass)
-//            LogUtils.i(mAccountModel?.proxy_user)
-            BindAccountDialog.showDialog(it, it,mAccountModel?.user,mAccountModel?.pass,mAccountModel?.proxy_user) { account, password ->
-                viewModel.bindAccount(account, password)
-            }
+            BindAccountDialog.showDialog(
+                it,
+                it,
+                mAccountModel,
+                callBack = { account, password ->
+                    mBindAccount = account
+                    mBindAccountPassword = password
+                    viewModel.bindAccount(account, password)
+                },
+                modifyProxyUserCallBack = { proxyUser ->
+                    viewModel.bindSchoolAccount(
+                        account = mAccountModel!!.user,
+                        proxy_user = proxyUser,
+                        proxy_vlan = NetworkUtils.getWifiName(context),
+                        apiPass = mSchoolModel?.findSecret ?: ""
+                    )
+                }
+            )
         }
     }
-
 
     /**
      * 检测账号和学校是否存在
@@ -468,15 +579,72 @@ class HomeFragment : BaseFragment<HomeViewModel>(), EasyPermissions.PermissionCa
             return false
         }
         if (mAccountModel == null) {
-            ToastUtils.toastShort("请先绑定账号")
             showBindAccountDialog()
             return false
         }
         return true
     }
 
-    companion object {
-        const val REQUEST_CODE_SELECT_SCHOOL = 0x01
+    /**
+     * 提示尚未购买套餐跳转到购买套餐的Dialog
+     */
+    private fun showNoSetMealDialog(message: String) {
+        activity?.let {
+            MaterialDialog(it)
+                .cancelable(true)
+                .cornerRadius(8f)
+                .title(text = "提示")
+                .message(text = message)
+                .lifecycleOwner(it)
+                .positiveButton(text = "确定") { dialog ->
+                    dialog.dismiss()
+                    jumpToAccountRecharge()
+                }.negativeButton(text = "取消") { dialog ->
+                    dialog.dismiss()
+                }.show()
+        }
+    }
+
+    /**
+     * 跳转到账号充值
+     */
+    private fun jumpToAccountRecharge() {
+        if (checkAccountAndSchoolIsExit()) {
+            isModifyPackage = true
+            startKtxActivityForResult<WebActivity>(
+                requestCode = 0x01, values = listOf(
+                    Pair(
+                        "url",
+                        "http://yonghu.guangzhida.cn/lfradius/home.php?a=userlogin&c=login"
+                    ),
+                    Pair("type", "AccountRecharge"),
+                    Pair(
+                        "params",
+                        "username=${mAccountModel?.user}&password=${mAccountModel?.pass}"
+                    )
+                )
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isModifyPackage) {
+            isModifyPackage = false
+            mAccountModel?.let { accountModel ->
+                viewModel.getAccountInfo(accountModel.user)
+            }
+        }
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onRequestPermissionsResult(requestCode, grantResults)
     }
 
 }

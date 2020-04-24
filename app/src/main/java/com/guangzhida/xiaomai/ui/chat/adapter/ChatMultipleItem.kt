@@ -7,9 +7,11 @@ import com.hyphenate.chat.EMMessage
  * 聊天界面的适配器Type
  */
 class ChatMultipleItem constructor(message: EMMessage) : MultiItemEntity {
-     val mMessage = message
+    val mMessage = message
+    var isVoicePlay: Boolean = false //是否播放语音
+
     override val itemType: Int
-        get() = getItemTypeByMessage()//To change initializer of created properties use File | Settings | File Templates.
+        get() = getItemTypeByMessage()
 
     private fun getItemTypeByMessage(): Int {
         return when (mMessage.direct()) {

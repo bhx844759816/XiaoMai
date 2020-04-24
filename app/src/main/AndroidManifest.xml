@@ -1,9 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.guangzhida.xiaomai">
+
+    <uses-sdk tools:overrideLibrary="com.ypx.imagepicker"/>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -13,13 +17,19 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!--录音权限-->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.sec.android.provider.badge.permission.READ" />
+    <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE" />
+<!--    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />-->
 
     <application
         android:name=".BaseApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon_app_launch"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/icon_app_launch"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
@@ -27,33 +37,60 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <activity android:name=".ui.MainActivity">
+        <activity
+            android:name=".ui.MainActivity"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden"
+            >
 
         </activity>
-        <activity android:name=".ui.login.LoginActivity" >
+        <activity android:name=".ui.login.LoginActivity">
 
         </activity>
+        <activity android:name=".ui.login.ForgetPasswordActivity" />
         <activity android:name=".ui.login.RegisterActivity" />
-        <activity android:name=".ui.login.LoadingActivity">
+        <activity
+            android:name=".ui.login.LoadingActivity"
+            android:theme="@style/FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".ui.WebActivity" />
-        <activity android:name=".ui.home.MessageCenterActivity" />
         <activity android:name=".ui.home.SearchSchoolActivity" />
-        <activity android:name=".ui.chat.ChatMessageActivity" />
+        <activity android:name=".ui.home.AccountPackageModifyActivity" />
+        <activity
+            android:name=".ui.chat.ChatMessageActivity"
+            android:launchMode="singleTask" />
         <activity android:name=".ui.chat.AddFriendsActivity" />
-        <activity android:name=".ui.TestActivity" >
-
+        <activity android:name=".ui.chat.NewFriendsActivity" />
+        <activity android:name=".ui.chat.PersonInfoActivity" />
+        <activity android:name=".ui.chat.SettingRemarkActivity" />
+        <activity android:name=".ui.chat.ServiceActivity" />
+        <activity android:name=".ui.chat.SearchActivity" />
+        <activity android:name=".ui.chat.SearchContactListActivity" />
+        <activity android:name=".ui.chat.SearchMessageListActivity" />
+        <activity android:name=".ui.chat.ChatMessageRecordListActivity" />
+        <activity android:name=".ui.user.UserActivity" />
+        <activity android:name=".ui.user.UserCenterActivity" />
+        <activity android:name=".ui.user.AboutUsActivity" />
+        <activity android:name=".ui.user.UserMessageActivity" />
+        <activity android:name=".ui.user.SettingActivity" />
+        <!--预览图片-->
+        <activity android:name=".view.preview.PreviewResultListActivity" />
+        <activity android:name=".ui.TestActivity">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
 
         </activity>
 
         <!-- 设置环信应用的appkey -->
-<!--        <meta-data-->
-<!--            android:name="EASEMOB_APPKEY"-->
-<!--            android:value="bian1317#test" />-->
+        <!--        <meta-data-->
+        <!--            android:name="EASEMOB_APPKEY"-->
+        <!--            android:value="bian1317#test" />-->
         <meta-data
             android:name="EASEMOB_APPKEY"
             android:value="1116191019107908#school" />

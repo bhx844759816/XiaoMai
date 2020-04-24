@@ -1,5 +1,7 @@
 package com.guangzhida.xiaomai.model
 
+import java.io.Serializable
+
 data class AccountModel(
     val address: String,
     val admin: String,
@@ -71,4 +73,4 @@ data class AccountModel(
     val vlansn: String,
     val weixin_name: String,
     val weixin_openid: String
-)
+) : Serializable

@@ -18,8 +18,7 @@
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:background="@mipmap/icon_default_header" />
+            android:layout_marginLeft="10dp" />
 
         <TextView
             android:id="@+id/toolbar_title"
@@ -107,14 +106,18 @@
             </androidx.cardview.widget.CardView>
             <!--垂直广告轮播-->
             <LinearLayout
+                android:id="@+id/llNotifyParent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="15dp"
                 android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingStart="15dp"
+                android:paddingLeft="15dp"
+                android:background="#fff2f2f2"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
                 android:visibility="gone">
 
                 <ImageView
@@ -123,7 +126,7 @@
                     android:background="@mipmap/icon_home_red_horn" />
 
                 <ViewFlipper
-                    android:id="@+id/idViewFlipper"
+                    android:id="@+id/viewFlipper"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -131,19 +134,7 @@
                     android:layout_weight="11"
                     android:inAnimation="@anim/anim_in"
                     android:outAnimation="@anim/anim_out">
-
                 </ViewFlipper>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right|center_vertical"
-                    android:background="@drawable/shape_fillet_corner_rectangle_empty_default"
-                    android:paddingStart="12dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="8dp"
-                    android:text="详情" />
             </LinearLayout>
 
             <include layout="@layout/layout_home_center_grid" />

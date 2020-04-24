@@ -179,10 +179,20 @@ public class NetworkUtils {
      * @return {@code true}: 连接<br>{@code false}: 未连接
      */
     public static boolean isWifiConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm != null && cm.getActiveNetworkInfo() != null
-                && cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI;
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext()
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm != null) {
+                NetworkInfo info = cm.getActiveNetworkInfo();
+                if (info != null) {
+                    return info.getType() == ConnectivityManager.TYPE_WIFI;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 
     /**
@@ -211,6 +221,7 @@ public class NetworkUtils {
 
         return strMacAddr;
     }
+
     /**
      * 获取移动设备本地IP
      *
@@ -242,6 +253,22 @@ public class NetworkUtils {
         }
         return ip;
     }
+
+    /**
+     * 获取路由器的MAC地址
+     *
+     * @param context
+     * @return
+     */
+    public static String getWifiMAC(Context context) {
+        if (isWifiConnected(context)) {
+            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            WifiInfo info = wifiManager.getConnectionInfo();
+           return info.getBSSID();
+        }
+        return null;
+    }
+
     public static String getConnectedWifiMacAddress(Context context) {
         String connectedWifiMacAddress = null;
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -250,12 +277,12 @@ public class NetworkUtils {
         if (wifiManager != null) {
             wifiList = wifiManager.getScanResults();
             WifiInfo info = wifiManager.getConnectionInfo();
-            LogUtils.i("WifiInfo="+info.getSSID());
+            LogUtils.i("WifiInfo=" + info.getSSID());
 
             if (wifiList != null && info != null) {
                 for (int i = 0; i < wifiList.size(); i++) {
                     ScanResult result = wifiList.get(i);
-                    LogUtils.i("result="+result.SSID);
+                    LogUtils.i("result=" + result.SSID);
                     if (info.getBSSID().equals(result.BSSID)) {
                         connectedWifiMacAddress = result.BSSID;
                     }
@@ -264,6 +291,7 @@ public class NetworkUtils {
         }
         return connectedWifiMacAddress;
     }
+
     /**
      * 判断wifi数据是否可用
      * <p>需添加权限 {@code <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>}</p>
@@ -384,27 +412,29 @@ public class NetworkUtils {
         return "未知网络";
 
     }
-    public static String getMac() throws SocketException{
+
+    public static String getMac() throws SocketException {
         Enumeration<NetworkInterface> interfaceEnumeration = NetworkInterface.getNetworkInterfaces();
-        while (interfaceEnumeration.hasMoreElements()){
+        while (interfaceEnumeration.hasMoreElements()) {
             NetworkInterface networkInterface = interfaceEnumeration.nextElement();
             byte[] addr = networkInterface.getHardwareAddress();
-            if (addr==null || addr.length==0){
+            if (addr == null || addr.length == 0) {
                 continue;
             }
             StringBuilder buf = new StringBuilder();
-            for (byte b: addr){
-                buf.append(String.format("%02X:",b));
+            for (byte b : addr) {
+                buf.append(String.format("%02X:", b));
 
             }
-            if (buf.length()>0){
-                buf.deleteCharAt(buf.length()-1);
+            if (buf.length() > 0) {
+                buf.deleteCharAt(buf.length() - 1);
 
             }
             return buf.toString();
         }
         return "";
     }
+
     /**
      * 获取IP地址
      * <p>需添加权限 {@code <uses-permission android:name="android.permission.INTERNET"/>}</p>
@@ -437,7 +467,7 @@ public class NetworkUtils {
         } catch (SocketException e) {
             e.printStackTrace();
         }
-        return null;
+        return "0.0.0.0";
     }
 
     /**

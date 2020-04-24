@@ -1,59 +1,79 @@
 package com.guangzhida.xiaomai.ui.login.viewmodel
 
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
 import com.guangzhida.xiaomai.BaseApplication
+import com.guangzhida.xiaomai.SERVICE_USERNAME
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
+import com.guangzhida.xiaomai.model.UserModel
+import com.guangzhida.xiaomai.room.AppDatabase
+import com.guangzhida.xiaomai.room.entity.UserEntity
 import com.guangzhida.xiaomai.utils.LogUtils
+import com.guangzhida.xiaomai.utils.Preference
 import com.hyphenate.EMCallBack
 import com.hyphenate.chat.EMClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 /**
  * 首页Loading页面
  */
 class LoadingViewModel : BaseViewModel() {
-
-    val loginFinish = MutableLiveData<Boolean>()
-
+    private var mUserGson by Preference(Preference.USER_GSON, "") //用户对象
+    val loadingFinish = MutableLiveData<Boolean>()
     private val loginRepository = InjectorUtil.getLoginRepository()
-    /**
-     * 登录
-     */
-    fun doLogin(phone: String, password: String) {
-        LogUtils.i("调用登录手机号$phone,密码$password")
-        launchGo(
-            {
-                val result = loginRepository.login(phone, password)
-                if (result.status == 200) {
-                    BaseApplication.instance().userModel = result.data
-                }
-            },
-            complete = {
-                doChatLogin(phone, password)
-            },
-            isShowDialog = false
-        )
+
+
+    private val mUserDao by lazy {
+        AppDatabase.invoke(BaseApplication.instance().applicationContext).userDao()
     }
 
-    fun doChatLogin(phone: String, password: String) {
-        if (EMClient.getInstance().isLoggedInBefore) {
-            //加载全部会话
+    /**
+     * 验证token
+     */
+    fun verifyToken() {
+        launchUI {
+            try {
+                if (BaseApplication.instance().mUserModel == null) {
+                    withContext(Dispatchers.IO) {
+                        delay(3000)
+                        loadingFinish.postValue(true)
+                    }
+                } else {
+                    val result = withContext(Dispatchers.IO) {
+                        loginRepository.verifyToken(BaseApplication.instance().mUserModel!!.token)
+                    }
+                    if (result.isSuccess()) {
+                        loadingFinish()
+                    } else {
+                        val refreshTokenResult = withContext(Dispatchers.IO) {
+                            loginRepository.refreshToken()
+                        }
+                        if (refreshTokenResult.isSuccess()) {
+                            BaseApplication.instance().mUserModel?.token = refreshTokenResult.result
+                            mUserGson = Gson().toJson(BaseApplication.instance().mUserModel)
+                            loadingFinish.postValue(true)
+                            loadingFinish()
+                        }
+                    }
+                }
+            }catch (e:Throwable){
+                e.printStackTrace()
+                loadingFinish.postValue(true)
+            }
+        }
+    }
+
+    /**
+     * 加载完成
+     */
+    private suspend fun loadingFinish() {
+        withContext(Dispatchers.IO) {
             EMClient.getInstance().chatManager().loadAllConversations()
-            loginFinish.postValue(true)
-        } else {
-            EMClient.getInstance().login(phone, password, object : EMCallBack {
-                override fun onSuccess() {
-                    loginFinish.postValue(true)
-                }
-
-                override fun onProgress(progress: Int, status: String?) {
-                }
-
-                override fun onError(code: Int, error: String?) {
-                    loginFinish.postValue(true)
-                }
-
-            })
+            loadingFinish.postValue(true)
         }
     }
 

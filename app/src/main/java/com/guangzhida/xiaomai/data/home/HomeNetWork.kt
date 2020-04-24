@@ -4,6 +4,7 @@ import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.http.RetrofitManager
 import com.guangzhida.xiaomai.model.*
 import com.guangzhida.xiaomai.utils.LogUtils
+import okhttp3.ResponseBody
 import retrofit2.Call
 import java.util.concurrent.Callable
 
@@ -13,6 +14,10 @@ class HomeNetWork {
 
     suspend fun getAccountInfo(phone: String): AccountModel {
         return mService.getAccountInfo(phone)
+    }
+
+    suspend fun getPackageInfo(phone: String): ResponseBody {
+        return mService.getPackageInfo(phone)
     }
 
     suspend fun getSchoolModelInfo(): SchoolModelWrap {
@@ -32,7 +37,7 @@ class HomeNetWork {
 
     suspend fun doAccountVerify(url: String, params: Map<String, String?>): VerifyModel {
         LogUtils.i("一键认证:${params.toString()}")
-        return mService.doAccountVerify(url,params)
+        return mService.doAccountVerify(url, params)
     }
 
     /**
@@ -40,6 +45,27 @@ class HomeNetWork {
      */
     suspend fun exitAccountVerify(url: String, params: Map<String, String?>): VerifyModel {
         return mService.exitAccountVerify(url, params)
+    }
+
+    /**
+     * 修改凌风密码
+     */
+    suspend fun modifyAccountPassword(url: String, params: Map<String, String?>): ResponseBody {
+        return mService.modifyAccountPassword(url, params)
+    }
+
+    /**
+     * 清空账号套餐信息
+     */
+    suspend fun clearAccountPackage(url: String, params: Map<String, String?>): ResponseBody {
+        return mService.clearAccountPackage(url, params)
+    }
+
+    /**
+     * 绑定校园卡套餐
+     */
+    suspend fun bindSchoolAccount(url: String, params: Map<String, String?>): ResponseBody {
+        return mService.bindSchoolAccount(url, params)
     }
 
     companion object {

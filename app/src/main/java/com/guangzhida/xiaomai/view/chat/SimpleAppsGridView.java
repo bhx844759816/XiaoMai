@@ -17,6 +17,9 @@ import java.util.ArrayList;
 public class SimpleAppsGridView extends RelativeLayout {
 
     protected View view;
+    private ChattingAppsAdapter mAdppsAdapter;
+    public static final String FUNC_PLAY_PHOTO = "拍照";
+    public static final String FUNC_SELECT_PHOTO = "图片";
 
     public SimpleAppsGridView(Context context) {
         this(context, null);
@@ -29,14 +32,23 @@ public class SimpleAppsGridView extends RelativeLayout {
         init();
     }
 
-    protected void init(){
+    protected void init() {
         GridView gv_apps = (GridView) view.findViewById(R.id.gv_apps);
         gv_apps.setSelector(new ColorDrawable(Color.TRANSPARENT));
         gv_apps.setNumColumns(2);
         ArrayList<AppBean> mAppBeanList = new ArrayList<>();
-        mAppBeanList.add(new AppBean(R.mipmap.chatting_photo, "图片"));
-        mAppBeanList.add(new AppBean(R.mipmap.chatting_camera, "拍照"));
-        ChattingAppsAdapter adapter = new ChattingAppsAdapter(getContext(), mAppBeanList);
-        gv_apps.setAdapter(adapter);
+        mAppBeanList.add(new AppBean(R.mipmap.chatting_photo, FUNC_SELECT_PHOTO));
+        mAppBeanList.add(new AppBean(R.mipmap.chatting_camera, FUNC_PLAY_PHOTO));
+        mAdppsAdapter = new ChattingAppsAdapter(getContext(), mAppBeanList);
+        gv_apps.setAdapter(mAdppsAdapter);
+    }
+
+    /**
+     * 设置点击回调
+     */
+    public void setOnAppsAdapterCallBack(ChattingAppsAdapter.OnChattingAppsCallBack callBack) {
+        if (mAdppsAdapter != null) {
+            mAdppsAdapter.setOnChattingAppsCallBack(callBack);
+        }
     }
 }

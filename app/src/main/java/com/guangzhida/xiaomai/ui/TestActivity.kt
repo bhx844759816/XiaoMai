@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,8 +14,10 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.guangzhida.xiaomai.R
+import com.guangzhida.xiaomai.ktxlibrary.ext.clickN
 import com.guangzhida.xiaomai.utils.Base64Utils
 import com.guangzhida.xiaomai.utils.RSAUtil
+import com.guangzhida.xiaomai.utils.ToastUtils
 import com.guangzhida.xiaomai.view.SwipeItemLayout
 import kotlinx.android.synthetic.main.activity_test.*
 
@@ -28,10 +31,7 @@ class TestActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.addOnItemTouchListener(SwipeItemLayout.OnSwipeItemTouchListener(this))
-        recyclerView.addItemDecoration(getRecyclerViewDivider(R.drawable.inset_recyclerview_divider));//设置分割线
         recyclerView.adapter = MyAdapter2(list)
-
         btn.setOnClickListener {
             setRSA()
         }
@@ -55,6 +55,9 @@ class TestActivity : AppCompatActivity() {
         list
     ) {
         override fun convert(helper: BaseViewHolder, item: String) {
+            helper.getView<ConstraintLayout>(R.id.parent).clickN {
+                ToastUtils.toastShort("点击了")
+            }
         }
 
     }

@@ -2,11 +2,10 @@ package com.guangzhida.xiaomai.data.chat
 
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.model.ChatUserModel
+import com.guangzhida.xiaomai.model.ServiceProblemModel
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import retrofit2.http.*
 
 /**
  * 聊天的请求接口
@@ -51,15 +50,25 @@ interface ChatService {
     @POST("user/send_msg")
     suspend fun sendTextMsg(@Field("friendId") friendId: String, @Field("context") context: String): BaseResult<String>
 
+//    /**
+//     * 发送语音图片消息
+//     * friendId 好友ID
+//     * fileType 文件类型
+//     * file 文件
+//     */
+//    @Headers("Content-type:application/json")
+//    @POST("user/sendPicAndAudioFileMsg")
+//    suspend fun sendPicOrVoiceMsg(@Body body: RequestBody): BaseResult<String>
     /**
      * 发送语音图片消息
      * friendId 好友ID
      * fileType 文件类型
      * file 文件
      */
+    @Multipart
     @POST("user/sendPicAndAudioFileMsg")
-    suspend fun sendPicOrVoiceMsg(@Body body: RequestBody): BaseResult<String>
-
+    suspend fun sendPicOrVoiceMsg(@Part photo: MultipartBody.Part,
+                                  @Part("friendId") friendId:RequestBody, @Part("fileType") fileType:RequestBody): BaseResult<String>
     /**
      * 根据昵称和手机号获取用户信息
      * @param nickName 用户昵称
@@ -69,5 +78,9 @@ interface ChatService {
     @POST("user/get_user_by_nickname")
     suspend fun getUserInfoByNickNameOrPhone(@Field("nickName") nickName: String = "", @Field("mobilePhone") phone: String = ""): BaseResult<List<ChatUserModel>>
 
-
+    /**
+     * 获取在线客服的问题列表
+     */
+    @GET("problem/get_problem")
+    suspend fun getServiceProblemList(): BaseResult<List<ServiceProblemModel>>
 }

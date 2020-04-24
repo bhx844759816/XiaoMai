@@ -4,9 +4,9 @@
 
     <shape>
         <!--分割线的高度，横向的RecyclerView,这里设置宽度即可-->
-        <size android:height="0.4dp" />
+        <size android:height="0.3dp" />
         <!--分割线的颜色-->
-        <solid android:color="#ffaaaaaa" />
+        <solid android:color="#ffdfdfdf" />
     </shape>
 
 </inset>

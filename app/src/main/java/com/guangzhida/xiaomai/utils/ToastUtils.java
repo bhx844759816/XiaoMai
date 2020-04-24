@@ -70,6 +70,7 @@ public class ToastUtils {
         }
     }
 
+
     /**
      * 主线程弹出toast
      */
@@ -121,9 +122,10 @@ public class ToastUtils {
         try {
             if (sToast == null) {
                 sToast = Toast.makeText(mApplicationContext, text, duration);
+//                sToast.setDuration(6000);
                 TextView tv = sToast.getView().findViewById(android.R.id.message);
-                tv.setTextSize(14);
-                sToast.setGravity(Gravity.BOTTOM, 0, 90);
+                tv.setTextSize(18);
+                sToast.setGravity(Gravity.CENTER, 0, 90);
             } else {
                 sToast.setText(text);
                 sToast.setDuration(duration);

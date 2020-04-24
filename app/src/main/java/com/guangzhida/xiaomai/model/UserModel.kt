@@ -2,22 +2,27 @@ package com.guangzhida.xiaomai.model
 
 class UserModel {
     var data: Data? = null
-    var message: Any? = ""
+    var message: String? = ""
     var rel: Boolean = false
     var status = 0
 
     inner class Data(
-        val age: Int,
-        val description: Any,
-        val headUrl: String,
-        val id: String,
-        val name: String,
-        val password: String,
-        val schoolName: Any,
-        val sex: Int,
-        val token: String,
-        val username: String
-    )
+        var age: Int,
+        var description: Any,
+        var headUrl: String,
+        var id: String,
+        var name: String,
+        var password: String,
+        var schoolName: Any,
+        var sex: Int,
+        var token: String,
+        var username: String,
+        var signature: String?
+    ) {
+        override fun toString(): String {
+            return "Data(age=$age, description=$description, headUrl='$headUrl', id='$id', name='$name', password='$password', schoolName=$schoolName, sex=$sex, token='$token', username='$username', signature='$signature')"
+        }
+    }
 }
 
 

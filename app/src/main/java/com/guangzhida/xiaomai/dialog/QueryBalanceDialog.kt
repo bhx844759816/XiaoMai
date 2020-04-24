@@ -22,7 +22,7 @@ object QueryBalanceDialog {
             append(accountModel.servername)
             append("\n")
             append("开通时间： ")
-            append(accountModel.registrtime)
+            append(accountModel.firstlogintime)
             append("\n")
             append("到期时间： ")
             append(accountModel.expiretime)

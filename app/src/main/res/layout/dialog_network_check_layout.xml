@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:paddingBottom="20dp"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp"
+        android:textColor="@color/defaultTextColor"
+        android:textStyle="bold"
+        android:text="网络诊断"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvConnectTips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        tools:text="提示当前数据连接类型为WIFI" />
+
+    <TextView
+        android:id="@+id/tvWifiName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvConnectTips"
+        app:layout_constraintTop_toBottomOf="@id/tvConnectTips"
+        tools:text="WIFI名称: 办公室" />
+
+    <TextView
+        android:id="@+id/tvMacName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvWifiName"
+        app:layout_constraintTop_toBottomOf="@id/tvWifiName"
+        tools:text="接入点MAC: ad:bc:09:ap:ss" />
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="检测中..."
+        app:layout_constraintLeft_toLeftOf="@id/tvMacName"
+        app:layout_constraintTop_toBottomOf="@id/tvMacName" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import com.guangzhida.xiaomai.utils.Base64Utils
 import com.guangzhida.xiaomai.utils.RSAUtil
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * 针对字符串加密
@@ -63,3 +64,4 @@ internal fun EditText.showSoftInput() {
         this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     inputManager.showSoftInput(this, 0)
 }
+//public fun MainScope(): CoroutineScope = ContextScope(SupervisorJob() + Dispatchers.Main)

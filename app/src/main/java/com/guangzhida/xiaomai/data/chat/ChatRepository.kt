@@ -2,6 +2,8 @@ package com.guangzhida.xiaomai.data.chat
 
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.model.ChatUserModel
+import com.guangzhida.xiaomai.model.ServiceProblemModel
+import java.io.File
 
 /**
  * 聊天的数据请求接口
@@ -37,6 +39,17 @@ class ChatRepository(netWork: ChatNetWork) {
     }
 
     /**
+     * 发送图片和语音消息
+     */
+    suspend fun sendPicOrVoiceMsg(
+        friendId: String,
+        fileType: String,
+        file: File
+    ): BaseResult<String> {
+        return mNetWork.sendPicOrVoiceMsg(friendId, fileType, file)
+    }
+
+    /**
      * 根据昵称和手机号获取用户信息
      */
     suspend fun getUserInfoByNickNameOrPhone(
@@ -44,6 +57,13 @@ class ChatRepository(netWork: ChatNetWork) {
         phone: String = ""
     ): BaseResult<List<ChatUserModel>> {
         return mNetWork.getUserInfoByNickNameOrPhone(nickName, phone)
+    }
+
+    /**
+     * 获取服务器问题列表
+     */
+    suspend fun getServiceProblemList(): BaseResult<List<ServiceProblemModel>> {
+        return mNetWork.getServiceProblemList()
     }
 
     companion object {

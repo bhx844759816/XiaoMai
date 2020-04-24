@@ -2,16 +2,26 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+//定义时间
+def releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+}
+
+//设置发布的显示的版本号
+def getVersionName() {
+    return "1.0.0"
+}
+
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
     buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "com.guangzhida.xiaomai"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 28
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         multiDexEnabled true
         ndk {
             abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86'
@@ -36,58 +46,105 @@ android {
         }
     }
     useLibrary 'org.apache.http.legacy'
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def fileName = ""
+            if (variant.buildType.name == 'release') {
+                fileName = "校麦_${variant.mergedFlavor.versionName}_release.apk"
+            } else if (variant.buildType.name == 'debug') {
+                fileName = "校麦_${variant.mergedFlavor.versionName}_${releaseTime()}_debug.apk"
+            }
+            outputFileName = fileName
+        }
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.2.0'
-    implementation "androidx.constraintlayout:constraintlayout:1.1.3"
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.2.0-alpha05'
+    implementation 'androidx.annotation:annotation:1.1.0'
     def retrofit_version = "2.6.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     def extensions_version = "2.2.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$extensions_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$extensions_version"
-//    def room_version = "2.2.3"
-//    implementation "androidx.room:room-runtime:$room_version"
-//    annotationProcessor "androidx.room:room-compiler:$room_version"
-//    implementation "androidx.room:room-ktx:$room_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$extensions_version"
+    def room_version = "2.2.5"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    def permission_version = "4.7.0"
+    implementation "org.permissionsdispatcher:permissionsdispatcher:$permission_version"
+    kapt "org.permissionsdispatcher:permissionsdispatcher-processor:$permission_version"
 
-    implementation 'androidx.annotation:annotation:1.1.0'
     //Glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
     implementation 'com.orhanobut:logger:2.2.0'
+
     //material dialog
-    implementation "com.afollestad.material-dialogs:lifecycle:3.1.1"
-    implementation "com.afollestad.material-dialogs:core:3.1.1"
+    implementation 'com.afollestad.material-dialogs:lifecycle:3.1.1'
+    implementation 'com.afollestad.material-dialogs:core:3.1.1'
     implementation 'com.afollestad.material-dialogs:bottomsheets:3.2.1'
+    implementation 'com.afollestad.material-dialogs:input:3.2.1'
+
     //底部导航栏
-    implementation "com.ashokvarma.android:bottom-navigation-bar:2.1.0"
+    implementation 'com.ashokvarma.android:bottom-navigation-bar:2.1.0'
     implementation 'pub.devrel:easypermissions:0.1.9'
+
     //webView框架
-    implementation "com.just.agentweb:agentweb:4.1.2"
+    implementation 'com.just.agentweb:agentweb:4.1.2'
+
     //TabLayout
     implementation 'com.flyco.tablayout:FlycoTabLayout_Lib:2.1.2@aar'
+
     //glide
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     kapt 'com.github.bumptech.glide:compiler:4.9.0'
+
     //
     implementation 'com.android.support:multidex:1.0.2'
+
     //环信SDK
     implementation 'com.hyphenate:hyphenate-sdk-lite:3.6.1'
+
     //聊天界面的键盘表情
-//    implementation 'im.ll:emoticonsboard:1.0.0'
-    implementation project(':library')
-//    implementation project(':easeui')
+
+    //    implementation 'im.ll:emoticonsboard:1.0.0'
+    implementation project(':emoticonLibrary')
+    implementation project(':ktxlibrary')
+
+    //    implementation project(':easeui')
     implementation 'com.github.w446108264:AndroidEmoji:1.1'
-    //room
+
+    //录音
+    implementation 'com.czt.mp3recorder:library:1.0.4'
+
     //recyclerView适配器
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.1'
+
+    //选择图片框架
+    implementation 'com.ypx.yimagepicker:androidx:3.1.2'
+
+    //图片压缩
+    implementation 'top.zibin:Luban:1.1.8'
+
+    //状态栏工具类
+    implementation 'com.jaeger.statusbarutil:library:1.4.0'
+
+    //版本更新
+    implementation 'com.qianwen:update-app-kotlin:1.2.3'
+    implementation 'com.qianwen:update-app:3.5.2'
+    //
+    implementation 'com.lxj:xpopup:1.8.12'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation files('libs/pinyin4j-2.5.0.jar')
 }

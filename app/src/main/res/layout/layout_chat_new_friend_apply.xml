@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+   >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="67dp"
+        android:id="@+id/newFriendParent"
+        >
+
+        <ImageView
+            android:id="@+id/ivHeaderView"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:background="@mipmap/icon_default_new_friend"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:text="新朋友"
+            android:textColor="#141414"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/ivHeaderView"
+            app:layout_constraintLeft_toRightOf="@id/ivHeaderView"
+            app:layout_constraintTop_toTopOf="@id/ivHeaderView" />
+
+        <TextView
+            android:id="@+id/tvChatMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginRight="30dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#999999"
+            android:textSize="10sp"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="@id/tvName"
+            app:layout_constraintRight_toLeftOf="@id/tvTime"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvName"
+            tools:text="请求添加好友" />
+
+
+        <TextView
+            android:id="@+id/tvChatUnReadMessageCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/shape_red_dot_bg"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/tvChatMessage"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvChatMessage"
+            tools:ignore="SmallSp" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:text="19:00"
+            android:textColor="#141414"
+            android:textSize="10sp"
+            android:visibility="gone"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvName" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

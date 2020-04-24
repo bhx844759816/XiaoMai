@@ -1,10 +1,15 @@
 package com.guangzhida.xiaomai.ui.login
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.Selection
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
 import androidx.lifecycle.Observer
 import com.guangzhida.xiaomai.*
 import com.guangzhida.xiaomai.base.BaseActivity
-import com.guangzhida.xiaomai.ext.rsAEncode
+import com.guangzhida.xiaomai.event.userModelChangeLiveData
+import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.ui.login.viewmodel.LoginViewModel
 import com.guangzhida.xiaomai.utils.*
 import kotlinx.android.synthetic.main.activity_login.*
@@ -17,6 +22,10 @@ class LoginActivity : BaseActivity<LoginViewModel>() {
     override fun initView(savedInstanceState: Bundle?) {
         idCancel.setOnClickListener {
             finish()
+        }
+        //注册
+        idCreateAccount.setOnClickListener {
+            startKtxActivity<RegisterActivity>()
         }
         //登录
         idLoginTv.setOnClickListener {
@@ -32,6 +41,14 @@ class LoginActivity : BaseActivity<LoginViewModel>() {
             }
             mViewModel.doLogin(phone!!, password!!)
         }
+        //忘记密码
+        idForgetPasswordTv.setOnClickListener {
+            startKtxActivity<ForgetPasswordActivity>()
+        }
+        //改变按钮的隐藏显示状态
+        cbPassword.setOnCheckedChangeListener { _, _ ->
+            checkPasswordShowState()
+        }
         registerLiveDataObserver()
     }
 
@@ -39,22 +56,26 @@ class LoginActivity : BaseActivity<LoginViewModel>() {
      * 注册LiveData观察者
      */
     private fun registerLiveDataObserver() {
-        mViewModel.mUserModelData.observe(this, Observer {
-            //登录成功
-            BaseApplication.instance().userModel = it
-            BaseApplication.instance().mToken = it.token
-            SPUtils.put(this, USER_TOKEN_KEY, it.token)
-            //将手机号 密码保存到本地MD5加密
-            if (!phone.isNullOrEmpty() && !password.isNullOrEmpty()) {
-                SPUtils.put(this, USER_ACCOUNT_KEY, phone)
-                SPUtils.put(this, USER_PASSWORD_KEY, Base64Util.encodeWord(password))
-            }
-        })
         mViewModel.mLoginResult.observe(this, Observer {
             if (it) {
+                userModelChangeLiveData.postValue(true)
                 finish()
             }
         })
+    }
+
+    private fun checkPasswordShowState() {
+        val method = inputPassword.transformationMethod
+        if (method === HideReturnsTransformationMethod.getInstance()) {
+            inputPassword.transformationMethod = PasswordTransformationMethod.getInstance()
+        } else {
+            inputPassword.transformationMethod = HideReturnsTransformationMethod.getInstance()
+        }
+        // 保证切换后光标位于文本末尾
+        val spanText = inputPassword.text
+        if (spanText != null) {
+            Selection.setSelection(spanText, spanText.length)
+        }
     }
 
 

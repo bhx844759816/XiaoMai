@@ -10,6 +10,9 @@ import github.ll.emotionboard.data.EmoticonPack
 import github.ll.emotionboard.interfaces.OnEmoticonClickListener
 import github.ll.emotionboard.utils.getResourceUri
 
+/**
+ * 获取Emoji资源
+ */
 object AdapterUtils {
 
 

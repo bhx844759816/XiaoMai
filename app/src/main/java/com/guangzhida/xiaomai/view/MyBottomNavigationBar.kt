@@ -14,6 +14,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.ashokvarma.bottomnavigation.BottomNavigationBar
 import com.ashokvarma.bottomnavigation.BottomNavigationItem
+import com.ashokvarma.bottomnavigation.TextBadgeItem
+import com.guangzhida.xiaomai.EaseUiHelper
 import com.guangzhida.xiaomai.R
 import java.util.jar.Attributes
 
@@ -27,6 +29,7 @@ class MyBottomNavigationBar @JvmOverloads constructor(
     defStyle: Int = 0
 ) :
     BottomNavigationBar(context, attributeSet, defStyle) {
+    private var mBadgeItem: TextBadgeItem? = null
 
     init {
         val homeItemView = BottomNavigationItem(
@@ -42,7 +45,14 @@ class MyBottomNavigationBar @JvmOverloads constructor(
         ).setInactiveIconResource(R.mipmap.icon_main_message_default)
             .setActiveColorResource(R.color.bottom_bar_select_text)
             .setInActiveColorResource(R.color.bottom_bar_default_text)
-
+        mBadgeItem = TextBadgeItem()
+        val unReadMessageCount = EaseUiHelper.getUnReadMessageCount()
+        if (unReadMessageCount > 0) {
+            setUnReadMessageCount(unReadMessageCount)
+        } else {
+            mBadgeItem?.hide()
+        }
+        workItemView.setBadgeItem(mBadgeItem)
         addItem(homeItemView)
             .addItem(workItemView)
             .setBackgroundStyle(BACKGROUND_STYLE_STATIC)
@@ -55,6 +65,23 @@ class MyBottomNavigationBar @JvmOverloads constructor(
             elevation = 0f
         }
         setBottomNavigationItem(10, 22, 12)
+    }
+
+    /**
+     * 设置未读消息得显示
+     */
+    fun setUnReadMessageCount(count: Int) {
+        if (count > 0) {
+            if (count > 99) {
+                mBadgeItem?.setText("99+")
+            } else {
+                mBadgeItem?.setText(count.toString())
+            }
+            mBadgeItem?.show()
+        } else {
+            mBadgeItem?.hide()
+        }
+
     }
 
 

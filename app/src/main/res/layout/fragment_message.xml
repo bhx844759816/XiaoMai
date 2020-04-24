@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_marginBottom="3dp"
-            tl:tl_indicator_color="#33CC99"
+            tl:tl_indicator_color="@color/colorAccent"
             tl:tl_indicator_corner_radius="1dp"
             tl:tl_indicator_height="2dp"
             tl:tl_tab_padding="10dp"
@@ -45,8 +45,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolBar" />
 
+
+<!--    <androidx.viewpager2.widget.ViewPager2-->
+<!--        android:id="@+id/viewPager"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/line" />-->
+
     <FrameLayout
-        android:id="@+id/flFragment"
+        android:id="@+id/fragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"

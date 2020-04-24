@@ -18,6 +18,7 @@ public class ChattingAppsAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private Context mContext;
     private ArrayList<AppBean> mDdata = new ArrayList<>();
+    private OnChattingAppsCallBack mCallBack;
 
     public ChattingAppsAdapter(Context context, ArrayList<AppBean> data) {
         this.mContext = context;
@@ -25,6 +26,9 @@ public class ChattingAppsAdapter extends BaseAdapter {
         if (data != null) {
             this.mDdata = data;
         }
+    }
+    public void  setOnChattingAppsCallBack(OnChattingAppsCallBack callBack){
+        mCallBack = callBack;
     }
 
     @Override
@@ -62,7 +66,9 @@ public class ChattingAppsAdapter extends BaseAdapter {
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext,appBean.getFuncName(), Toast.LENGTH_SHORT).show();
+                    if(mCallBack != null){
+                        mCallBack.clickCallBack(appBean);
+                    }
                 }
             });
         }
@@ -72,5 +78,9 @@ public class ChattingAppsAdapter extends BaseAdapter {
     class ViewHolder {
         public ImageView iv_icon;
         public TextView tv_name;
+    }
+
+    public interface OnChattingAppsCallBack {
+        void clickCallBack(AppBean appBean);
     }
 }

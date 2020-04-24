@@ -52,7 +52,10 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
             isFirst = false
         }
     }
-
+    override fun onResume() {
+        super.onResume()
+        onVisible()
+    }
     open fun initView(savedInstanceState: Bundle?) {}
     open fun initListener(){
 
@@ -97,7 +100,7 @@ abstract class BaseFragment<VM : BaseViewModel> : Fragment() {
                     .cornerRadius(8f)
                     .customView(R.layout.custom_progress_dialog_view, noVerticalPadding = true)
                     .lifecycleOwner(this)
-                    .maxWidth(R.dimen.dialog_width)
+                    .maxWidth(R.dimen.dialog_loading_width)
             }
         }
         dialog?.show()

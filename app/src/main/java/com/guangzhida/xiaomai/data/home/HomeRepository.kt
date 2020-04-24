@@ -2,6 +2,7 @@ package com.guangzhida.xiaomai.data.home
 
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.model.*
+import okhttp3.ResponseBody
 import retrofit2.Call
 import java.util.concurrent.Callable
 
@@ -11,6 +12,10 @@ class HomeRepository(netWork: HomeNetWork) {
 
     suspend fun getAccountInfo(phone: String): AccountModel {
         return mNetWork.getAccountInfo(phone)
+    }
+
+    suspend fun getPackageInfo(phone: String): ResponseBody {
+        return mNetWork.getPackageInfo(phone)
     }
 
     suspend fun getSchoolInfo(): SchoolModelWrap {
@@ -32,11 +37,33 @@ class HomeRepository(netWork: HomeNetWork) {
     }
 
     /**
+     *
+     */
+    suspend fun modifyAccountPassword(url: String, params: Map<String, String?>): ResponseBody {
+        return mNetWork.modifyAccountPassword(url, params)
+    }
+
+    /**
      * 获取学校信息通过学校名称
      */
     suspend fun getSchoolInfoByName(schoolName: String): SchoolInfoModel {
         return mNetWork.getSchoolInfoByName(schoolName)
     }
+
+    /**
+     * 清空套餐信息
+     */
+    suspend fun clearAccountPackage(url: String, params: Map<String, String?>): ResponseBody {
+        return mNetWork.clearAccountPackage(url, params)
+    }
+
+    /**
+     * 绑定校园卡套餐
+     */
+    suspend fun bindSchoolAccount(url: String, params: Map<String, String?>): ResponseBody {
+        return mNetWork.bindSchoolAccount(url, params)
+    }
+
 
     companion object {
 

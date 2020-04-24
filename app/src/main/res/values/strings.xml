@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">XiaoMai</string>
+    <string name="app_name">校麦</string>
     <string name="now_loading">正在加载</string>
     <string name="app_home_title">校麦-连接校园生活</string>
     <string name="bindAccount">绑定账号</string>
@@ -14,6 +14,7 @@
     <string name="exitAuthentication">退出认证</string>
     <string name="forgetPassword">忘记密码</string>
     <string name="login">登录</string>
+    <string name="logout">退出登录</string>
     <string name="register">注册</string>
     <string name="createAccount">创建账号</string>
     <string name="or">OR</string>
@@ -31,4 +32,5 @@
     <string name="addFriend">添加好友</string>
     <string name="button_pushtotalk">按住说话</string>
     <string name="button_send">发送</string>
+    <string name="confirm">确定</string>
 </resources>
