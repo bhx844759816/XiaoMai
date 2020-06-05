@@ -329,6 +329,7 @@ open class ChatServiceMessageViewModel : BaseViewModel() {
                     conversationEntity?.avatarUrl = mServiceModel?.headUrl ?: ""
                     LogUtils.i("conversationEntity update=$conversationEntity")
                     mConversationDao?.update(conversationEntity)
+                    //....
                 }
             }
         }
