@@ -22,7 +22,7 @@
         android:layout_marginRight="5dp"
         android:layout_toLeftOf="@id/iv_avatar"
         android:background="@mipmap/icon_chat_right_meassage_bg"
-        android:maxWidth="160dp"
+        android:maxWidth="190dp"
         android:paddingLeft="15dp"
         android:paddingTop="10dp"
         android:paddingRight="10dp"

@@ -4,5 +4,5 @@ data class SchoolModelWrap(
     val status: Int,
     val msg: String,
     val count: Int,
-    val result: List<SchoolModel>
+    val data: List<SchoolModel>
 )

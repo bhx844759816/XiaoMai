@@ -25,7 +25,7 @@ class ServiceProblemAdapter(data: MutableList<ServiceMultipleItem>) :
     var mConnectPeopleServiceCallBack: (() -> Unit)? = null //连接人工服务
     var mClickProblemItemCallBack: ((ServiceProblemModel) -> Unit)? = null//点击问题Item的回调
     var mClickAnswerItemCallBack: ((ProblemStatusModel) -> Unit)? = null//点击已解决 未解决的回调
-    var mAvatarUrl: String? = BaseApplication.instance().mServiceModel?.headUrl ?: ""
+
 
     init {
         addItemType(
@@ -71,13 +71,6 @@ class ServiceProblemAdapter(data: MutableList<ServiceMultipleItem>) :
                     //人工服务
                     mConnectPeopleServiceCallBack?.invoke()
                 }
-                ivAvatar.loadCircleImage(
-                    BASE_URL.substring(
-                        0,
-                        BASE_URL.length - 1
-                    ) + mAvatarUrl,
-                    holder = R.mipmap.icon_default_header
-                )
             }
             ServiceMultipleItem.TYPE_USER_SEND_PROBLEM -> {
                 val text = item.data as String
@@ -121,13 +114,6 @@ class ServiceProblemAdapter(data: MutableList<ServiceMultipleItem>) :
 
                     }
                 }
-                ivAvatar.loadCircleImage(
-                    BASE_URL.substring(
-                        0,
-                        BASE_URL.length - 1
-                    ) + mAvatarUrl,
-                    holder = R.mipmap.icon_default_header
-                )
             }
             ServiceMultipleItem.TYPE_PEOPLE_SERVICE -> {
                 helper.getView<TextView>(R.id.tvPeopleService).setOnClickListener {

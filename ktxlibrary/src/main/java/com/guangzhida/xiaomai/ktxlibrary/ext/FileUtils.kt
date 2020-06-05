@@ -52,7 +52,12 @@ fun getAllSubFile(folder: File): Array<File> {
  * copy the [sourceFile] to the [destFile], only for file, not for folder
  * @param overwrite if the destFile is exist, whether to overwrite it
  */
-fun copyFile(sourceFile: File, destFile: File, overwrite: Boolean, func: ((file: File, i: Int) -> Unit)? = null) {
+fun copyFile(
+    sourceFile: File,
+    destFile: File,
+    overwrite: Boolean,
+    func: ((file: File, i: Int) -> Unit)? = null
+) {
 
     if (!sourceFile.exists()) return
 
@@ -103,7 +108,12 @@ fun copyFile(sourceFile: File, destFile: File, overwrite: Boolean, func: ((file:
  * copy the [sourceFolder] to the [destFolder]
  * @param overwrite if the destFile is exist, whether to overwrite it
  */
-fun copyFolder(sourceFolder: File, destFolder: File, overwrite: Boolean, func: ((file: File, i: Int) -> Unit)? = null) {
+fun copyFolder(
+    sourceFolder: File,
+    destFolder: File,
+    overwrite: Boolean,
+    func: ((file: File, i: Int) -> Unit)? = null
+) {
     if (!sourceFolder.exists()) return
 
     if (!destFolder.exists()) {
@@ -113,9 +123,64 @@ fun copyFolder(sourceFolder: File, destFolder: File, overwrite: Boolean, func: (
 
     for (subFile in sourceFolder.listFiles()) {
         if (subFile.isDirectory) {
-            copyFolder(subFile, File("${destFolder.path}${File.separator}${subFile.name}"), overwrite, func)
+            copyFolder(
+                subFile,
+                File("${destFolder.path}${File.separator}${subFile.name}"),
+                overwrite,
+                func
+            )
         } else {
             copyFile(subFile, File(destFolder, subFile.name), overwrite, func)
         }
     }
+}
+
+/**
+ * 写入String文件
+ */
+fun writeTxtFile(content: String, filePath: String, fileName: String, append: Boolean): Boolean {
+    var flag = true
+    val thisFile = File("$filePath/$fileName")
+    try {
+
+        if (thisFile.parentFile?.exists() == false) {
+            thisFile.parentFile?.mkdirs()
+        }
+        val fw = FileWriter("$filePath/$fileName", append)
+        fw.write(content)
+        fw.close()
+    } catch (e: IOException) {
+        e.printStackTrace()
+        flag = false
+    }
+    return flag
+}
+
+/**
+ * 读txt文件
+ */
+fun readTxtFile(filePath: String, fileName: String): String? {
+    var result: String? = null
+    val file = File("$filePath/$fileName")
+    var fileReader: FileReader? = null
+    var bufferedReader: BufferedReader? = null
+    try {
+        fileReader = FileReader(file)
+        bufferedReader = BufferedReader(fileReader)
+        try {
+            var read: String? = null
+            while ({ read = bufferedReader.readLine();read }() != null) {
+                result += read
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        bufferedReader?.close()
+        fileReader?.close()
+    }
+    return result
 }

@@ -4,16 +4,14 @@ package com.guangzhida.xiaomai
 /**
  * 保存用户登录的账号
  */
-const val IS_SHOW_PROTOCOL_KEY = "is_show_protocol_key"//
+const val IS_SHOW_PROTOCOL_KEY = "is_show_protocol_key"// 是否展示过LoadingActivity界面的协议对话框
 const val SEND_SERVICE_MESSAGE_TIME_KEY = "send_service_message_time_key" //发送给客服的消息得时间
-/**
- * 保存选择学校的名称
- */
-const val SEARCH_SCHOOL_KEY = "search_school_key"
-const val SEARCH_SCHOOL_USER_REGISTER_KEY = "search_school_user_register_key"
-//
-const val SERVICE_USERNAME = "18736084084"
+
+//const val SERVICE_USERNAME = "18736084084"
 const val APP_UPDATE_URL = "http://www.app.guangzhida.cn:8762/api/admin/app/update"
+//
+const val NETWORK_CHECK_RESULT_FILENAME = "networkCheckResult.txt"
+
 
 //服务器 IP 122.51.167.92
 

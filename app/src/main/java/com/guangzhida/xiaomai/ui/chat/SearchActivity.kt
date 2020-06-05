@@ -32,6 +32,7 @@ class SearchActivity : BaseActivity<SearchViewModel>() {
     override fun layoutId(): Int = R.layout.activity_search_layout
 
     override fun initView(savedInstanceState: Bundle?) {
+        showKeyboard(etInput)
         initObserver()
     }
 
@@ -116,12 +117,7 @@ class SearchActivity : BaseActivity<SearchViewModel>() {
             )
             //点击跳转到联系人详情
             itemView.clickN {
-                startKtxActivity<PersonInfoActivity>(
-                    values = listOf(
-                        Pair("State", 1),
-                        Pair("UserEntityGson", Gson().toJson(it))
-                    )
-                )
+                startKtxActivity<PersonInfoActivity>(value = Pair("userName", it.userName))
             }
         }
 

@@ -1,7 +1,6 @@
 package com.guangzhida.xiaomai.view
 
 import android.content.Context
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -15,9 +14,9 @@ import android.widget.TextView
 import com.ashokvarma.bottomnavigation.BottomNavigationBar
 import com.ashokvarma.bottomnavigation.BottomNavigationItem
 import com.ashokvarma.bottomnavigation.TextBadgeItem
-import com.guangzhida.xiaomai.EaseUiHelper
+import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.R
-import java.util.jar.Attributes
+import com.guangzhida.xiaomai.utils.LogUtils
 
 /**
  * APP主页面得底部导航栏
@@ -46,12 +45,6 @@ class MyBottomNavigationBar @JvmOverloads constructor(
             .setActiveColorResource(R.color.bottom_bar_select_text)
             .setInActiveColorResource(R.color.bottom_bar_default_text)
         mBadgeItem = TextBadgeItem()
-        val unReadMessageCount = EaseUiHelper.getUnReadMessageCount()
-        if (unReadMessageCount > 0) {
-            setUnReadMessageCount(unReadMessageCount)
-        } else {
-            mBadgeItem?.hide()
-        }
         workItemView.setBadgeItem(mBadgeItem)
         addItem(homeItemView)
             .addItem(workItemView)
@@ -59,6 +52,7 @@ class MyBottomNavigationBar @JvmOverloads constructor(
             .setMode(MODE_FIXED)
             .setFirstSelectedPosition(0)
             .initialise()
+        mBadgeItem?.hide(false)
         // 取消自动隐藏
         isAutoHideEnabled = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

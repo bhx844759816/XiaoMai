@@ -51,14 +51,19 @@ fun ImageView.loadFilletRectangle(
     uri: String?, @DrawableRes holder: Int? = null,
     roundingRadius: Int =20
 ) {
-    val options = RequestOptions().transform(CenterCrop(),RoundedCorners(roundingRadius))
     if (uri.isNullOrBlank()) {
         if (holder != null) {
             setImageResource(holder)
         }
     } else if (holder == null) {
+        val options = RequestOptions()
+            .transform(CenterCrop(), RoundedCorners(roundingRadius))
         Glide.with(this).load(uri).apply(options).into(this)
     } else {
+        val options = RequestOptions()
+            .placeholder(holder)
+            .error(holder)
+            .transform(CenterCrop(), RoundedCorners(roundingRadius))
         Glide.with(this).load(uri).apply(options)
             .into(this)
     }

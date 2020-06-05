@@ -3,10 +3,12 @@ package com.guangzhida.xiaomai.data.chat
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.http.RetrofitManager
 import com.guangzhida.xiaomai.model.ChatUserModel
+import com.guangzhida.xiaomai.model.ServiceModel
 import com.guangzhida.xiaomai.model.ServiceProblemModel
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Call
 import java.io.File
 
 /**
@@ -75,9 +77,29 @@ class ChatNetWork {
         return mService.getUserInfoByNickNameOrPhone(nickName, phone)
     }
 
+    /**
+     * 根据昵称和手机号获取用户信息
+     */
+    suspend fun getUserInfoByNickNameOrPhone(
+        nickNameOrPhone: String
+    ): BaseResult<List<ChatUserModel>> {
+        return mService.getUserInfoByNickNameOrPhone(nickNameOrPhone)
+    }
+
+    fun getUserInfoSync(nickNameOrPhone: String): Call<BaseResult<List<ChatUserModel>>> {
+        return mService.getUserInfoSync(nickNameOrPhone)
+    }
+
     suspend fun getServiceProblemList(): BaseResult<List<ServiceProblemModel>> {
 
         return mService.getServiceProblemList()
+    }
+
+    /**
+     * 通过学校ID获取在线客服
+     */
+    suspend fun getOnlineServer(schoolId: String): BaseResult<ServiceModel> {
+        return mService.getOnlineServer(schoolId)
     }
 
     companion object {

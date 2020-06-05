@@ -302,6 +302,7 @@ public class AZWaveSideBarView extends View {
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 startAnimator(0f);
+                mSelect = mNewSelect;
                 invalidate();
 //                mSelect = -1;
                 break;

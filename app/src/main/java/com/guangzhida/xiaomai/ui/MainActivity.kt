@@ -1,17 +1,21 @@
 package com.guangzhida.xiaomai.ui
 
+import android.Manifest
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Observer
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.ashokvarma.bottomnavigation.BottomNavigationBar
 import com.guangzhida.xiaomai.BaseApplication
-import com.guangzhida.xiaomai.EaseUiHelper
+import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseActivity
+import com.guangzhida.xiaomai.dialog.SchoolPhoneAccountLoginDialog
 import com.guangzhida.xiaomai.event.messageCountChangeLiveData
+import com.guangzhida.xiaomai.event.userModelChangeLiveData
+import com.guangzhida.xiaomai.ext.jumpLoginByState
+import com.guangzhida.xiaomai.ktxlibrary.ext.permission.request
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.receiver.WifiStateManager
 import com.guangzhida.xiaomai.ui.chat.fragment.ChatFragment
@@ -33,15 +37,25 @@ class MainActivity : BaseActivity<MainViewModel>() {
     private var exitTime: Long = 0
 
     override fun initView(savedInstanceState: Bundle?) {
+//        checkPermission()
         viewPager.adapter = MyFragmentPageAdapter()
-        viewPager.setPageTransformer { page, position ->
-            LogUtils.i("position=$position")
-        }
+        viewPager.isUserInputEnabled = BaseApplication.instance().mUserModel != null
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 id_bottomNavigationBar.selectTab(position)
             }
         })
+    }
+
+    private fun checkPermission() {
+        request(Manifest.permission.ACCESS_FINE_LOCATION) {
+            onShowRationale {
+                it.retry()
+            }
+            onGranted {
+                viewPager.adapter = MyFragmentPageAdapter()
+            }
+        }
     }
 
     override fun initListener() {
@@ -56,8 +70,7 @@ class MainActivity : BaseActivity<MainViewModel>() {
             override fun onTabSelected(position: Int) {
                 if (position == 1) {
                     if (BaseApplication.instance().mUserModel == null) {
-                        ToastUtils.toastShort("未登录请先登录")
-                        startKtxActivity<LoginActivity>()
+                        jumpLoginByState()
                         id_bottomNavigationBar.selectTab(mOldPos, false)
                     } else {
                         changeTab(position)
@@ -67,20 +80,44 @@ class MainActivity : BaseActivity<MainViewModel>() {
                 }
             }
         })
-        messageCountChangeLiveData.observe(this, Observer {
-            id_bottomNavigationBar.setUnReadMessageCount(EaseUiHelper.getUnReadMessageCount())
+        userModelChangeLiveData.observe(this, Observer {
+            viewPager.isUserInputEnabled = BaseApplication.instance().mUserModel != null
         })
+        messageCountChangeLiveData.observe(this, Observer {
+            if (BaseApplication.instance().mUserModel != null) {
+                mViewModel.getFriendInvite()
+            }
+        })
+        //有好友请求过来
+        mViewModel.mFriendInviteCount.observe(this, Observer {
+            LogUtils.i("mFriendInviteCount=$it")
+            if (it > 0) {
+                (mFragments[1] as ChatFragment).showBadgeView()
+            } else {
+                (mFragments[1] as ChatFragment).hideBadgeView()
+            }
+            id_bottomNavigationBar.setUnReadMessageCount(it + ChatHelper.getUnReadMessageCount())
+        })
+
+
     }
+
+    /**
+     *
+     * 检索是否有好友请求，有的话设置小红点 小红点数加一
+     *
+     */
 
     override fun onResume() {
         super.onResume()
-        //更新小红点
-        id_bottomNavigationBar.setUnReadMessageCount(EaseUiHelper.getUnReadMessageCount())
+        if (BaseApplication.instance().mUserModel != null) {
+            mViewModel.getFriendInvite()
+        }
     }
 
     private fun changeTab(pos: Int) {
         viewPager.currentItem = pos
-        if(pos == 1){
+        if (pos == 1) {
             (mFragments[pos] as ChatFragment).selectDefault()
         }
         mOldPos = pos

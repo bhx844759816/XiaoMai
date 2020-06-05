@@ -33,12 +33,8 @@ class SearchContactListActivity : BaseActivity<SearchContactListViewModel>() {
     override fun initView(savedInstanceState: Bundle?) {
         mSearchKey = intent.getStringExtra("SearchKey")
         mAdapter.mContentClickCallBack = {
-            startKtxActivity<PersonInfoActivity>(
-                values = listOf(
-                    Pair("State", 1),
-                    Pair("UserEntityGson", Gson().toJson(it))
-                )
-            )
+
+            startKtxActivity<PersonInfoActivity>(value = Pair("userName", it.userName))
         }
         mAdapter.addHeaderView(getTopItemView())
         recyclerView.layoutManager = LinearLayoutManager(this)

@@ -2,7 +2,6 @@ package com.guangzhida.xiaomai.ui.chat.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import com.guangzhida.xiaomai.BaseApplication
-import com.guangzhida.xiaomai.SERVICE_USERNAME
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.model.ChatUserModel
@@ -51,7 +50,7 @@ class ContactListViewModel : BaseViewModel() {
                     }
                     if (result.isSuccess()) {
                         //遍历服务器中所有的好友信息将其更新到本地
-                        val list = result.result.map { chatUserModel ->
+                        val list = result.data.map { chatUserModel ->
                             val localUserEntity = userEntityList?.find {
                                 it.uid == chatUserModel.id.toLong()
                             }
@@ -84,9 +83,9 @@ class ContactListViewModel : BaseViewModel() {
                 if (inviteMessageList != null) {
                     mInviteMessageEntityListLiveData.postValue(inviteMessageList.toMutableList())
                 }
-                swipeRefreshResultLiveData.postValue(true)
             } catch (e: Exception) {
                 e.printStackTrace()
+            }finally {
                 swipeRefreshResultLiveData.postValue(true)
             }
         }
@@ -104,7 +103,7 @@ class ContactListViewModel : BaseViewModel() {
                 if (it.nickName == null) {
                     val result = chatRepository.getUserInfoByNickNameOrPhone(phone = it.from)
                     if (result.isSuccess()) {
-                        val chatUserModel = result.result[0]
+                        val chatUserModel = result.data[0]
                         it.nickName = chatUserModel.nickName
                         it.headerUrl = chatUserModel.headUrl
                         mInviteMessageDao?.update(it)

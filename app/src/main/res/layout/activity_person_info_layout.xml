@@ -48,6 +48,7 @@
         android:layout_marginTop="10dp"
         android:textColor="#6D6D6D"
         android:textSize="9sp"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="@id/tvName"
         app:layout_constraintTop_toBottomOf="@id/tvName"
         tools:text="账号ID：354653153" />
@@ -58,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:textColor="#6D6D6D"
-        android:textSize="9sp"
+        android:textSize="12sp"
         app:layout_constraintLeft_toLeftOf="@id/tvAccountId"
         app:layout_constraintTop_toBottomOf="@id/tvAccountId"
         tools:text="男 19岁" />

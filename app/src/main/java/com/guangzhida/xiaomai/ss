@@ -18,6 +18,12 @@ Only the original thread that created a view hierarchy can touch its views.
 
 &wlanacip=10.15.10.1&wlanuserip=10.15.10.15&mac=60:ee:5c:23:38:20&url=http%3A%2F%2F
 
+15890057315
+123456
+
+
+680036
+
 
 //认证服务器
 https://10.15.10.1:4433/default/?token=HHIp9tscZwdXVN2E
@@ -25,14 +31,117 @@ admin
 sxzros
 
 https://lanhuapp.com/url/fP9Ky-8gOAh
-
-会话userName ->{
-   userName ->用户id
-   用户头像
-   用户昵称
-   用户性别
-   是否置顶
-   lastMessageTime 最后条消息得时间用于排序
+1.将客服的页面单独抽出来
 
 
-}
+2.将
+
+//添加活动消息提醒
+//首页弹出活动对话框
+
+1.优化校麦服务端会话列表加载缓慢问题
+2.添加模糊查询聊天记录
+3.添加首页账号查询，套餐清零等功能
+4.抓取新的potral页面认证参数
+5.通过js注入解决认证失败问题
+6.添加校麦广告和公告模块
+7.优化校麦网络诊断模块，添加后台网络诊断以及校麦服务端主动拉取诊断结果
+8.
+
+1.
+校麦服务端 - 提升为前台Service - 解决消息接收问题
+2.
+校麦APP集成离线推送(华为 小米 oppo 三星 。。。。。)
+3.
+应用宝产品上架 √
+
+
+//TODO 1.后台注册环信需要同步调用
+// 假设5个客服
+1.客服聊天功能
+  点击连接人工 - 后台检测网络状况 - 获取后台传递过来的客服对象 - 创建会话
+  接收到客服发送过来的消息 -  查询本地是否有这个会话  - 没有的话查询客服对象 - 保存为会话
+
+
+
+{"status":200,"message":"查询成功","data":{"id":"1","schoolId":"1188013109260849154","userId":null,
+"password":"$2a$12$nfexLtu5iuULyQyJTkvRleuaSdIz5coqPraxaZpcxrgwT7KLkqdkG","username":null,
+"name":"网管","mobilePhone":"18736084084","headId":"1198119843191066626","sex":null,
+"age":null,"jurisdiction":null,"isOnline":1,"status":1,"idCardNo":null,"idCardType":null,
+"createTime":1589767882000,"createUser":null,"updateTime":null,"updateUser":null,
+"isDelete":false,"note":null,"attr1":null,"attr2":null,"attr3":null,"nickName":"客服","headUrl":null},"rel":false}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+save_ck();
+    setcookie("lfradius_user", $("#user").val(), 0);
+    setcookie("lfradius_pass", $("#pass").val(), 0);
+
+    var object = document['_userregistr'];
+    if (!object.mianze.checked) {
+        showinfo("请先同意免责协议！");
+        return false;
+    }
+    if (object.user.value == '') {
+        showinfo("请输入用户名");
+        return false;
+    }
+
+    if ($('#pass').css('display') == "none") object.password1.value = object.password11.value;
+
+    if (object.password1.value == '') {
+        showinfo("请输入密码");
+        return false;
+    }
+
+    object.usrname.value = object.user.value;
+    object.passwd.value = object.password1.value;
+
+    $("#_userregistr").attr("target", "_top");
+    $("#_userregistr").attr("action", protocol + radiusip + "/lfradius/libs/portal/20191107/portalweb.php?router=" + routetype + "&run=login");
+    object.submit();
+
+
+    var routetype = "huawei";
+    var pathname = "sxz";
+    var portal_version = "1";
+    var portal_papchap = "pap";
+    var portal_parameter = "mac|wlanuserip|wlanacip";
+    var title = "连网认证系统";
+    var phone = "037122993454";
+    var phone_call = "037122993454";
+    var address = "郑州市金水区丰庆路小学家属院402";
+    var protocol = document.location.protocol  + "//";
+    var radiusip = "";
+    var successhref = "https://www.baidu.com";
+    var time_out = 5;
+    var save_time = 24000;
+    var nasid = "1";
+    var offline = "1";
+    var registr_button_show = 1;
+    var login_button_text = "用户登录";
+    var registr_button_text = "没有账号？立即注册";
+
+
+
+
+
+
+
+
+

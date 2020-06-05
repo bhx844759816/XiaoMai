@@ -16,7 +16,6 @@ import java.lang.Exception
  */
 class ForgetPasswordViewModel : BaseViewModel() {
     private var mUserGson by Preference(Preference.USER_GSON, "") //用户对象
-    private var mServiceGson by Preference(Preference.SERVICE_GSON, "") //客服对象
     val mSmsCodeLiveData = MutableLiveData<Boolean>()//发送验证码的数据观察者
     val mConfirmPasswordResultLiveData = MutableLiveData<Boolean>()//注册的数据观察者
     private val loginRepository = InjectorUtil.getLoginRepository()
@@ -50,9 +49,7 @@ class ForgetPasswordViewModel : BaseViewModel() {
                 if (result.isSuccess()) {
                     withContext(Dispatchers.IO) {
                         BaseApplication.instance().mUserModel = null
-                        BaseApplication.instance().mServiceModel = null
                         mUserGson = ""
-                        mServiceGson = ""
                         EMClient.getInstance().logout(true)
                     }
                     defUI.dismissDialog.call()

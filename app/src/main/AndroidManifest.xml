@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.guangzhida.xiaomai">
 
-    <uses-sdk tools:overrideLibrary="com.ypx.imagepicker"/>
+    <uses-sdk tools:overrideLibrary="com.ypx.imagepicker" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="com.sec.android.provider.badge.permission.READ" />
     <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE" />
-<!--    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />-->
+    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />
 
     <application
         android:name=".BaseApplication"
@@ -39,9 +39,8 @@
 
         <activity
             android:name=".ui.MainActivity"
-            android:launchMode="singleTask"
             android:configChanges="orientation|keyboardHidden"
-            >
+            android:launchMode="singleTask">
 
         </activity>
         <activity android:name=".ui.login.LoginActivity">
@@ -58,7 +57,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.WebActivity" />
-        <activity android:name=".ui.home.SearchSchoolActivity" />
         <activity android:name=".ui.home.AccountPackageModifyActivity" />
         <activity
             android:name=".ui.chat.ChatMessageActivity"
@@ -69,6 +67,7 @@
         <activity android:name=".ui.chat.SettingRemarkActivity" />
         <activity android:name=".ui.chat.ServiceActivity" />
         <activity android:name=".ui.chat.SearchActivity" />
+        <activity android:name=".ui.chat.ChatServiceActivity" />
         <activity android:name=".ui.chat.SearchContactListActivity" />
         <activity android:name=".ui.chat.SearchMessageListActivity" />
         <activity android:name=".ui.chat.ChatMessageRecordListActivity" />
@@ -77,15 +76,32 @@
         <activity android:name=".ui.user.AboutUsActivity" />
         <activity android:name=".ui.user.UserMessageActivity" />
         <activity android:name=".ui.user.SettingActivity" />
+        <activity android:name=".ui.user.UserFeedBackActivity" />
+        <activity android:name=".ui.VerifyWebActivity" />
         <!--预览图片-->
         <activity android:name=".view.preview.PreviewResultListActivity" />
         <activity android:name=".ui.TestActivity">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!--            <intent-filter>-->
+            <!--                <action android:name="android.intent.action.MAIN" />-->
+            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+            <!--            </intent-filter>-->
 
         </activity>
+
+        <!--检测开机广播启动聊天后台服务-->
+        <receiver android:name=".chat.StartChatServiceReceiver">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".service.CheckNetWorkStateService">
+            <intent-filter>
+                <action android:name="com.guangzhida.xiaomai.service.CheckNetWorkStateService" />
+            </intent-filter>
+        </service>
 
         <!-- 设置环信应用的appkey -->
         <!--        <meta-data-->
@@ -94,5 +110,6 @@
         <meta-data
             android:name="EASEMOB_APPKEY"
             android:value="1116191019107908#school" />
+        <service android:name=".chat.ChatService" />
     </application>
 </manifest>

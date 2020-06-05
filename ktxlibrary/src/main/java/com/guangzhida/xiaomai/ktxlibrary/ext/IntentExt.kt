@@ -32,6 +32,17 @@ fun Context.goToAppInfoPage(packageName: String = this.packageName) {
     startActivity(getAppInfoIntent(packageName))
 }
 
+fun Context.getAppNotificationSettingPage(
+    packageName: String = this.packageName,
+    chatChannelId: String
+) {
+    try {
+        startActivity(getNotificationSettingIntent(packageName, chatChannelId))
+    } catch (e: Throwable) {
+        goToAppInfoPage()
+    }
+}
+
 /**
  * Return the Intent with [Settings.ACTION_DATE_SETTINGS]
  */
@@ -39,6 +50,17 @@ fun Context.getDateAndTimeIntent(): Intent =
     Intent(Settings.ACTION_DATE_SETTINGS).apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK
         putExtra("packageName", packageName)
+    }
+
+/**
+ * 获取通知栏的Intent
+ */
+fun Context.getNotificationSettingIntent(packageName: String, chatChannelId: String): Intent =
+    Intent(
+        Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS
+    ).apply {
+        putExtra(Settings.EXTRA_CHANNEL_ID, chatChannelId)
+        putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
     }
 
 /**

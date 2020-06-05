@@ -132,6 +132,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="@string/or"
+        android:visibility="gone"
         android:textSize="15sp"
         app:layout_constraintLeft_toLeftOf="@id/idCreateAccount"
         app:layout_constraintRight_toRightOf="@id/idCreateAccount"
@@ -140,6 +141,7 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="50dp"
+        android:visibility="gone"
         android:layout_marginTop="15dp"
         android:background="@drawable/shape_half_circle_empty_rectangle"
         app:layout_constraintLeft_toLeftOf="@id/idLoginTv"

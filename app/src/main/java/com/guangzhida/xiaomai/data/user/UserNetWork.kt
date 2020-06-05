@@ -34,6 +34,12 @@ class UserNetWork {
         return mService.updateUserInfo(params)
     }
 
+    /**
+     * 更新用户信息
+     */
+    suspend fun uploadUserFeedBack(params: Map<String, String>): BaseResult<String> {
+        return mService.uploadUserFeedBack(params)
+    }
 
     companion object {
         @Volatile

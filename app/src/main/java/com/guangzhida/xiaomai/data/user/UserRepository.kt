@@ -13,7 +13,7 @@ import java.io.File
 class UserRepository(netWork: UserNetWork) {
     private val mNetWork = netWork
 
-    suspend fun uploadImg(file: File): UploadMessageModel{
+    suspend fun uploadImg(file: File): UploadMessageModel {
         return mNetWork.uploadImg(file)
     }
 
@@ -24,9 +24,17 @@ class UserRepository(netWork: UserNetWork) {
         return mNetWork.updateUserInfo(params)
     }
 
+    /**
+     * 更新用户信息
+     */
+    suspend fun uploadUserFeedBack(params: Map<String, String>): BaseResult<String> {
+        return mNetWork.uploadUserFeedBack(params)
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: UserRepository? = null
+
         fun getInstance(netWork: UserNetWork) =
             INSTANCE ?: synchronized(this) {
                 INSTANCE

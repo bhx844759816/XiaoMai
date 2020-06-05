@@ -22,9 +22,11 @@ class ChatMessageRecordListViewModel : BaseViewModel() {
     val mChatMessageRecordModelList = MutableLiveData<List<ChatMessageRecordModel>>()
     val mQueryChatMessageRecord = MutableLiveData<List<EMMessage>>() //查询到的全部的聊天记录
     var mContentClickCallBack: ((UserEntity) -> Unit)? = null
+    val mConversationTypeObserver = MutableLiveData<Pair<Int,String>>()
     private val mUserDao by lazy {
         AppDatabase.invoke(BaseApplication.instance().applicationContext).userDao()
     }
+
 
     /**
      * 模糊查询本地的和好友的聊天记录

@@ -6,5 +6,5 @@ import com.hyphenate.chat.EMConversation
 
 data class ConversationModelWrap(
     val emConversation: EMConversation?,
-    val conversationEntity: ConversationEntity?
+    val conversationEntity: ConversationEntity
 )

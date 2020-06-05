@@ -29,6 +29,10 @@ class HomeRepository(netWork: HomeNetWork) {
         return mNetWork.doAccountVerify(url, params)
     }
 
+    suspend fun doAccountVerify2(url: String, params: Map<String, String?>): ResponseBody {
+        return mNetWork.doAccountVerify2(url, params)
+    }
+
     /**
      * 退出认证
      */
@@ -62,6 +66,38 @@ class HomeRepository(netWork: HomeNetWork) {
      */
     suspend fun bindSchoolAccount(url: String, params: Map<String, String?>): ResponseBody {
         return mNetWork.bindSchoolAccount(url, params)
+    }
+
+    /**
+     * 通过校园卡账号密码登录
+     */
+    suspend fun doLoginBySchoolAccount(schoolAccount: String, schoolPassword: String): UserModel {
+        return mNetWork.doLoginBySchoolAccount(schoolAccount, schoolPassword)
+    }
+
+    /**
+     * 通过校园卡账号密码登录
+     */
+    suspend fun doBindSchoolAccount(
+        schoolAccount: String,
+        schoolPassword: String,
+        id: String
+    ): UserModel {
+        return mNetWork.doBindSchoolAccount(schoolAccount, schoolPassword, id)
+    }
+
+    /**
+     * 通过学校ID获取客服列表
+     */
+    suspend fun getServiceBySchoolId(schoolId: String): BaseResult<List<ServiceModel>> {
+        return mNetWork.getServiceBySchoolId(schoolId)
+    }
+
+    /**
+     * 通过学校ID获取弹窗广告
+     */
+    suspend fun getPopAdBySchoolId(schoolId: String): BaseResult<PopAdModel> {
+        return mNetWork.getPopAdBySchoolId(schoolId)
     }
 
 

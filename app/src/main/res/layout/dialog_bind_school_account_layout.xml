@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="该功能需要登录后使用"
+        android:textSize="18sp"
+        android:textColor="@color/dialogTitleTextColor"
+        android:textStyle="bold"
+        android:layout_marginTop="15dp"
+        />
+    <TextView
+        android:id="@+id/tvSchoolAccountLogin"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/select_btn_bg"
+        android:gravity="center"
+        android:text="校园网账号密码登录"
+        android:textColor="@color/select_btn_text_color"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvNewPhoneLogin"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/select_btn_bg"
+        android:gravity="center"
+        android:text="使用新手机号登录"
+        android:textColor="@color/select_btn_text_color"
+        android:textSize="16sp" />
+</LinearLayout>

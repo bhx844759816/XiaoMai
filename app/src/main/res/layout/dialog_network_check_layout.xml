@@ -3,20 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:paddingBottom="20dp"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingStart="15dp"
+    android:paddingLeft="15dp"
+    android:paddingEnd="0dp"
+    android:paddingRight="0dp"
+    android:paddingBottom="20dp">
+
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:textSize="18sp"
-        android:textColor="@color/defaultTextColor"
-        android:textStyle="bold"
         android:text="网络诊断"
+        android:textColor="@color/defaultTextColor"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvConnectTips"
@@ -50,11 +55,21 @@
         tools:text="接入点MAC: ad:bc:09:ap:ss" />
 
     <TextView
+        android:id="@+id/tvWifiRssi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvMacName"
+        app:layout_constraintTop_toBottomOf="@id/tvMacName"
+        tools:text="WIFI信号强度: 5" />
+
+    <TextView
         android:id="@+id/tvContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:text="检测中..."
-        app:layout_constraintLeft_toLeftOf="@id/tvMacName"
-        app:layout_constraintTop_toBottomOf="@id/tvMacName" />
+        app:layout_constraintLeft_toLeftOf="@id/tvWifiRssi"
+        app:layout_constraintTop_toBottomOf="@id/tvWifiRssi" />
 </androidx.constraintlayout.widget.ConstraintLayout>

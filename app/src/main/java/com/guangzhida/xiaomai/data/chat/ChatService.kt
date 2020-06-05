@@ -2,9 +2,11 @@ package com.guangzhida.xiaomai.data.chat
 
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.model.ChatUserModel
+import com.guangzhida.xiaomai.model.ServiceModel
 import com.guangzhida.xiaomai.model.ServiceProblemModel
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Call
 import retrofit2.http.*
 
 /**
@@ -67,8 +69,11 @@ interface ChatService {
      */
     @Multipart
     @POST("user/sendPicAndAudioFileMsg")
-    suspend fun sendPicOrVoiceMsg(@Part photo: MultipartBody.Part,
-                                  @Part("friendId") friendId:RequestBody, @Part("fileType") fileType:RequestBody): BaseResult<String>
+    suspend fun sendPicOrVoiceMsg(
+        @Part photo: MultipartBody.Part,
+        @Part("friendId") friendId: RequestBody, @Part("fileType") fileType: RequestBody
+    ): BaseResult<String>
+
     /**
      * 根据昵称和手机号获取用户信息
      * @param nickName 用户昵称
@@ -78,9 +83,28 @@ interface ChatService {
     @POST("user/get_user_by_nickname")
     suspend fun getUserInfoByNickNameOrPhone(@Field("nickName") nickName: String = "", @Field("mobilePhone") phone: String = ""): BaseResult<List<ChatUserModel>>
 
+
+    @FormUrlEncoded
+    @POST("user/get_user_by_nickorphone")
+    suspend fun getUserInfoByNickNameOrPhone(@Field("nickOrPhone") nickOrPhone: String): BaseResult<List<ChatUserModel>>
+
+    /**
+     * 同步获取
+     */
+    @FormUrlEncoded
+    @POST("user/get_user_by_nickorphone")
+    fun getUserInfoSync(@Field("nickOrPhone") nickOrPhone: String): Call<BaseResult<List<ChatUserModel>>>
+
     /**
      * 获取在线客服的问题列表
      */
     @GET("problem/get_problem")
     suspend fun getServiceProblemList(): BaseResult<List<ServiceProblemModel>>
+
+    /**
+     * 通过学校ID获取在线客服对象
+     */
+    @FormUrlEncoded
+    @POST("network/customer_service/getCustomerServiceByOnline")
+    suspend fun getOnlineServer(@Field("schoolId") schoolId: String): BaseResult<ServiceModel>
 }

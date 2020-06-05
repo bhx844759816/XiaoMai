@@ -27,7 +27,7 @@ public class LogUtils {
         Logger.addLogAdapter(new AndroidLogAdapter() {
             @Override
             public boolean isLoggable(int priority, @Nullable String tag) {
-                return true;
+                return BuildConfig.DEBUG;
             }
         });
     }

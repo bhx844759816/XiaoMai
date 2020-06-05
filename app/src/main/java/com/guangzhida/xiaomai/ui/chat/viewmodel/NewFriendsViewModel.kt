@@ -1,9 +1,11 @@
 package com.guangzhida.xiaomai.ui.chat.viewmodel
 
 import androidx.lifecycle.MutableLiveData
+import androidx.room.PrimaryKey
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
+import com.guangzhida.xiaomai.event.messageCountChangeLiveData
 import com.guangzhida.xiaomai.model.NewFriendModel
 import com.guangzhida.xiaomai.room.AppDatabase
 import com.guangzhida.xiaomai.room.entity.UserEntity
@@ -38,26 +40,32 @@ class NewFriendsViewModel : BaseViewModel() {
     private suspend fun getNewFriends(): List<NewFriendModel> {
         val list = mutableListOf<NewFriendModel>()
         return withContext(Dispatchers.IO) {
-            val inviteMessageList = mInviteMessageDao?.queryInviteMessageByUserName(BaseApplication.instance().mUserModel!!.username)
+            val inviteMessageList =
+                mInviteMessageDao?.queryInviteMessageByUserName(BaseApplication.instance().mUserModel!!.username)
             inviteMessageList?.forEach {
                 val userEntity = mUserDao!!.queryUserByUserName(it.from)
                 LogUtils.i("userEntity=$userEntity")
                 if (userEntity == null) {
-                    val result = chatRepository.getUserInfoByNickNameOrPhone(phone = it.from)
-                    if (result.isSuccess()) {
-                        val data = result.result[0]
-                        val model = NewFriendModel(
-                            it, UserEntity(
-                                uid = data.id.toLong(),
-                                nickName = data.nickName,
-                                userName = data.mobilePhone,
-                                avatarUrl = data.headUrl?:"",
-                                sex = data.sex.toString(),
-                                age = data.age.toString()
+                    //当是刚收到好友请求的时候去服务器拉取好友请求的个人信息
+                    if (it.state == 0 || it.state == 1) {
+                        val result = chatRepository.getUserInfoByNickNameOrPhone(phone = it.from)
+                        //只有初始状态的
+                        if (result.isSuccess()) {
+                            val data = result.data[0]
+                            val model = NewFriendModel(
+                                it, UserEntity(
+                                    uid = data.id.toLong(),
+                                    nickName = data.nickName,
+                                    userName = data.mobilePhone,
+                                    avatarUrl = data.headUrl ?: "",
+                                    sex = data.sex.toString(),
+                                    age = data.age.toString()
+                                )
                             )
-                        )
-                        list.add(model)
+                            list.add(model)
+                        }
                     }
+
                 } else {
                     val model = NewFriendModel(it, userEntity)
                     list.add(model)
@@ -80,6 +88,21 @@ class NewFriendsViewModel : BaseViewModel() {
                     entity.state = 2
                 }
                 mInviteMessageDao?.update(entity)
+                //将好友信息保存到本地
+                val chatUserModelResult = chatRepository.getUserInfoByNickNameOrPhone(phone = from)
+                if (chatUserModelResult.isSuccess()) {
+                    val chatUserModel = chatUserModelResult.data[0]
+                    val localEntity = UserEntity(
+                        uid = chatUserModel.id.toLong(),
+                        nickName = chatUserModel.nickName,
+                        userName = chatUserModel.mobilePhone,
+                        avatarUrl = chatUserModel.headUrl ?: "",
+                        age = chatUserModel.age.toString(),
+                        sex = chatUserModel.sex.toString(),
+                        singUp = chatUserModel.signature ?: ""
+                    )
+                    mUserDao?.insert(localEntity)
+                }
                 operateResultLiveData.postValue(true)
                 val list = getNewFriends()
                 mNewFriendModeLiveData.postValue(list)

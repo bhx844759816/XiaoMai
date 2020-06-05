@@ -10,6 +10,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseActivity
+import com.guangzhida.xiaomai.dialog.ModifyAccountTipsDialog
 import com.guangzhida.xiaomai.http.BASE_URL
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivityForResult
 import com.guangzhida.xiaomai.model.AccountModel
@@ -58,6 +59,7 @@ class AccountPackageModifyActivity : BaseActivity<AccountPackageModifyViewModel>
         }
         super.onDestroy()
     }
+
     /**
      *
      */
@@ -84,8 +86,8 @@ class AccountPackageModifyActivity : BaseActivity<AccountPackageModifyViewModel>
     /**
      * 在线更换套餐
      */
-    private fun doBuyPackage(model:PackageInfoModel) {
-        if (mAccountModel?.servername.isNullOrEmpty() || (model.current_use != null && model.current_use == "1" )) {
+    private fun doBuyPackage(model: PackageInfoModel) {
+        if (mAccountModel?.servername.isNullOrEmpty() || (model.current_use != null && model.current_use == "1")) {
             //执行购买
             modifyAccountPackage()
         } else {
@@ -107,7 +109,7 @@ class AccountPackageModifyActivity : BaseActivity<AccountPackageModifyViewModel>
     private fun modifyAccountPackage() {
         startKtxActivityForResult<WebActivity>(
             requestCode = 0x01, values = listOf(
-            Pair("url","http://yonghu.guangzhida.cn/lfradius/home.php?a=userlogin&c=login"),
+                Pair("url", "http://yonghu.guangzhida.cn/lfradius/home.php?a=userlogin&c=login"),
 //                Pair("url", "http://yonghu.guangzhida.cn/lfradius/home.php/user/server"),
                 Pair("type", "AccountRecharge"),
                 Pair("params", "username=${mAccountModel?.user}&password=${mAccountModel?.pass}")
@@ -120,19 +122,10 @@ class AccountPackageModifyActivity : BaseActivity<AccountPackageModifyViewModel>
      * 提示修改套餐的Dialog
      */
     private fun showModifyAccountTipsDialog() {
-        MaterialDialog(this)
-            .cancelable(true)
-            .cornerRadius(8f)
-            .title(text = "重要提醒")
-            .message(text = "您的套餐剩余时长多余3天，如果您强制更换套餐，您的账户余额及剩余时长将会被清零，且无法找回。您确定要这样操作吗？")
-            .lifecycleOwner(this)
-            .positiveButton(text = "确定") { dialog ->
-                dialog.dismiss()
-                mAccountModel?.let {
-                    mViewModel.clearAccountPackage(it.user, findSecret ?: "")
-                }
-            }.negativeButton(text = "取消") { dialog ->
-                dialog.dismiss()
-            }.show()
+        ModifyAccountTipsDialog.showDialog(this, this) {
+            mAccountModel?.let {
+                mViewModel.clearAccountPackage(it.user, findSecret ?: "")
+            }
+        }
     }
 }

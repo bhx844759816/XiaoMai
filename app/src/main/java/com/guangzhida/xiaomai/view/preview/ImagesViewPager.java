@@ -2,6 +2,8 @@ package com.guangzhida.xiaomai.view.preview;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -18,12 +20,14 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.RequestOptions;
+import com.guangzhida.xiaomai.utils.LogUtils;
 import com.guangzhida.xiaomai.utils.ToastUtils;
 import com.guangzhida.xiaomai.view.custom.CustomImgPickerPresenter;
 import com.ypx.imagepicker.bean.ImageItem;
 import com.ypx.imagepicker.helper.DetailImageLoadHelper;
 import com.ypx.imagepicker.widget.cropimage.CropImageView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +42,13 @@ public class ImagesViewPager extends RelativeLayout {
     private CircleImageIndicator circleImageIndicator;
     private LinearLayout indicatorLayout;
     private ImageViewClickCallBack mCallBack;
+
+
+    private List<View> viewList = new ArrayList<>();
+
+    private boolean isStyle1 = false;
+
+    private boolean isGrayImage = false;
 
     public ImagesViewPager(Context context) {
         super(context);
@@ -97,12 +108,6 @@ public class ImagesViewPager extends RelativeLayout {
         return viewPager;
     }
 
-    private List<View> viewList = new ArrayList<>();
-
-    private boolean isStyle1 = false;
-
-    private boolean isGrayImage = false;
-
     public void setGrayImage(boolean grayImage) {
         isGrayImage = grayImage;
     }
@@ -131,9 +136,14 @@ public class ImagesViewPager extends RelativeLayout {
             imageView.setBounceEnable(true);
             imageView.setCanShowTouchLine(false);
             imageView.setMaxScale(7.0f);
-            Glide.with(imageView.getContext()).load(pictureInfoEntity).apply(new RequestOptions()
-                    .format(DecodeFormat.PREFER_ARGB_8888))
-                    .into(imageView);
+            LogUtils.i("pictureInfoEntity=" + pictureInfoEntity);
+            if (pictureInfoEntity.startsWith("http") || pictureInfoEntity.startsWith("https")) {
+                Glide.with(imageView.getContext()).load(pictureInfoEntity)
+                        .into(imageView);
+            } else {
+                Bitmap bitmap = BitmapFactory.decodeFile(pictureInfoEntity);
+                imageView.setImageBitmap(bitmap);
+            }
             imageView.setOnClickListener(v -> {
                 if (mCallBack != null) {
                     mCallBack.click();
@@ -162,6 +172,9 @@ public class ImagesViewPager extends RelativeLayout {
         setViewList(viewList, pos);
     }
 
+    /**
+     * 设置显示的View
+     */
     public void setViewList(final List<? extends View> viewList, int pos) {
         circleImageIndicator.setSelectIndex(0);
         circleImageIndicator.setImageCount(viewList.size());
@@ -169,7 +182,6 @@ public class ImagesViewPager extends RelativeLayout {
             indicatorLayout.setVisibility(viewList.size() > 1 ? View.VISIBLE : View.GONE);
             indicatorLayout.setGravity(Gravity.CENTER);
         }
-
         PagerAdapter simpleAdapter = new PagerAdapter() {
             @Override
             public int getCount() {

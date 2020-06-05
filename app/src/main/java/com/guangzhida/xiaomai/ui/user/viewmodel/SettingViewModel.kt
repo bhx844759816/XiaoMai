@@ -15,7 +15,6 @@ class SettingViewModel : BaseViewModel() {
     val doLogoutResultLiveDta = MutableLiveData<Boolean>()
     val caseSizeResultLiveDta = MutableLiveData<String>()
     private var mUserGson by Preference(Preference.USER_GSON, "") //用户对象
-    private var mServiceGson by Preference(Preference.SERVICE_GSON, "") //客服对象
 
     /**
      * 退出登录
@@ -26,9 +25,7 @@ class SettingViewModel : BaseViewModel() {
             try {
                 withContext(Dispatchers.IO) {
                     BaseApplication.instance().mUserModel = null
-                    BaseApplication.instance().mServiceModel = null
                     mUserGson = ""
-                    mServiceGson = ""
                     EMClient.getInstance().logout(true)
                 }
                 defUI.toastEvent.postValue("退出登录成功")

@@ -29,6 +29,13 @@ interface LoginService {
         @Field("password") password: String
     ): BaseResult<String>
 
+
+    @FormUrlEncoded
+    @POST("user/regiest_user")
+    suspend fun register(
+        @FieldMap params: Map<String, String>
+    ): BaseResult<String>
+
     /**
      * 用户登录获取token
      */
@@ -56,6 +63,9 @@ interface LoginService {
     @POST("user/get_user_by_nickname")
     suspend fun getUserInfoByNickNameOrPhone(@Field("mobilePhone") phone: String): BaseResult<List<ChatUserModel>>
 
+    @FormUrlEncoded
+    @POST("user/getUserByPhone")
+    suspend fun getUserByPhone(@Field("mobilePhone") phone: String):BaseResult<String>
     /**
      * 修改密码
      */

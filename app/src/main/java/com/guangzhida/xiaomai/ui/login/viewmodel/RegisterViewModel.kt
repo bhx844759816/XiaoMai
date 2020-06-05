@@ -47,5 +47,27 @@ class RegisterViewModel : BaseViewModel() {
             }
         )
     }
-
+    /**
+     * 注册
+     */
+    fun register(phone: String, smsCode: String, password: String,schoolAccount:String,schoolPsd:String) {
+        launchGo(
+            {
+                val params = mapOf(
+                    "mobilePhone" to phone,
+                    "code" to smsCode,
+                    "password" to password,
+                    "campusNetworkNum" to schoolAccount,
+                    "campusNetworkPwd" to schoolPsd
+                    )
+                val schoolModelWrap = loginRepository.register(params)
+                if (schoolModelWrap.status == 200) {
+                    mRegisterResultLiveData.postValue(true)
+                } else {
+                    mRegisterResultLiveData.postValue(false)
+                    defUI.toastEvent.postValue(schoolModelWrap.message)
+                }
+            }
+        )
+    }
 }

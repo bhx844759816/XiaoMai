@@ -57,6 +57,11 @@ object NetworkCheckDialog2 {
             append("接入点MAC: ")
             append(NetworkUtils.getWifiMAC(context) ?: NetworkUtils.getMac())
         }
+        val wifiRssi = buildString {
+            append("WIFI信号强度: ")
+            append(NetworkUtils.getWifiRssi(context) ?: "未检测到信号强度")
+        }
+
         MaterialDialog(context)
             .cancelable(true)
             .cornerRadius(8f)
@@ -66,7 +71,8 @@ object NetworkCheckDialog2 {
                 val tvConnectTips = getCustomView().findViewById<TextView>(R.id.tvConnectTips)
                 val tvWifiName = getCustomView().findViewById<TextView>(R.id.tvWifiName)
                 val tvMacName = getCustomView().findViewById<TextView>(R.id.tvMacName)
-                mTvContent = getCustomView().findViewById<TextView>(R.id.tvContent)
+                val tvWifiRssi = getCustomView().findViewById<TextView>(R.id.tvWifiRssi)
+                mTvContent = getCustomView().findViewById(R.id.tvContent)
                 tvConnectTips.text = tips
                 tvWifiName.visibility = if (isWifi) {
                     View.VISIBLE
@@ -75,6 +81,9 @@ object NetworkCheckDialog2 {
                 }
                 if (isWifi)
                     tvWifiName.text = wifiName
+                if (isWifi) {
+                    tvWifiRssi.text = wifiRssi
+                }
                 tvMacName.text = macName
             }.setOnDismissListener {
                 mAnimator?.cancel()
@@ -98,7 +107,6 @@ object NetworkCheckDialog2 {
                 ktxSpan.text("检测网络异常", foregroundColor = Color.parseColor("#ff0000"), textSize = 18)
                     .show { }//设置
             }
-
         }
     }
 

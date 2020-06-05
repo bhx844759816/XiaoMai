@@ -18,5 +18,3 @@ data class UserEntity(
     var remarkName: String = "",//备注信息
     var singUp: String = ""//个性签名
 )
-
-

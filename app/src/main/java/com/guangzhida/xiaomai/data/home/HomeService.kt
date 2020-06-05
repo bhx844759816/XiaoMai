@@ -39,8 +39,11 @@ interface HomeService {
     @POST("")
     suspend fun doAccountVerify(@Url url: String, @FieldMap params: Map<String, String?>): VerifyModel
 
+    @FormUrlEncoded
+    @POST("")
+    suspend fun doAccountVerify2(@Url url: String, @FieldMap params: Map<String, String?>): ResponseBody
+
     /**
-     *
      * 退出认证
      */
     @GET("")
@@ -67,7 +70,44 @@ interface HomeService {
      */
     @FormUrlEncoded
     @POST("")
-    suspend fun bindSchoolAccount(@Url url: String, @FieldMap params: Map<String, String?>):ResponseBody
+    suspend fun bindSchoolAccount(@Url url: String, @FieldMap params: Map<String, String?>): ResponseBody
 
+
+    /**
+     *通过校园卡账号密码登录
+     */
+    @FormUrlEncoded
+    @POST("jwt/campus_network_login")
+    suspend fun doLoginBySchoolAccount(
+        @Field("campusNetworkNum") schoolAccount: String,
+        @Field("campusNetworkPwd") schoolPassword: String
+    ): UserModel
+
+
+    /**
+     * 绑定校园卡
+     */
+    @FormUrlEncoded
+    @POST("user/campus_network_bind")
+    suspend fun doBindSchoolAccount(
+        @Field("campusNetworkNum") schoolAccount: String,
+        @Field("campusNetworkPwd") schoolPassword: String,
+        @Field("id") id: String
+    ): UserModel
+
+
+    /**
+     * 通过学校ID获取客服对象
+     */
+    @FormUrlEncoded
+    @POST("network/customer_service/getCustomerServiceBySchool")
+    suspend fun getServiceBySchoolId(@Field("schoolId") schoolId: String): BaseResult<List<ServiceModel>>
+
+    /**
+     * 通过学校ID获取弹窗广告对象
+     */
+    @FormUrlEncoded
+    @POST("network/pop_ads/getPopAdsBySchool")
+    suspend fun getPopAdBySchoolId(@Field("schoolId") schoolId: String): BaseResult<PopAdModel>
 
 }

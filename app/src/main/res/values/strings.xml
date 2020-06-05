@@ -2,11 +2,12 @@
     <string name="app_name">校麦</string>
     <string name="now_loading">正在加载</string>
     <string name="app_home_title">校麦-连接校园生活</string>
-    <string name="bindAccount">绑定账号</string>
+    <string name="bindAccount">用户绑定</string>
     <string name="userRegister">用户注册</string>
+    <string name="easyUse">注册试用</string>
     <string name="accountRecharge">账户充值</string>
-    <string name="setMealModify">套餐修改</string>
-    <string name="balanceQuery">余额查询</string>
+    <string name="setMealModify">更换套餐</string>
+    <string name="balanceQuery">免费使用</string>
     <string name="netDiagnosis">网络诊断</string>
     <string name="aboutPassword">关于密码</string>
     <string name="artificialService">人工客服</string>
@@ -32,5 +33,10 @@
     <string name="addFriend">添加好友</string>
     <string name="button_pushtotalk">按住说话</string>
     <string name="button_send">发送</string>
-    <string name="confirm">确定</string>
+    <string name="confirm">确认</string>
+    <string name="userFeedback">用户反馈</string>
+    <string name="importantRemind">重要提醒</string>
+    <string name="modifyAccountTipsContent">您的套餐还未到期，更换套餐，套餐剩余时长及账户余额将被清零，且无法找回。</string>
+    <string name="tips">提示</string>
+    <string name="bindAccountSchoolTips">您账号注册的校区与选择的校区不一致，请统一您的注册及使用校区 。</string>
 </resources>

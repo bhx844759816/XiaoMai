@@ -5,21 +5,25 @@ import android.os.Bundle
 import android.view.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.guangzhida.xiaomai.EaseUiHelper
+import androidx.work.WorkManager
+import com.google.gson.Gson
+import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseFragment
+import com.guangzhida.xiaomai.event.userModelChangeLiveData
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.model.ConversationModelWrap
+import com.guangzhida.xiaomai.model.ServiceModel
 import com.guangzhida.xiaomai.ui.chat.ChatMessageActivity
+import com.guangzhida.xiaomai.ui.chat.ChatServiceActivity
 import com.guangzhida.xiaomai.ui.chat.SearchActivity
 import com.guangzhida.xiaomai.ui.chat.adapter.ConversationAdapter
 import com.guangzhida.xiaomai.ui.chat.viewmodel.ConversationViewModel
-import com.guangzhida.xiaomai.utils.ToastUtils
+import com.guangzhida.xiaomai.utils.LogUtils
 import com.hyphenate.EMMessageListener
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMMessage
 import com.lxj.xpopup.XPopup
-import com.lxj.xpopup.enums.PopupPosition
 import kotlinx.android.synthetic.main.fragment_conversation_layout.*
 
 /**
@@ -68,9 +72,25 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
     override fun initListener() {
         //点击跳转到聊天界面
         mAdapter.mClickContentCallBack = {
-            val intent = Intent(context, ChatMessageActivity::class.java)
-            intent.putExtra("userName", it.conversationEntity?.userName)
-            startActivity(intent)
+            //不是客服聊天的话跳转到ChatMessageActivity
+            if (it.conversationEntity.type != 1) {
+                val params = Pair("userName", it.conversationEntity.userName)
+                startKtxActivity<ChatMessageActivity>(value = params)
+            } else {
+                val serviceModel = ServiceModel(
+                    nickName = it.conversationEntity.nickName,
+                    headUrl = it.conversationEntity.avatarUrl,
+                    sex = Integer.parseInt(it.conversationEntity.sex ?: "0"),
+                    age = Integer.parseInt(it.conversationEntity.age?:"0"),
+                    username = it.conversationEntity.userName
+                )
+                startKtxActivity<ChatServiceActivity>(
+                    value = Pair(
+                        "serviceModel",
+                        Gson().toJson(serviceModel)
+                    )
+                )
+            }
         }
         //长按弹出 /置顶/删除聊天/标记已读/标记未读
         mAdapter.mLongClickContentCallBack = { item, view ->
@@ -99,6 +119,12 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
      * 初始化数据观察
      */
     private fun initLiveDataObserver() {
+        //用户切换
+        userModelChangeLiveData.observe(this, Observer {
+            mList.clear()
+            mAdapter.notifyDataSetChanged()
+            refresh()
+        })
         //接收到会话列表
         viewModel.mConversationListLiveData.observe(this, Observer {
             mList.clear()
@@ -122,19 +148,19 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
                 refresh()
             }
         })
-    }
 
+    }
 
     override fun onResume() {
         super.onResume()
         refresh()
         //清除通知栏
-        EaseUiHelper.cancelNotifyMessage()
+        ChatHelper.cancelNotifyMessage()
         EMClient.getInstance().chatManager().addMessageListener(mMessageListener)
     }
 
     private fun refresh() {
-        viewModel.loadConversationList()
+        viewModel.loadConversation()
     }
 
     override fun onPause() {
@@ -146,8 +172,6 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
      * 展示长按的PopupMenu
      */
     private fun showPopupMenu(item: ConversationModelWrap, view: View) {
-
-
         XPopup.Builder(context)
             .atView(view)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
             .hasShadowBg(false)
@@ -166,7 +190,7 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
     }
 
     private fun getPopupArrayList(item: ConversationModelWrap): Array<String> {
-        return if (item.conversationEntity?.isTop == true) {
+        return if (item.conversationEntity.isTop) {
             arrayOf("取消置顶", "删除该聊天")
         } else {
             arrayOf("置顶", "删除该聊天")

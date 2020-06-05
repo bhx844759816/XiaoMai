@@ -24,6 +24,13 @@ class LoginNetwork {
     }
 
     /**
+     *
+     */
+    suspend fun register(params: Map<String, String>): BaseResult<String> {
+        return mService.register(params)
+    }
+
+    /**
      *登录
      */
     suspend fun login(phone: String, password: String): UserModel {
@@ -34,6 +41,9 @@ class LoginNetwork {
         return mService.getUserInfoByNickNameOrPhone(userName)
     }
 
+    suspend fun getUserByPhone(phone: String): BaseResult<String> {
+        return mService.getUserByPhone(phone)
+    }
     /**
      * 刷新Token
      */

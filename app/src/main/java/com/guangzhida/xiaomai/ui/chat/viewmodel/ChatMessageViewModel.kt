@@ -2,11 +2,12 @@ package com.guangzhida.xiaomai.ui.chat.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import com.guangzhida.xiaomai.BaseApplication
-import com.guangzhida.xiaomai.EaseUiHelper
 import com.guangzhida.xiaomai.base.BaseViewModel
+import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.room.AppDatabase
 import com.guangzhida.xiaomai.utils.LogUtils
+import com.hyphenate.EMCallBack
 import com.hyphenate.EMMessageListener
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMConversation
@@ -21,7 +22,7 @@ import java.io.File
  */
 open class ChatMessageViewModel : BaseViewModel() {
     private val pageSize = 20
-    private var mChatUserName: String? = null;
+    private lateinit var mChatUserName: String
     private val mRepository = InjectorUtil.getChatRepository()
     private val mUserDao by lazy {
         AppDatabase.invoke(BaseApplication.instance().applicationContext).userDao()
@@ -29,14 +30,20 @@ open class ChatMessageViewModel : BaseViewModel() {
     private val mInviteMessageDao by lazy {
         AppDatabase.invoke(BaseApplication.instance().applicationContext).inviteMessageDao()
     }
-    private lateinit var conversation: EMConversation
+    private val mConversationDao by lazy {
+        AppDatabase.invoke(BaseApplication.instance().applicationContext).conversationDao()
+    }
+
+    var conversation: EMConversation? = null
     val mInitConversationLiveData = MutableLiveData<List<EMMessage>>()
+    val mInitUserInfoObserver = MutableLiveData<Pair<String, String>>() //获取到好友的信息
     val mUserAvatarLiveData = MutableLiveData<String>()
     val haveMoreDataLiveData = MutableLiveData<List<EMMessage>>() //是否有更多数据
     val refreshResultLiveData = MutableLiveData<Boolean>() //下拉刷新回调
     val deleteFriendLiveData = MutableLiveData<Boolean>() //删除好友回调
     val sendMessageSuccessLiveData = MutableLiveData<EMMessage>() //发送消息成功
     val receiveMessageLiveData = MutableLiveData<EMMessage>() //接收到消息
+
 
     private val onEMMessageListener = object : EMMessageListener {
         override fun onMessageRecalled(messages: MutableList<EMMessage>?) {
@@ -48,13 +55,12 @@ open class ChatMessageViewModel : BaseViewModel() {
         }
 
         override fun onCmdMessageReceived(messages: MutableList<EMMessage>?) {
-            //接收到透传消息
+
         }
 
         override fun onMessageReceived(messages: MutableList<EMMessage>?) {
-            LogUtils.i("onMessageReceived=${messages}")
             messages?.let {
-                _onMessageReceived(it)
+                innerOnMessageReceived(it)
             }
         }
 
@@ -66,8 +72,94 @@ open class ChatMessageViewModel : BaseViewModel() {
         }
     }
 
-    init {
+    /**
+     * 内部进行统一处理消息发送的回调
+     */
+    private inner class InnerEmCallBack(private val emMessage: EMMessage) : EMCallBack {
+        override fun onSuccess() {
+            saveConversation()
+            sendMessageSuccessLiveData.postValue(emMessage)
+        }
 
+        override fun onProgress(progress: Int, status: String?) {
+        }
+
+        override fun onError(code: Int, error: String?) {
+            LogUtils.i("发送消息失败:$error")
+            defUI.toastEvent.postValue("发送消息失败:$error")
+
+        }
+    }
+
+
+    /**
+     *
+     * @param userName 聊天用户的ID
+     * @param state 0为默认状态 1为从查询聊天记录进来的
+     */
+    fun init(userName: String, state: Int, loadFromMsgId: String = "", pageSize: Int = 0) {
+        mChatUserName = userName
+        launchUI {
+            try {
+                //
+                withContext(Dispatchers.IO) {
+                    val conversationEntity =
+                        mConversationDao?.queryConversationByUserName(userName)
+                    if (conversationEntity != null) {
+                        mInitUserInfoObserver.postValue(
+                            Pair(
+                                conversationEntity.nickName,
+                                conversationEntity.avatarUrl
+                            )
+                        )
+                    } else {
+                        val userEntity = mUserDao?.queryUserByUserName(userName)
+                        if (userEntity != null) {
+                            mInitUserInfoObserver.postValue(
+                                Pair(
+                                    userEntity.nickName,
+                                    userEntity.avatarUrl
+                                )
+                            )
+                        }
+                    }
+
+                    //初始化Conversation
+                    conversation = EMClient.getInstance().chatManager()
+                        .getConversation(userName, EMConversation.EMConversationType.Chat, true)
+                    conversation?.markAllMessagesAsRead()
+                }
+                //默认初始化
+                if (state == 0) {
+                    initMessage()
+                } else if (state == 1) {
+                    withContext(Dispatchers.IO) {
+                        conversation?.loadMoreMsgFromDB(loadFromMsgId, pageSize)
+                    }
+                }
+            } catch (t: Throwable) {
+                t.printStackTrace()
+            }
+        }
+    }
+
+    private suspend fun initMessage() {
+        val listResult = withContext(Dispatchers.IO) {
+            val msgCount = conversation!!.allMessages?.size ?: 0
+            if (msgCount < conversation!!.allMsgCount && msgCount < pageSize) {
+                var msgId: String? = null
+                if (conversation!!.allMessages != null && conversation!!.allMessages.size > 0) {
+                    msgId = conversation!!.allMessages[0].msgId
+                }
+                conversation!!.loadMoreMsgFromDB(msgId, pageSize - msgCount)
+
+            }
+            conversation!!.allMessages
+        }
+        LogUtils.i("listResult=$listResult")
+        if (listResult != null) {
+            mInitConversationLiveData.postValue(listResult)
+        }
     }
 
     /**
@@ -75,78 +167,101 @@ open class ChatMessageViewModel : BaseViewModel() {
      * @param friendId 好友ID
      * @param content 消息文本内容
      */
-    fun sendTextMessage(friendId: String, content: String, userName: String) {
-        launchGo(
-            {
-                //设置消息body
-                val result = mRepository.sendTextMsg(friendId, content)
-                if (result.status == 200) {
-                    //插入一条消息到会话的尾部
-                    val txtBody =
-                        EMMessage.createTxtSendMessage(content, userName)
-                    conversation.appendMessage(txtBody)
-                    sendMessageSuccessLiveData.postValue(txtBody)
+    fun sendTextMessage(content: String) {
+        LogUtils.i("sendTextMessage to $mChatUserName content=$content")
+        launchUI {
+            try {
+                withContext(Dispatchers.IO) {
+                    val txtBody = EMMessage.createTxtSendMessage(content, mChatUserName)
+                    txtBody.setMessageStatusCallback(InnerEmCallBack(txtBody))
+                    EMClient.getInstance().chatManager().sendMessage(txtBody)
                 }
-            }, isShowDialog = false
-        )
+
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                defUI.toastEvent.postValue("发送消息失败")
+            }
+        }
     }
 
     /**
      * 发送语音
      */
-    fun sendVoiceMessage(
-        friendId: String,
-        file: File,
-        timeLen: Long,
-        userName: String
-    ) {
-        launchGo({
-            val voiceBody =
-                EMMessage.createVoiceSendMessage(file.absolutePath, timeLen.toInt(), userName)
-            EMClient.getInstance().chatManager().sendMessage(voiceBody)
-            sendMessageSuccessLiveData.postValue(voiceBody)
-        }, isShowDialog = false)
+    fun sendVoiceMessage(file: File, timeLen: Long) {
+        launchUI {
+            try {
+                withContext(Dispatchers.IO) {
+                    val voiceBody =
+                        EMMessage.createVoiceSendMessage(
+                            file.absolutePath,
+                            timeLen.toInt(),
+                            mChatUserName
+                        )
+                    voiceBody.setMessageStatusCallback(InnerEmCallBack(voiceBody))
+                    EMClient.getInstance().chatManager().sendMessage(voiceBody)
+                }
+                saveConversation()
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                defUI.toastEvent.postValue("发送消息失败")
+            }
+        }
     }
 
     /**
      * 发送图片消息
      */
-    fun sendPicMessage(
-        friendId: String,
-        file: File, userName: String
-    ) {
-        launchGo({
-            val result = mRepository.sendPicOrVoiceMsg(friendId, "img", file)
-            if (result.isSuccess()) {
-                val picBody = EMMessage.createImageSendMessage(file.absolutePath, false, userName)
-                conversation.appendMessage(picBody)
-                sendMessageSuccessLiveData.postValue(picBody)
+    fun sendPicMessage(file: File) {
+        launchUI {
+            try {
+                withContext(Dispatchers.IO) {
+                    val picBody =
+                        EMMessage.createImageSendMessage(file.absolutePath, false, mChatUserName)
+                    picBody.setMessageStatusCallback(InnerEmCallBack(picBody))
+                    EMClient.getInstance().chatManager().sendMessage(picBody)
+                }
+                saveConversation()
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                defUI.toastEvent.postValue("发送图片消息失败")
             }
-        }, isShowDialog = false)
+        }
     }
+
 
     /**
      * 删除好友
      */
-    fun deleteFriends(friendId: String, userName: String) {
+    fun deleteFriends() {
         launchGo({
-            val result = mRepository.removeFriend(friendId)
+
+            //查询本地的好友
+            val userEntity = mUserDao?.queryUserByUserName(mChatUserName)
+            val result = mRepository.removeFriend(userEntity!!.uid.toString())
             if (result.isSuccess()) {
                 //删除本地存储好友信息
                 mUserDao?.let {
-                    val userEntity = it.queryUserByUserName(userName);
-                    it.delete(userEntity)
+                    val localUserEntity = it.queryUserByUserName(mChatUserName);
+                    if (localUserEntity != null) {
+                        it.delete(localUserEntity)
+                    }
                 }
                 //删除本地好友邀请列表数据
                 mInviteMessageDao?.let {
-                    val inviteMessage = it.queryInviteMessageByFrom(userName)
+                    val inviteMessage = it.queryInviteMessageByFrom(mChatUserName)
                     if (inviteMessage != null) {
                         it.delete(inviteMessage)
                     }
-
                 }
-                //清空好友信息
-                conversation.clearAllMessages()
+                //删除本地的会话
+                mConversationDao?.let {
+                    val conversation = it.queryConversationByUserName(mChatUserName)
+                    if (conversation != null) {
+                        it.delete(conversation)
+                    }
+                }
+                //删除会话并清空消息
+                EMClient.getInstance().chatManager().deleteConversation(mChatUserName, true)
                 defUI.toastEvent.postValue("删除好友成功")
                 deleteFriendLiveData.postValue(true)
             } else {
@@ -154,132 +269,44 @@ open class ChatMessageViewModel : BaseViewModel() {
                 deleteFriendLiveData.postValue(false)
             }
         })
+
     }
 
     /**
      * 删除单条聊天记录
      */
     fun deleteChatMessage(message: EMMessage) {
-        conversation.removeMessage(message.msgId)
+        conversation?.removeMessage(message.msgId)
     }
 
-    /**
-     * 加载消息
-     */
-    fun initLocalMessage() {
-        launchUI {
-            try {
-                val listResult = withContext(Dispatchers.IO) {
-                    val msgCount = conversation.allMessages?.size ?: 0
-                    if (msgCount < conversation.allMsgCount && msgCount < pageSize) {
-                        var msgId: String? = null
-                        if (conversation.allMessages != null && conversation.allMessages.size > 0) {
-                            msgId = conversation.allMessages[0].msgId
-                        }
-                        val list = conversation.loadMoreMsgFromDB(msgId, pageSize - msgCount)
-                        LogUtils.i("loadMoreMsgFromDB list=$list")
-                    }
-                    conversation.allMessages
-                }
-                if (listResult != null) {
-                    mInitConversationLiveData.postValue(listResult)
-                }
-            } catch (e: Throwable) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    /**
-     * 加载此消息id后面的全部消息
-     */
-    fun initLocalMessage(msgId: String,pageSize:Int) {
-        launchUI {
-            try {
-                withContext(Dispatchers.IO) {
-                   val list =  conversation.loadMoreMsgFromDB(msgId,pageSize)
-                    LogUtils.i("list=$list")
-                }
-            } catch (e: Throwable) {
-
-            }
-
-        }
-    }
-
-    /**
-     * 初始化会话对象
-     */
-    fun init(userName: String) {
-        mChatUserName = userName
-        conversation = EMClient.getInstance().chatManager()
-            .getConversation(userName, EMConversation.EMConversationType.Chat, true)
-        conversation.markAllMessagesAsRead()
-    }
-
-//    /**
-//     * 初始化EMConversation
-//     */
-//    fun init(userName: String?) {
-//        mChatUserName = userName
-//        conversation = EMClient.getInstance().chatManager()
-//            .getConversation(userName, EMConversation.EMConversationType.Chat, true)
-//        conversation.markAllMessagesAsRead()
-//        launchUI {
-//            val listResult = withContext(Dispatchers.IO) {
-//                //                try {
-////                    //拉取漫游消息 - 需要开通此功能才能拉取
-////                    EMClient.getInstance().chatManager().fetchHistoryMessages(
-////                        userName, EMConversation.EMConversationType.Chat, pageSize, ""
-////                    )
-////                }catch (e:Exception){
-////                    e.printStackTrace()
-////                }
-//                val msgCount = conversation.allMessages?.size ?: 0
-//                if (msgCount < conversation.allMsgCount && msgCount < pageSize) {
-//                    var msgId: String? = null
-//                    if (conversation.allMessages != null && conversation.allMessages.size > 0) {
-//                        msgId = conversation.allMessages[0].msgId
-//                    }
-//                    val list = conversation.loadMoreMsgFromDB(msgId, pageSize - msgCount)
-//                    LogUtils.i("loadMoreMsgFromDB list=${list.size}")
-//                }
-//                conversation.allMessages
-//            }
-//            if (listResult != null) {
-//                mInitConversationLiveData.postValue(listResult)
-//            }
-//            val url = withContext(Dispatchers.IO) {
-//                mUserDao?.queryUserByUserName(conversation.conversationId())?.avatarUrl
-//            }
-//            mUserAvatarLiveData.postValue(url)
-//        }
-//    }
 
     /**
      * 拉取更多数据
      */
     fun loadMoreMessage() {
-
         launchUI {
             try {
-                val listResult = withContext(Dispatchers.IO) {
-                    val messageList = conversation.allMessages
-                    EMClient.getInstance().chatManager().fetchHistoryMessages(
-                        mChatUserName, EMConversation.EMConversationType.Chat, pageSize,
-                        if (messageList != null && messageList.size > 0) messageList[0].msgId else ""
-                    )
-                    val messages = conversation.loadMoreMsgFromDB(
-                        if (conversation.allMessages.size == 0) "" else conversation.allMessages[0].msgId,
-                        pageSize
-                    )
-                    messages
+                if (conversation != null) {
+                    val listResult = withContext(Dispatchers.IO) {
+                        val messageList = conversation!!.allMessages
+                        EMClient.getInstance().chatManager().fetchHistoryMessages(
+                            mChatUserName, EMConversation.EMConversationType.Chat, pageSize,
+                            if (messageList != null && messageList.size > 0) messageList[0].msgId else ""
+                        )
+                        val messages = conversation!!.loadMoreMsgFromDB(
+                            if (conversation!!.allMessages.size == 0) "" else conversation!!.allMessages[0].msgId,
+                            pageSize
+                        )
+                        messages
+                    }
+                    if (listResult != null && listResult.isNotEmpty()) {
+                        LogUtils.i(listResult.toString())
+                        haveMoreDataLiveData.postValue(listResult)
+                    }
+                    refreshResultLiveData.postValue(true)
+                } else {
+                    refreshResultLiveData.postValue(false)
                 }
-                if (listResult != null && listResult.isNotEmpty()) {
-                    LogUtils.i(listResult.toString())
-                    haveMoreDataLiveData.postValue(listResult)
-                }
-                refreshResultLiveData.postValue(true)
             } catch (e1: Exception) {
                 refreshResultLiveData.postValue(false)
             }
@@ -289,7 +316,7 @@ open class ChatMessageViewModel : BaseViewModel() {
     /**
      * 接收到好友发来的消息
      */
-    private fun _onMessageReceived(messages: List<EMMessage>) {
+    private fun innerOnMessageReceived(messages: List<EMMessage>) {
         for (message in messages) {
             var username: String? = null
             username =
@@ -300,23 +327,71 @@ open class ChatMessageViewModel : BaseViewModel() {
                 }
             if (username == mChatUserName || message.to == mChatUserName || message.conversationId() == mChatUserName) {
                 receiveMessageLiveData.postValue(message)
-                conversation.markMessageAsRead(message.msgId)
+                conversation?.markMessageAsRead(message.msgId)
             }
-            EaseUiHelper.notifier?.vibrateAndPlayTone()
         }
     }
 
+    /**
+     * 添加监听
+     */
     fun addListener() {
         EMClient.getInstance().chatManager().addMessageListener(onEMMessageListener)
     }
 
+    /**
+     * 移除监听
+     */
     fun removeListener() {
         EMClient.getInstance().chatManager().removeMessageListener(onEMMessageListener)
     }
 
     override fun onCleared() {
         super.onCleared()
+        conversation?.clear()
+    }
 
-        conversation.clear()
+    /**
+     * 拉取最新的消息
+     */
+    fun pullNewMessage() {
+        launchUI {
+            try {
+                val listResult = withContext(Dispatchers.IO) {
+                    val messages = conversation!!.loadMoreMsgFromDB(
+                        if (conversation!!.allMessages.size == 0) "" else conversation!!.allMessages[0].msgId,
+                        Int.MAX_VALUE
+                    )
+                    conversation?.markAllMessagesAsRead()
+                    messages
+                }
+                if (listResult != null && listResult.isNotEmpty()) {
+                    LogUtils.i(listResult.toString())
+                    haveMoreDataLiveData.postValue(listResult)
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
+
+        }
+    }
+
+    /**
+     * 保存当前的用户的会话
+     */
+    private fun saveConversation() {
+        launchUI {
+            withContext(Dispatchers.IO) {
+                LogUtils.i("sendTextMessage to $mChatUserName  saveConversation")
+                val conversationEntity =
+                    mConversationDao?.queryConversationByUserName(mChatUserName)
+                LogUtils.i("sendTextMessage to $mChatUserName  saveConversation")
+                if (conversationEntity == null) {
+                    LogUtils.i("sendTextMessage to $mChatUserName  执行个TASK任务")
+                    //执行个TASK任务
+                    ChatHelper.updateConversationEntity(mChatUserName)
+                }
+            }
+        }
     }
 }

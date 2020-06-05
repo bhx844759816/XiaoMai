@@ -130,7 +130,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="15dp"
-                android:text="校麦服务协议"
+                android:text="用户协议"
                 android:textSize="15sp" />
 
             <TextView
@@ -157,7 +157,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="15dp"
-                android:text="校麦隐私权政策"
+                android:text="隐私权政策"
                 android:textSize="15sp" />
 
             <TextView

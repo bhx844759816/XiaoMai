@@ -31,5 +31,6 @@ object SelectSchoolDialog {
             })
             .lifecycleOwner(owner)
             .show()
+
     }
 }

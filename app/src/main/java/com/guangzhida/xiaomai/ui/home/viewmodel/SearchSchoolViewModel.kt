@@ -17,7 +17,7 @@ class SearchSchoolViewModel : BaseViewModel() {
             val schoolModelWrap = homeRepository.getSchoolInfo()
             if (schoolModelWrap.status == 200) {
                 //请求成功
-                mSchoolInfoLiveData.postValue(schoolModelWrap.result)
+                mSchoolInfoLiveData.postValue(schoolModelWrap.data)
             }
         }, isShowDialog = false)
     }

@@ -44,6 +44,7 @@ class SearchViewModel : BaseViewModel() {
                 //对象(头像 昵称 聊天记录条数)
                 val list = EMClient.getInstance().chatManager()
                     .searchMsgFromDB(key, 0, Int.MAX_VALUE, "", EMConversation.EMSearchDirection.DOWN)
+                LogUtils.i("doSearch list=$list")
                 list.forEach {
                     val from = it.from
                     val to = it.to
@@ -59,6 +60,7 @@ class SearchViewModel : BaseViewModel() {
                             searchMessageModel.messageCount = count + 1
                         }
                     } else {
+                        //查询好友
                         val userEntity = mUserDao?.queryUserByUserName(userName)
                         if (userEntity != null) {
                             val searchMessageModel = SearchMessageModel(

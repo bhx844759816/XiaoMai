@@ -7,6 +7,7 @@ import android.widget.EditText
 import com.guangzhida.xiaomai.utils.Base64Utils
 import com.guangzhida.xiaomai.utils.RSAUtil
 import kotlinx.coroutines.CoroutineScope
+import java.util.regex.Pattern
 
 /**
  * 针对字符串加密
@@ -65,3 +66,18 @@ internal fun EditText.showSoftInput() {
     inputManager.showSoftInput(this, 0)
 }
 //public fun MainScope(): CoroutineScope = ContextScope(SupervisorJob() + Dispatchers.Main)
+
+/**
+ *手机号号段校验，
+ *第1位：1；
+ *第2位：{3、4、5、6、7、8}任意数字；
+ *第3—11位：0—9任意数字
+ */
+internal fun String.isPhone(): Boolean {
+    if (this.length == 11) {
+        val compiler = Pattern.compile("^1[3|4|5|6|7|8|9][0-9]\\d{8}$")
+        val matcher = compiler.matcher(this)
+        return matcher.matches()
+    }
+    return false
+}

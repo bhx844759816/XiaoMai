@@ -264,7 +264,19 @@ public class NetworkUtils {
         if (isWifiConnected(context)) {
             WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             WifiInfo info = wifiManager.getConnectionInfo();
-           return info.getBSSID();
+            return info.getBSSID();
+        }
+        return null;
+    }
+
+    public static String getWifiRssi(Context context) {
+        if (isWifiConnected(context)) {
+            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            WifiInfo info = wifiManager.getConnectionInfo();
+            if (info.getBSSID() != null) {
+                return info.getRssi()+"db";
+            }
+            return null;
         }
         return null;
     }

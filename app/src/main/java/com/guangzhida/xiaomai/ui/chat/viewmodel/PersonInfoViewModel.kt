@@ -14,12 +14,16 @@ import kotlinx.coroutines.withContext
 class PersonInfoViewModel : BaseViewModel() {
     var mAddFriendResult = MutableLiveData<Boolean>()//添加好友的结果
     var mDeleteFriendResult = MutableLiveData<Boolean>()//删除好友的结果
+    val mPersonInfoResult = MutableLiveData<Pair<Int, UserEntity>>()//获取用户信息
     private val mRepository = InjectorUtil.getChatRepository()
     private val mUserDao by lazy {
         AppDatabase.invoke(BaseApplication.instance().applicationContext).userDao()
     }
     private val mInviteMessageDao by lazy {
         AppDatabase.invoke(BaseApplication.instance().applicationContext).inviteMessageDao()
+    }
+    private val mConversationDao by lazy {
+        AppDatabase.invoke(BaseApplication.instance().applicationContext).conversationDao()
     }
 
     /**
@@ -77,7 +81,9 @@ class PersonInfoViewModel : BaseViewModel() {
                 //删除本地存储好友信息
                 mUserDao?.let {
                     val localUserEntity = it.queryUserByUserName(userEntity.userName);
-                    it.delete(localUserEntity)
+                    if (localUserEntity != null) {
+                        it.delete(localUserEntity)
+                    }
                 }
                 //删除本地好友邀请列表数据
                 mInviteMessageDao?.let {
@@ -86,10 +92,14 @@ class PersonInfoViewModel : BaseViewModel() {
                         it.delete(inviteMessage)
                     }
                 }
-                //清空好友信息
-                val conversation =
-                    EMClient.getInstance().chatManager().getConversation(userEntity.userName)
-                conversation.clearAllMessages()
+                mConversationDao?.let {
+                    val conversation = it.queryConversationByUserName(userEntity.userName)
+                    if (conversation != null) {
+                        it.delete(conversation)
+                    }
+                }
+                //删除会话并清空消息
+                EMClient.getInstance().chatManager().deleteConversation(userEntity.userName, true)
                 defUI.toastEvent.postValue("删除好友成功")
                 mDeleteFriendResult.postValue(true)
             } else {
@@ -97,6 +107,40 @@ class PersonInfoViewModel : BaseViewModel() {
                 mDeleteFriendResult.postValue(false)
             }
         })
+    }
+
+    fun getUserInfoByUserName(userName: String) {
+        launchUI {
+            try {
+                val userEntity = withContext(Dispatchers.IO) {
+                    mUserDao?.queryUserByUserName(userName)
+                }
+                //本地有好友的缓存
+                if (userEntity != null) {
+                    mPersonInfoResult.postValue(Pair(0, userEntity))
+                } else {
+                    val result = withContext(Dispatchers.IO) {
+                        mRepository.getUserInfoByNickNameOrPhone(userName)
+                    }
+                    if (result.isSuccess()) {
+                        val chatUserModel = result.data[0]
+                        val remoteUserEntity = UserEntity(
+                            uid = chatUserModel.id.toLong(),
+                            nickName = chatUserModel.nickName,
+                            userName = chatUserModel.mobilePhone,
+                            avatarUrl = chatUserModel.headUrl ?: "",
+                            age = chatUserModel.age.toString(),
+                            sex = chatUserModel.sex.toString(),
+                            singUp = chatUserModel.signature ?: ""
+                        )
+                        mPersonInfoResult.postValue(Pair(1, remoteUserEntity))
+                    }
+                }
+            } catch (t: Throwable) {
+                t.printStackTrace()
+                defUI.toastEvent.postValue("加载出错请稍后再试")
+            }
+        }
     }
 
 

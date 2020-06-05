@@ -25,6 +25,7 @@ import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.OnNeverAskAgain
 import permissions.dispatcher.OnPermissionDenied
 import permissions.dispatcher.RuntimePermissions
+import permissions.dispatcher.ktx.withPermissionsCheck
 import top.zibin.luban.Luban
 import top.zibin.luban.OnCompressListener
 import java.io.File
@@ -103,10 +104,10 @@ class UserMessageActivity : BaseActivity<UserMessageModel>() {
             SelectPhotoDialog.showDialog(this, this) { index ->
                 if (index == 0) {
                     //拍照
-                    takePhotoWithPermissionCheck()
+                    takePhoto()
                 } else if (index == 1) {
                     //选择图片从相册
-                    selectPhotoWithPermissionCheck()
+                    selectPhoto()
                 }
             }
         }
@@ -119,8 +120,12 @@ class UserMessageActivity : BaseActivity<UserMessageModel>() {
     /**
      * 拍照
      */
-    @NeedsPermission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    fun takePhoto() {
+    private fun takePhoto() = withPermissionsCheck(
+        Manifest.permission.CAMERA,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        onShowRationale = {
+            it.proceed()
+        }) {
         val cropConfig = CropConfig().apply {
             saveInDCIM(false)
             setCropRatio(1, 1)
@@ -138,41 +143,43 @@ class UserMessageActivity : BaseActivity<UserMessageModel>() {
     /**
      * 选择图片
      */
-    @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    fun selectPhoto() {
-        ImagePicker.withMulti(CustomImgPickerPresenter())//指定presenter
-            //设置选择的最大数
-            .setMaxCount(1)
-            //设置列数
-            .setColumnCount(4)
-            //设置要加载的文件类型，可指定单一类型
-            .mimeTypes(MimeType.ofImage())
-            .showCamera(false)//显示拍照
-            .setPreview(true)//开启预览
-            //大图预览时是否支持预览视频
-            .setPreviewVideo(false)
-            //设置视频单选
-            .setVideoSinglePick(false)
-            //设置图片和视频单一类型选择
-            .setSinglePickImageOrVideoType(true)
-            //当单选或者视频单选时，点击item直接回调，无需点击完成按钮
-            .setSinglePickWithAutoComplete(false)
-            //显示原图
-            .setOriginal(true)
-            //显示原图时默认原图选项开关
-            .setDefaultOriginal(true)
-            //设置单选模式，当maxCount==1时，可执行单选（下次选中会取消上一次选中）
-            .setSelectMode(SelectMode.MODE_SINGLE)
-            .cropSaveInDCIM(false)
-            .cropRectMinMargin(100)
-            .cropStyle(CropConfig.STYLE_FILL)
-            .cropGapBackgroundColor(Color.TRANSPARENT)
-            .setCropRatio(1, 1)
-            .cropAsCircle()
-            .crop(this) {
-                compressImg(it[0].path)
-            }
-    }
+    private fun selectPhoto() =
+        withPermissionsCheck(Manifest.permission.WRITE_EXTERNAL_STORAGE, onShowRationale = {
+            it.proceed()
+        }) {
+            ImagePicker.withMulti(CustomImgPickerPresenter())//指定presenter
+                //设置选择的最大数
+                .setMaxCount(1)
+                //设置列数
+                .setColumnCount(4)
+                //设置要加载的文件类型，可指定单一类型
+                .mimeTypes(MimeType.ofImage())
+                .showCamera(false)//显示拍照
+                .setPreview(true)//开启预览
+                //大图预览时是否支持预览视频
+                .setPreviewVideo(false)
+                //设置视频单选
+                .setVideoSinglePick(false)
+                //设置图片和视频单一类型选择
+                .setSinglePickImageOrVideoType(true)
+                //当单选或者视频单选时，点击item直接回调，无需点击完成按钮
+                .setSinglePickWithAutoComplete(false)
+                //显示原图
+                .setOriginal(true)
+                //显示原图时默认原图选项开关
+                .setDefaultOriginal(true)
+                //设置单选模式，当maxCount==1时，可执行单选（下次选中会取消上一次选中）
+                .setSelectMode(SelectMode.MODE_SINGLE)
+                .cropSaveInDCIM(false)
+                .cropRectMinMargin(100)
+                .cropStyle(CropConfig.STYLE_FILL)
+                .cropGapBackgroundColor(Color.TRANSPARENT)
+                .setCropRatio(1, 1)
+                .cropAsCircle()
+                .crop(this) {
+                    compressImg(it[0].path)
+                }
+        }
 
 
     /**
@@ -203,22 +210,4 @@ class UserMessageActivity : BaseActivity<UserMessageModel>() {
             }).launch()
     }
 
-
-    @OnPermissionDenied(
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.CAMERA,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
-    fun onPermissionDenied() {
-        ToastUtils.toastShort("权限被拒绝")
-    }
-
-    @OnNeverAskAgain(
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.CAMERA,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
-    fun onPermissionNeverAskAgain() {
-        ToastUtils.toastShort("权限被拒绝且不再提醒")
-    }
 }

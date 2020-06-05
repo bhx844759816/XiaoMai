@@ -14,15 +14,12 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.czt.mp3recorder.MP3Recorder
-import com.google.gson.Gson
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.R
-import com.guangzhida.xiaomai.SERVICE_USERNAME
 import com.guangzhida.xiaomai.base.BaseActivity
 import com.guangzhida.xiaomai.dialog.DeleteFriendDialog
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
-import com.guangzhida.xiaomai.room.AppDatabase
-import com.guangzhida.xiaomai.room.entity.UserEntity
+import com.guangzhida.xiaomai.room.entity.ConversationEntity
 import com.guangzhida.xiaomai.ui.chat.adapter.ChatMessageAdapter
 import com.guangzhida.xiaomai.ui.chat.adapter.ChatMultipleItem
 import com.guangzhida.xiaomai.ui.chat.viewmodel.ChatMessageViewModel
@@ -47,10 +44,7 @@ import github.ll.emotionboard.interfaces.OnEmoticonClickListener
 import github.ll.emotionboard.utils.EmoticonsKeyboardUtils
 import github.ll.emotionboard.widget.FuncLayout
 import kotlinx.android.synthetic.main.activity_chat_message.*
-import permissions.dispatcher.NeedsPermission
-import permissions.dispatcher.OnNeverAskAgain
-import permissions.dispatcher.OnPermissionDenied
-import permissions.dispatcher.RuntimePermissions
+import permissions.dispatcher.ktx.withPermissionsCheck
 import top.zibin.luban.Luban
 import top.zibin.luban.OnCompressListener
 import java.io.File
@@ -59,18 +53,15 @@ import java.io.File
 /**
  * 聊天界面
  */
-@RuntimePermissions
-open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
+class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
     FuncLayout.FuncKeyBoardListener {
     override fun layoutId(): Int = R.layout.activity_chat_message
-    private var mFriendId: String? = null
-    private var mState = 0 // 0为默认状态 1为从查询聊天记录进来的
-    var mUserName: String? = null
-    var mMessage: String? = null
-    private var mFriendAvatar: String? = null
+    private var mMessage: String? = null  // 网络诊断信息
+    private var mUserName: String? = null
+    private var mFriendAvatar: String? = null //好友头像
     private var mStartRecorderTime = 0L //开始录音的时间
-    private var mChatUserEntity: UserEntity? = null
     private var mCurPlayChatMultipleItem: ChatMultipleItem? = null
+    private var mConversationEntity: ConversationEntity? = null
     private lateinit var mAdapter: ChatMessageAdapter
     private val mRecordSaveFile by lazy {
         File(
@@ -118,13 +109,12 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         }
 
         override fun onStartRecord() {
-
-            startSoundRecordWithPermissionCheck()
+            startSoundRecord()
         }
 
         override fun onStopRecord() {
             mMP3Recorder.stop()
-            if (mFriendId != null && mRecordSaveFile.exists() && mUserName != null) {
+            if (mRecordSaveFile.exists()) {
                 //发送语音
                 sendVoiceMsg()
             } else {
@@ -137,11 +127,11 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         when (it.funcName) {
             SimpleAppsGridView.FUNC_PLAY_PHOTO -> {
                 //拍照
-                takePhotoWithPermissionCheck()
+                takePhoto()
             }
             SimpleAppsGridView.FUNC_SELECT_PHOTO -> {
                 //选择图片
-                selectPhotoWithPermissionCheck()
+                selectPhoto()
             }
         }
     }
@@ -172,7 +162,6 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         }
     }
 
-
     override fun initView(savedInstanceState: Bundle?) {
         val layoutParams =
             toolbar.layoutParams as ViewGroup.MarginLayoutParams
@@ -182,70 +171,14 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             layoutParams.rightMargin,
             layoutParams.bottomMargin
         )
-        val userName = intent.getStringExtra("userName")
-
+        initChatBoard()
+        initRecyclerView()
+        initLiveDataObserver()
+        mUserName = intent.getStringExtra("userName")
+        val state = intent.getIntExtra("State", 0)
         mMessage = intent.getStringExtra("ServiceMessage")
-        mState = intent.getIntExtra("State", 0)
-        if (userName != null && userName.isNotEmpty()) {
-            mUserName = userName
-        }
-        //查询本地数据库中
-        mUserName?.let {
-            if (it == SERVICE_USERNAME) {
-                rlChatSelect.visibility = View.GONE
-                BaseApplication.instance().mServiceModel?.let { chatUserModel ->
-                    val entity = UserEntity(uid = chatUserModel.id.toLong())
-                    entity.userName = chatUserModel.mobilePhone
-                    entity.avatarUrl = chatUserModel.headUrl ?: ""
-                    entity.sex = chatUserModel.sex.toString()
-                    entity.age = chatUserModel.age.toString()
-                    entity.nickName = chatUserModel.nickName
-                    mChatUserEntity = entity
-                }
-            } else {
-                rlChatSelect.visibility = View.VISIBLE
-                mChatUserEntity = AppDatabase.invoke(this).userDao()?.queryUserByUserName(it)
-                if (mChatUserEntity == null) {
-                    val conversation =
-                        AppDatabase.invoke(this).conversationDao()?.queryConversationByUserName(it)
-                    if (conversation == null) {
-                        ToastUtils.toastShort("好友本地不存在")
-                        finish()
-                        return
-                    }
-                    mChatUserEntity = UserEntity(
-                        uid = conversation.id,
-                        nickName = conversation.nickName,
-                        userName = conversation.userName,
-                        remarkName = conversation.remarkName,
-                        sex = conversation.sex,
-                        age = conversation.age,
-                        avatarUrl = conversation.avatarUrl
-                    )
-                }
-            }
-            mFriendId = mChatUserEntity?.uid.toString()
-            tvFriendName.text = mChatUserEntity?.nickName
-            mFriendAvatar = mChatUserEntity?.avatarUrl
-            mViewModel.init(it)
-            if (mState == 0) {
-                mViewModel.initLocalMessage()
-            }
-            initRecyclerView()
-            initChatBoard()
-            initLiveDataObserver()
-            initMessageRecord()
-        }
-
-    }
-
-    /**
-     * 初始化查询聊天记录的列表
-     */
-    private fun initMessageRecord() {
-        if (mState == 1) {
-            val list = intent.getSerializableExtra("EMMessageList") as List<EMMessage>
-            mViewModel.initLocalMessage(list[list.size-1].msgId, list.size)
+        val list = intent.getSerializableExtra("EMMessageList") as List<EMMessage>?
+        if (!list.isNullOrEmpty()) {
             mChatMultipleItemList.clear()
             val chatList = list.map { emmMessage ->
                 ChatMultipleItem(emmMessage)
@@ -254,11 +187,25 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             mAdapter.notifyDataSetChanged()
             swipeRefreshLayout.isEnabled = true
         }
+        //查询本地数据库中
+        mUserName?.let {
+            rlChatSelect.visibility = View.VISIBLE
+            if (list != null) {
+                mViewModel.init(it, state, list[list.size - 1].msgId, list.size)
+            } else {
+                mViewModel.init(it, state)
+            }
+            mViewModel.addListener()
+        }
     }
 
     override fun onNewIntent(intent: Intent) { // make sure only one chat activity is opened
         val username = intent.getStringExtra("userName")
-        if (mUserName == username) super.onNewIntent(intent) else {
+        if (mUserName == username) {
+            mViewModel.pullNewMessage()
+            scrollToBottom()
+            super.onNewIntent(intent)
+        } else {
             finish()
             startActivity(intent)
         }
@@ -281,9 +228,9 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         swipeRefreshLayout.setOnRefreshListener {
             mViewModel.loadMoreMessage()
         }
-        mAdapter = ChatMessageAdapter(mChatMultipleItemList, mFriendAvatar)
+        mAdapter = ChatMessageAdapter(mChatMultipleItemList, mFriendAvatar, this)
         mAdapter.mImageCallBack = {
-            startPreviewImgWithPermissionCheck(it)
+            startPreviewImg(it)
         }
         //点击语音
         mAdapter.mVoiceClickCallBack = { _, item ->
@@ -308,14 +255,10 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         }
         //点击头像跳转到联系人详情
         mAdapter.mHeaderClickCallBack = {
-            mChatUserEntity?.let {
-                startKtxActivity<PersonInfoActivity>(
-                    values = listOf(
-                        Pair("State", 1),
-                        Pair("UserEntityGson", Gson().toJson(it))
-                    )
-                )
+            if (mUserName != null) {
+                startKtxActivity<PersonInfoActivity>(value = Pair("userName", mUserName!!))
             }
+
         }
         swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.colorAccent))
         swipeRefreshLayout.isEnabled = false
@@ -337,10 +280,9 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         }
         rlChatSelect.setOnClickListener {
             DeleteFriendDialog.showDialog(this, this) {
-                if (mFriendId != null && mUserName != null) {
-                    mViewModel.deleteFriends(mFriendId!!, mUserName!!)
-                }
+                mViewModel.deleteFriends()
             }
+
         }
     }
 
@@ -394,11 +336,11 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         emoticonsBoard.btnSend.setOnClickListener {
             LogUtils.i("点击发送")
             val content = emoticonsBoard.etChat.text.toString().trim()
-            if (content.isNotEmpty() && mFriendId != null) {
+            if (content.isNotEmpty()) {
                 LogUtils.e("发送消息=$content")
                 emoticonsBoard.etChat.setText("")
                 mUserName?.let {
-                    mViewModel.sendTextMessage(mFriendId!!, content, it)
+                    mViewModel.sendTextMessage(content)
                 }
             }
         }
@@ -420,6 +362,12 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
      * 注册监听事件
      */
     private fun initLiveDataObserver() {
+        //注册用户资料的监听
+        mViewModel.mInitUserInfoObserver.observe(this, Observer {
+            tvFriendName.text = it.first
+            mFriendAvatar = it.second
+            mAdapter.mUserAvatar = mFriendAvatar
+        })
         //初始化完成
         mViewModel.mInitConversationLiveData.observe(this, Observer {
             mChatMultipleItemList.clear()
@@ -428,14 +376,13 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             }.reversed()
             mChatMultipleItemList.addAll(list)
             mAdapter.notifyDataSetChanged()
+            LogUtils.i("mChatMultipleItemList size = ${mChatMultipleItemList.size}")
             val ll = recyclerView.layoutManager as LinearLayoutManager
             ll.scrollToPosition(0)
             swipeRefreshLayout.isEnabled = true
             //发送客服消息
             if (!mMessage.isNullOrEmpty()) {
-                mUserName?.let { userName ->
-                    mViewModel.sendTextMessage(mFriendId!!, mMessage!!, userName)
-                }
+                mViewModel.sendTextMessage(mMessage!!)
             }
         })
         //刷新结果回调
@@ -477,6 +424,7 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
                 this.finish()
             }
         })
+
     }
 
     /**
@@ -486,17 +434,14 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         recyclerView.post { recyclerView.smoothScrollToPosition(0) }
     }
 
-
     /**
-     * 录音
+     * 开始录音
      */
-    @NeedsPermission(
-        Manifest.permission.RECORD_AUDIO,
+    private fun startSoundRecord() = withPermissionsCheck(Manifest.permission.RECORD_AUDIO,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    )
-    fun startSoundRecord() {
-        LogUtils.i("startSoundRecord")
+        Manifest.permission.READ_EXTERNAL_STORAGE, onShowRationale = {
+            it.proceed()
+        }) {
         mStartRecorderTime = System.currentTimeMillis()
         emoticonsBoard.setChatSoundRecordPressedViewShowDialog(true)
         mMP3Recorder.start()
@@ -507,12 +452,11 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
     /**
      * 拍照
      */
-    @NeedsPermission(
-        Manifest.permission.CAMERA,
+    private fun takePhoto() = withPermissionsCheck(Manifest.permission.CAMERA,
         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    )
-    fun takePhoto() {
+        Manifest.permission.READ_EXTERNAL_STORAGE, onShowRationale = {
+            it.proceed()
+        }) {
         val cropConfig = CropConfig().apply {
             setCropRatio(1, 1)
             cropRectMargin = 100
@@ -522,52 +466,56 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             cropGapBackgroundColor = Color.TRANSPARENT
         }
         ImagePicker.takePhotoAndCrop(this, CustomImgPickerPresenter(), cropConfig) {
-            if (it.isNotEmpty() && mFriendId != null && mUserName != null) {
-                uploadImgCompress(it[0].path)
+            if (it.isNotEmpty()) {
+                uploadImgCompress(listOf(it[0].path))
             }
         };
     }
 
-
     /**
-     * 选择图片
+     * 选择图片最多选择9张
      */
-    @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    fun selectPhoto() {
-        ImagePicker.withMulti(CustomImgPickerPresenter())//指定presenter
-            //设置选择的最大数
-            .setMaxCount(1)
-            //设置列数
-            .setColumnCount(4)
-            //设置要加载的文件类型，可指定单一类型
-            .mimeTypes(MimeType.ofImage())
-            .showCamera(false)//显示拍照
-            .setPreview(true)//开启预览
-            //大图预览时是否支持预览视频
-            .setPreviewVideo(false)
-            //设置视频单选
-            .setVideoSinglePick(false)
-            //设置图片和视频单一类型选择
-            .setSinglePickImageOrVideoType(true)
-            //当单选或者视频单选时，点击item直接回调，无需点击完成按钮
-            .setSinglePickWithAutoComplete(false)
-            //显示原图
-            .setOriginal(true)
-            //显示原图时默认原图选项开关
-            .setDefaultOriginal(true)
-            //设置单选模式，当maxCount==1时，可执行单选（下次选中会取消上一次选中）
-            .setSelectMode(SelectMode.MODE_SINGLE)
-            .pick(this) {
-                if (it.isNotEmpty() && mFriendId != null && mUserName != null) {
-                    uploadImgCompress(it[0].path)
+    private fun selectPhoto() =
+        withPermissionsCheck(Manifest.permission.WRITE_EXTERNAL_STORAGE, onShowRationale = {
+            it.proceed()
+        }) {
+            ImagePicker.withMulti(CustomImgPickerPresenter())//指定presenter
+                //设置选择的最大数
+                .setMaxCount(9)
+                //设置列数
+                .setColumnCount(4)
+                //设置要加载的文件类型，可指定单一类型
+                .mimeTypes(MimeType.ofImage())
+                .showCamera(false)//显示拍照
+                .setPreview(true)//开启预览
+                //大图预览时是否支持预览视频
+                .setPreviewVideo(false)
+                //设置视频单选
+                .setVideoSinglePick(false)
+                //设置图片和视频单一类型选择
+                .setSinglePickImageOrVideoType(true)
+                //当单选或者视频单选时，点击item直接回调，无需点击完成按钮
+                .setSinglePickWithAutoComplete(false)
+                //显示原图
+                .setOriginal(true)
+                //显示原图时默认原图选项开关
+                .setDefaultOriginal(true)
+                //设置单选模式，当maxCount==1时，可执行单选（下次选中会取消上一次选中）
+                .setSelectMode(SelectMode.MODE_SINGLE)
+                .pick(this) {
+                    if (it.isNotEmpty()) {
+                        val filePathList = it.map { item ->
+                            item.path
+                        }
+                        uploadImgCompress(filePathList)
+                    }
                 }
-            }
-    }
+        }
 
     /**
      * 压缩并上传图片
      */
-    private fun uploadImgCompress(imagePath: String) {
+    private fun uploadImgCompress(imagePath: List<String>) {
         Luban.with(this)
             .load(imagePath)
             .ignoreBy(100)
@@ -575,7 +523,7 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             .setCompressListener(object : OnCompressListener {
                 override fun onSuccess(file: File?) {
                     if (file != null && file.exists()) {
-                        mViewModel.sendPicMessage(mFriendId!!, file, mUserName!!)
+                        mViewModel.sendPicMessage(file)
                     }
                 }
 
@@ -610,36 +558,35 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
     /**
      * 预览大图
      */
-    @NeedsPermission(
-        Manifest.permission.READ_EXTERNAL_STORAGE
-    )
-    fun startPreviewImg(item: ChatMultipleItem) {
-        val imageItemList = arrayListOf<String>()
-        var pos = 0
-        mChatMultipleItemList.filter {
-            it.mMessage.type == EMMessage.Type.IMAGE
-        }.forEachIndexed { index, chatMultipleItem ->
-            if (chatMultipleItem == item) {
-                pos = index
+    private fun startPreviewImg(item: ChatMultipleItem) =
+        withPermissionsCheck(Manifest.permission.READ_EXTERNAL_STORAGE, onShowRationale = {
+            it.proceed()
+        }) {
+            val imageItemList = arrayListOf<String>()
+            var pos = 0
+            mChatMultipleItemList.filter {
+                it.mMessage.type == EMMessage.Type.IMAGE
+            }.forEachIndexed { index, chatMultipleItem ->
+                if (chatMultipleItem == item) {
+                    pos = index
+                }
+                val imgBody = chatMultipleItem.mMessage.body as EMImageMessageBody
+                val path = if (File(imgBody.localUrl).exists()) {
+                    imgBody.localUrl
+                } else {
+                    imgBody.remoteUrl
+                }
+                imageItemList.add(path)
             }
-            val imgBody = chatMultipleItem.mMessage.body as EMImageMessageBody
-            val path = if (File(imgBody.localUrl).exists()) {
-                imgBody.localUrl
-            } else {
-                imgBody.remoteUrl
-            }
-            imageItemList.add(path)
+            imageItemList.reverse()
+            val intent = Intent(
+                this,
+                PreviewResultListActivity::class.java
+            )
+            intent.putStringArrayListExtra("imgUrls", imageItemList)
+            intent.putExtra("pos", imageItemList.size - 1 - pos)
+            startActivity(intent)
         }
-        val intent = Intent(
-            this,
-            PreviewResultListActivity::class.java
-        )
-        intent.putStringArrayListExtra("imgUrls", imageItemList)
-        intent.putExtra("pos", pos)
-        startActivity(intent)
-
-
-    }
 
     /**
      * 发送文件
@@ -661,52 +608,21 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             return
         }
         mViewModel.sendVoiceMessage(
-            mFriendId!!,
             mRecordSaveFile,
-            timeLen,
-            mUserName!!
+            timeLen
         )
     }
 
-    @OnPermissionDenied(
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.CAMERA,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
-    fun onPermissionDenied() {
-        ToastUtils.toastShort("权限被拒绝")
-    }
-
-    @OnNeverAskAgain(
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.CAMERA,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
-    fun onPermissionNeverAskAgain() {
-        ToastUtils.toastShort("权限被拒绝且不再提醒")
-    }
-
-
     override fun onResume() {
         super.onResume()
-
         mViewModel.addListener()
     }
 
     override fun onPause() {
         super.onPause()
-        emoticonsBoard.reset()
         mViewModel.removeListener()
+        emoticonsBoard.reset()
         AudioPlayManager.getInstance().stopPlay()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        onRequestPermissionsResult(requestCode, grantResults)
     }
 
 
@@ -726,6 +642,5 @@ open class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
     override fun onFuncPop(height: Int) {
         scrollToBottom()
     }
-
 
 }

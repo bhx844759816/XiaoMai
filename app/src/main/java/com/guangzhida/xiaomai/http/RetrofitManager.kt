@@ -10,11 +10,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 const val BASE_URL = "http://www.app.guangzhida.cn:8762/api/admin/"
+//const val BASE_URL = "http://192.168.1.74:8762/api/admin/"
 
 class RetrofitManager {
     private var retrofit: Retrofit? = null
 
-    //    companion object {
+//companion object {
 //        fun getInstance() = SingletonHolder.INSTANCE
 //        private lateinit var retrofit: Retrofit
 //    }
@@ -43,10 +44,11 @@ class RetrofitManager {
 
     private fun getOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(40L, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(LoggingInterceptor())
             .addInterceptor(BaseInterceptor())
-            .writeTimeout(40L, TimeUnit.SECONDS)
             .connectionPool(ConnectionPool(8, 15, TimeUnit.SECONDS))
             .build()
     }

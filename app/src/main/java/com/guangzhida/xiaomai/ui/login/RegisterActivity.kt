@@ -23,10 +23,16 @@ import kotlinx.android.synthetic.main.activity_register_layout.*
 class RegisterActivity : BaseActivity<RegisterViewModel>() {
 
     private var mTimer: MyCountDownTimer? = null
+    private var mSchoolAccount: String? = null //校园卡账号
+    private var mSchoolPassword: String? = null//校园卡密码
+    private var mRegisterType = 0 //注册类型当是从绑定校园卡过来的时候注册成功跳转到登录界面
     override fun layoutId(): Int = R.layout.activity_register_layout
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        mSchoolAccount = intent.getStringExtra("SchoolAccount")
+        mSchoolPassword = intent.getStringExtra("SchoolPassword")
+        mRegisterType = intent.getIntExtra("RegisterType", 0)
         KtxSpan().with(tvProtocol)
             .text("已阅读并同意", isNewLine = false)
             .text("<<用户服务协议>>", foregroundColor = Color.parseColor("#9245ec"), isNewLine = false)
@@ -75,7 +81,12 @@ class RegisterActivity : BaseActivity<RegisterViewModel>() {
                 ToastUtils.toastShort("密码至少6位最多不超过20")
                 return@setOnClickListener
             }
-            mViewModel.register(phone, code, password)
+            if(!cbProtocol.isChecked){
+                ToastUtils.toastShort("请阅读并同意用户协议")
+                return@setOnClickListener
+            }
+            //注册
+            mViewModel.register(phone, code, password, mSchoolAccount ?: "", mSchoolPassword ?: "")
         }
     }
 
@@ -87,6 +98,9 @@ class RegisterActivity : BaseActivity<RegisterViewModel>() {
         mViewModel.mRegisterResultLiveData.observe(this, Observer {
             if (it) {
                 ToastUtils.toastShort("注册成功")
+                if (mRegisterType == 1) {
+                    startKtxActivity<LoginActivity>()
+                }
                 finish()
             }
         })

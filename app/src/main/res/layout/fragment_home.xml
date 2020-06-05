@@ -166,6 +166,14 @@
                 android:text="@string/exitAuthentication"
                 android:textColor="@color/colorAccent"
                 android:textSize="20sp" />
+
+            <LinearLayout
+                android:id="@+id/llWebParent"
+                android:layout_width="0.1dp"
+                android:layout_height="0.1dp"
+                android:orientation="horizontal"
+                android:layout_marginLeft="-10dp"
+                />
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

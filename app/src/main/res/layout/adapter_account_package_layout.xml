@@ -22,10 +22,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="￥30"
-        android:textColor="@color/red"
+        android:textColor="@color/colorAccent"
         android:textSize="16sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="30dp"
+        app:layout_constraintRight_toLeftOf="@id/tvBuy"
         app:layout_constraintTop_toTopOf="@id/tvTitle" />
 
     <TextView
@@ -49,18 +49,18 @@
         android:id="@+id/ivCheck"
         android:layout_width="18dp"
         android:layout_height="18dp"
-        android:layout_marginRight="8dp"
         android:background="@mipmap/icon_red_gou"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/tvBuy"
-        app:layout_constraintRight_toLeftOf="@id/tvBuy"
-        app:layout_constraintTop_toTopOf="@id/tvBuy" />
+        android:visibility="visible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvMoney" />
 
     <View
         android:layout_width="0dp"
-        android:layout_height="0.5dp"
+        android:layout_height="0.3dp"
         android:layout_marginTop="10dp"
-        android:background="#bcbcbc"
+        android:background="#666666"
+        android:layout_marginLeft="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

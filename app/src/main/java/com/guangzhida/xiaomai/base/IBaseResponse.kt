@@ -5,6 +5,4 @@ interface IBaseResponse<T> {
     fun msg(): String
     fun data(): T
     fun isSuccess(): Boolean
-
-
 }

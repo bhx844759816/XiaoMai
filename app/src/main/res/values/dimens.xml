@@ -2,6 +2,7 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="dialog_width">250dp</dimen>
+    <dimen name="dialog_width_big">280dp</dimen>
     <dimen name="dialog_loading_width">100dp</dimen>
     <dimen name="dialog_corner_radius">8dp</dimen>
     <dimen name="titleTextSize">16sp</dimen>

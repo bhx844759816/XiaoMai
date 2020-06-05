@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <ImageView
+        android:id="@+id/ivContent"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_margin="8dp"
+        android:scaleType="fitXY"
+        tools:background="@mipmap/icon_feed_back_add_photo" />
+
+    <ImageView
+        android:id="@+id/ivDelete"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="right|top"
+        android:background="@mipmap/icon_feed_back_delete_photo" />
+</FrameLayout>

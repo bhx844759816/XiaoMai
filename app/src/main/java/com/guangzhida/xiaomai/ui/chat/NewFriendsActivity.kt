@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseActivity
 import com.guangzhida.xiaomai.event.addFriendChangeLiveData
+import com.guangzhida.xiaomai.event.messageCountChangeLiveData
 import com.guangzhida.xiaomai.ktxlibrary.ext.clickN
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivityForResult
@@ -44,12 +45,8 @@ class NewFriendsActivity : BaseActivity<NewFriendsViewModel>() {
         }
         //点击Item跳转到好友详情界面
         mAdapter.mItemClickCallBack = {
-            startKtxActivity<PersonInfoActivity>(
-                values = listOf(
-                    Pair("State", 0),
-                    Pair("UserEntityGson", Gson().toJson(it.userEntity))
-                )
-            )
+            startKtxActivity<PersonInfoActivity>(value = Pair("userName", it.userEntity.userName))
+
         }
         toolBar.setNavigationOnClickListener {
             finish()
@@ -70,6 +67,9 @@ class NewFriendsActivity : BaseActivity<NewFriendsViewModel>() {
         })
         //刷新界面显示
         mViewModel.operateResultLiveData.observe(this, Observer {
+            if (it) {
+                messageCountChangeLiveData.postValue(true)
+            }
             mViewModel.loadNewFriends()
         })
         //接收到主动添加新朋友

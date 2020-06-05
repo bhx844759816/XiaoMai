@@ -119,7 +119,6 @@ public class AZTitleDecoration2 extends RecyclerView.ItemDecoration {
      * 绘制标题信息
      */
     private void drawTitleItem(Canvas c, RecyclerView parent, View child, String letters) {
-        LogUtils.i("drawTitleItem="+letters);
         final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
         //绘制背景
         c.drawRect(parent.getPaddingLeft(), child.getTop() - params.bottomMargin - mTitleAttributes.mItemHeight,
@@ -146,7 +145,6 @@ public class AZTitleDecoration2 extends RecyclerView.ItemDecoration {
             return false;
         }
         int position = parent.getChildAdapterPosition(view);
-        LogUtils.i("position="+position);
         if (position < mHeaderCount) {
             return false;
         } else {

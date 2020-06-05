@@ -16,6 +16,7 @@ import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.model.ChatMessageRecordModel
 import com.guangzhida.xiaomai.ui.chat.adapter.ChatMessageRecordAdapter
 import com.guangzhida.xiaomai.ui.chat.viewmodel.ChatMessageRecordListViewModel
+import com.hyphenate.chat.EMMessage
 import kotlinx.android.synthetic.main.activity_chat_message_record_list_layout.*
 import java.io.Serializable
 
@@ -30,6 +31,7 @@ class ChatMessageRecordListActivity : BaseActivity<ChatMessageRecordListViewMode
     private var mSearchKey: String = ""
     private var mUserName: String = ""
     private var mNickName: String = ""
+    private var mSearchEmmMessageList: List<EMMessage>? = null
 
     override fun layoutId(): Int = R.layout.activity_chat_message_record_list_layout
 
@@ -90,12 +92,13 @@ class ChatMessageRecordListActivity : BaseActivity<ChatMessageRecordListViewMode
         })
         //获取到此条消息后所有的消息
         mViewModel.mQueryChatMessageRecord.observe(this, Observer {
-            startKtxActivity<ChatMessageActivity>(
-                values = listOf(
-                    Pair("userName", mUserName), Pair("EMMessageList", it as Serializable),
-                    Pair("State", 1)
-                )
+            val list = listOf(
+                Pair("userName", mUserName),
+                Pair("EMMessageList", it as Serializable),
+                Pair("State", 1)
             )
+            startKtxActivity<ChatMessageActivity>(values = list)
         })
+
     }
 }

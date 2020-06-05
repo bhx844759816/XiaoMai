@@ -25,10 +25,8 @@ object AboutPasswordDialog {
         callback: ((Int) -> Unit)?
     ) {
         MaterialDialog(context)
-
             .cornerRadius(res = R.dimen.dialog_corner_radius)
             .customView(viewRes = R.layout.dialog_about_password_layout)
-
             .maxWidth(res = R.dimen.dialog_width)
             .lifecycleOwner(owner)
             .show {

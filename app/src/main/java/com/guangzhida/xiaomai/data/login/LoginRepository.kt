@@ -20,7 +20,9 @@ class LoginRepository(netWork: LoginNetwork) {
     suspend fun register(phone: String, smsCode: String, password: String): BaseResult<String> {
         return mNetwork.register(phone, smsCode, password)
     }
-
+    suspend fun register(params:Map<String,String>): BaseResult<String> {
+        return mNetwork.register(params)
+    }
     /**
      *登录
      */
@@ -31,7 +33,9 @@ class LoginRepository(netWork: LoginNetwork) {
     suspend fun getUseInfoByUserName(userName: String): BaseResult<List<ChatUserModel>> {
         return mNetwork.getUseInfoByUserName(userName)
     }
-
+    suspend fun getUserByPhone(phone: String): BaseResult<String> {
+        return mNetwork.getUserByPhone(phone)
+    }
     /**
      * 刷新Token
      */

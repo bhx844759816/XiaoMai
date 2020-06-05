@@ -28,11 +28,11 @@ package com.guangzhida.xiaomai.model
 //}
 
 data class AppUpdateModel(
-    val appSize: String,
+    val appSize: Long,
     val type: Int,
-    val url: String,
-    val version: String,
-    val message: String,
+    val url: String = "",
+    val version: Int,
+    val message: String = "",
     val appId: String,
     val isForcibly: Boolean //是否强制更新
 )

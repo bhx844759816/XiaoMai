@@ -2,12 +2,13 @@ package com.guangzhida.xiaomai.ui.chat.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import com.guangzhida.xiaomai.BaseApplication
-import com.guangzhida.xiaomai.SERVICE_USERNAME
+
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.model.ConversationModelWrap
 import com.guangzhida.xiaomai.room.AppDatabase
 import com.guangzhida.xiaomai.room.entity.ConversationEntity
+import com.guangzhida.xiaomai.utils.LogUtils
 import com.hyphenate.chat.EMClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,6 +18,7 @@ class ConversationViewModel : BaseViewModel() {
     val mSwipeRefreshLiveData = MutableLiveData<Boolean>()
     val deleteConversationResult = MutableLiveData<ConversationModelWrap>() //删除会话的回调
     val topConversationResult = MutableLiveData<Boolean>()//置顶会话的回调
+    val mConversationTypeObserver = MutableLiveData<Pair<Int,String>>()
     private val chatRepository = InjectorUtil.getChatRepository()
     private val mUserDao by lazy {
         AppDatabase.invoke(BaseApplication.instance().applicationContext).userDao()
@@ -25,100 +27,53 @@ class ConversationViewModel : BaseViewModel() {
         AppDatabase.invoke(BaseApplication.instance().applicationContext).conversationDao()
     }
 
+
     /**
-     * 加载会话列表
+     * 加载本地的会话列表
      */
-    @Synchronized
-    fun loadConversationList() {
+    fun loadConversation() {
         launchUI {
             try {
                 val modelWrapList = mutableListOf<ConversationModelWrap>()
                 withContext(Dispatchers.IO) {
-                    if (BaseApplication.instance().mUserModel?.username == null) {
-                        throw RuntimeException("当前未登陆")
-                    }
-
+                    val _modelList = mutableListOf<ConversationModelWrap>()
                     val conversations =
                         EMClient.getInstance().chatManager().allConversations
-                    conversations.values.forEach {
-                        val userName = it.conversationId()
-                        if (userName == SERVICE_USERNAME && BaseApplication.instance().mServiceModel != null) {
-                            //客服的会话
-                            val conversationEntity =
-                                mConversationDao?.queryConversationByUserName(userName)
-                            if (conversationEntity == null) {
-                                val newConversationEntity = ConversationEntity(
-                                    userName = userName,
-                                    avatarUrl = BaseApplication.instance().mServiceModel!!.headUrl?:"",
-                                    nickName = BaseApplication.instance().mServiceModel!!.nickName,
-                                    sex = BaseApplication.instance().mServiceModel!!.sex.toString(),
-                                    age = BaseApplication.instance().mServiceModel!!.age.toString(),
-                                    isTop = conversationEntity?.isTop ?: false,
-                                    lastMessageTime = it.lastMessage.msgTime,
-                                    parentUserName = BaseApplication.instance().mUserModel!!.username
-                                )
-                                mConversationDao?.insert(newConversationEntity)
-                            }
-                        } else {
-                            val userEntity = mUserDao?.queryUserByUserName(userName)
-                            val conversationEntity =
-                                mConversationDao?.queryConversationByUserName(userName)
-                            if (userEntity != null) {
-                                if (conversationEntity != null)
-                                    mConversationDao?.delete(conversationEntity)
-                                val newConversationEntity = ConversationEntity(
-                                    userName = userName,
-                                    avatarUrl = userEntity.avatarUrl,
-                                    nickName = userEntity.nickName,
-                                    remarkName = userEntity.remarkName,
-                                    sex = userEntity.sex,
-                                    age = userEntity.age,
-                                    isTop = conversationEntity?.isTop ?: false,
-                                    lastMessageTime = it.lastMessage.msgTime,
-                                    parentUserName = conversationEntity?.parentUserName
-                                        ?: BaseApplication.instance().mUserModel!!.username
-                                )
-                                mConversationDao?.insert(newConversationEntity)
-                            }
+                    LogUtils.i("conversations=$conversations")
+                    conversations.forEach {
+                        val userName = it.value.conversationId()
+                        val conversationEntity =
+                            mConversationDao?.queryConversationByUserName(userName)
+                        if (conversationEntity != null) {
+                            conversationEntity.lastMessageTime =
+                                if (it.value.lastMessage != null) it.value.lastMessage.msgTime else 0
+                            val conversationModelWrap = ConversationModelWrap(
+                                emConversation = it.value,
+                                conversationEntity = conversationEntity
+                            )
+                            _modelList.add(conversationModelWrap)
                         }
-
                     }
-                    val conversationEntityList =
-                        mConversationDao?.queryConversationByParentUserName(
-                            BaseApplication.instance().mUserModel!!.username
-                        )
-                    //置顶的会话
-                    val topList = conversationEntityList?.filter {
-                        it.isTop
-                    }?.toMutableList()
-                    val listBySort = conversationEntityList?.filter {
-                        !it.isTop
-                    }?.sortedBy {
-                        it.lastMessageTime
-                    }?.reversed()?.toMutableList()
-                    val list = mutableListOf<ConversationEntity>()
-                    topList?.let {
-                        list.addAll(it)
-                    }
-                    listBySort?.let {
-                        list.addAll(it)
-                    }
-                    list.forEach {
-                        val userName = it.userName
-                        val conversation = conversations.values.find { emConversation ->
-                            emConversation.conversationId() == userName
-                        }
-                        modelWrapList.add(ConversationModelWrap(conversation, it))
-                    }
+                    val topList = _modelList.filter {
+                        it.conversationEntity.isTop
+                    }.toMutableList()
+                    val listBySort = _modelList.filter {
+                        !it.conversationEntity.isTop
+                    }.sortedBy {
+                        it.conversationEntity.lastMessageTime
+                    }.reversed().toMutableList()
+                    modelWrapList.addAll(topList)
+                    modelWrapList.addAll(listBySort)
                 }
                 mConversationListLiveData.postValue(modelWrapList)
+            } catch (t: Throwable) {
+                t.printStackTrace()
+            } finally {
                 mSwipeRefreshLiveData.postValue(true)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                mSwipeRefreshLiveData.postValue(false)
             }
         }
     }
+
 
     /**
      * 删除会话
@@ -157,10 +112,8 @@ class ConversationViewModel : BaseViewModel() {
         launchUI {
             try {
                 withContext(Dispatchers.IO) {
-                    if (item.conversationEntity != null) {
-                        item.conversationEntity.isTop = !item.conversationEntity.isTop
-                        mConversationDao?.update(item.conversationEntity)
-                    }
+                    item.conversationEntity.isTop = !item.conversationEntity.isTop
+                    mConversationDao?.update(item.conversationEntity)
                 }
                 topConversationResult.postValue(true)
             } catch (e: Throwable) {
@@ -168,7 +121,6 @@ class ConversationViewModel : BaseViewModel() {
                 topConversationResult.postValue(false)
             }
         }
-
     }
 
 }

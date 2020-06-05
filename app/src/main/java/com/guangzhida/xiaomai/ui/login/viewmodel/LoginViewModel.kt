@@ -3,12 +3,12 @@ package com.guangzhida.xiaomai.ui.login.viewmodel
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.guangzhida.xiaomai.BaseApplication
-import com.guangzhida.xiaomai.SERVICE_USERNAME
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.model.UserModel
 import com.guangzhida.xiaomai.room.AppDatabase
 import com.guangzhida.xiaomai.room.entity.UserEntity
+import com.guangzhida.xiaomai.utils.LogUtils
 import com.guangzhida.xiaomai.utils.Preference
 import com.hyphenate.EMCallBack
 import com.hyphenate.chat.EMClient
@@ -18,7 +18,6 @@ import java.lang.Exception
 
 class LoginViewModel : BaseViewModel() {
     private var mUserGson by Preference(Preference.USER_GSON, "") //用户对象
-    private var mServiceGson by Preference(Preference.SERVICE_GSON, "") //客服对象
     private val loginRepository = InjectorUtil.getLoginRepository()
     private val chatRepository = InjectorUtil.getChatRepository()
     val mLoginResult = MutableLiveData<Boolean>()
@@ -40,13 +39,6 @@ class LoginViewModel : BaseViewModel() {
                     if (loginResult.status == 200 && loginResult.data != null) {
                         BaseApplication.instance().mUserModel = loginResult.data
                         mUserGson = Gson().toJson(loginResult.data)
-                        //保存客服信息
-                        val serviceResult = loginRepository.getUseInfoByUserName(SERVICE_USERNAME)
-                        if (serviceResult.isSuccess()) {
-                            val serviceModel = serviceResult.result[0]
-                            BaseApplication.instance().mServiceModel = serviceModel
-                            mServiceGson = Gson().toJson(serviceModel)
-                        }
                         //拉取好友到本地
                         loadServiceContactsList()
                     } else {
@@ -58,12 +50,13 @@ class LoginViewModel : BaseViewModel() {
                     doChatLogin(phone, password)
                 } else {
                     mLoginResult.postValue(false)
-                    defUI.dismissDialog.call()
+                    defUI.dismissDialog.postValue(null)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                defUI.dismissDialog.call()
                 defUI.toastEvent.postValue("登录失败")
+            }finally {
+
             }
         }
     }
@@ -76,7 +69,7 @@ class LoginViewModel : BaseViewModel() {
             val result = chatRepository.getFriendList()
             val userEntityList = mUserDao?.queryAll()
             if (result.isSuccess()) {
-                val list = result.result.map { chatUserModel ->
+                val list = result.data.map { chatUserModel ->
                     val localUserEntity = userEntityList?.find {
                         it.uid == chatUserModel.id.toLong()
                     }
@@ -114,6 +107,7 @@ class LoginViewModel : BaseViewModel() {
                 //加载全部会话
                 EMClient.getInstance().chatManager().loadAllConversations()
                 defUI.toastEvent.postValue("登录成功")
+                defUI.dismissDialog.postValue(null)
                 mLoginResult.postValue(true)
             }
 
@@ -121,8 +115,10 @@ class LoginViewModel : BaseViewModel() {
             }
 
             override fun onError(code: Int, error: String?) {
+                LogUtils.i("im login error=$error")
                 defUI.toastEvent.postValue("登录失败:$error")
                 mLoginResult.postValue(false)
+                defUI.dismissDialog.postValue(null)
             }
         })
     }

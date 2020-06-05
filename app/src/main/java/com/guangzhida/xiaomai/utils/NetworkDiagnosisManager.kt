@@ -141,12 +141,12 @@ object NetworkDiagnosisManager {
      * averageDelay 平均延迟
      * lossPackageRate 丢包率
      */
-    fun executeCmd2(ip: String, count: Int, timeout: Int): PingResultModel {
+    fun executeCmd2(ip: String, count: Int): PingResultModel {
         val model = PingResultModel()
         var lossPackageRate = ""
         var averageDelay = ""
         try {
-            val cmd = "ping -c $count -w $timeout $ip"
+            val cmd = "ping -c $count $ip"
             process = Runtime.getRuntime().exec(cmd)// ping网址3次
             BufferedReader(InputStreamReader(process!!.inputStream)).use {
                 var line: String

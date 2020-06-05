@@ -3,7 +3,6 @@ package com.guangzhida.xiaomai.ui.login.viewmodel
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.guangzhida.xiaomai.BaseApplication
-import com.guangzhida.xiaomai.SERVICE_USERNAME
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.model.UserModel
@@ -11,6 +10,7 @@ import com.guangzhida.xiaomai.room.AppDatabase
 import com.guangzhida.xiaomai.room.entity.UserEntity
 import com.guangzhida.xiaomai.utils.LogUtils
 import com.guangzhida.xiaomai.utils.Preference
+import com.guangzhida.xiaomai.utils.ToastUtils
 import com.hyphenate.EMCallBack
 import com.hyphenate.chat.EMClient
 import kotlinx.coroutines.Dispatchers
@@ -26,10 +26,6 @@ class LoadingViewModel : BaseViewModel() {
     val loadingFinish = MutableLiveData<Boolean>()
     private val loginRepository = InjectorUtil.getLoginRepository()
 
-
-    private val mUserDao by lazy {
-        AppDatabase.invoke(BaseApplication.instance().applicationContext).userDao()
-    }
 
     /**
      * 验证token
@@ -53,14 +49,16 @@ class LoadingViewModel : BaseViewModel() {
                             loginRepository.refreshToken()
                         }
                         if (refreshTokenResult.isSuccess()) {
-                            BaseApplication.instance().mUserModel?.token = refreshTokenResult.result
+                            BaseApplication.instance().mUserModel?.token = refreshTokenResult.data
                             mUserGson = Gson().toJson(BaseApplication.instance().mUserModel)
-                            loadingFinish.postValue(true)
-                            loadingFinish()
+                        } else {
+                            mUserGson = ""
+                            BaseApplication.instance().mUserModel = null
                         }
+                        loadingFinish()
                     }
                 }
-            }catch (e:Throwable){
+            } catch (e: Throwable) {
                 e.printStackTrace()
                 loadingFinish.postValue(true)
             }
@@ -72,8 +70,34 @@ class LoadingViewModel : BaseViewModel() {
      */
     private suspend fun loadingFinish() {
         withContext(Dispatchers.IO) {
-            EMClient.getInstance().chatManager().loadAllConversations()
-            loadingFinish.postValue(true)
+            if (!EMClient.getInstance().isConnected) {
+                EMClient.getInstance().logout(true)
+                EMClient.getInstance().login(
+                    BaseApplication.instance().mUserModel!!.username,
+                    BaseApplication.instance().mUserModel!!.password,
+                    object : EMCallBack {
+                        override fun onSuccess() {
+                            EMClient.getInstance().chatManager().loadAllConversations()
+                            loadingFinish.postValue(true)
+                        }
+
+                        override fun onProgress(progress: Int, status: String?) {
+                        }
+
+                        override fun onError(code: Int, error: String?) {
+                            LogUtils.i("error=$error")
+                            ToastUtils.ioToastShort("登录聊天服务器失败code=$code")
+                            BaseApplication.instance().mUserModel = null
+                            mUserGson = ""
+                            loadingFinish.postValue(true)
+                        }
+                    })
+            } else {
+                EMClient.getInstance().chatManager().loadAllConversations()
+                loadingFinish.postValue(true)
+            }
+
+
         }
     }
 

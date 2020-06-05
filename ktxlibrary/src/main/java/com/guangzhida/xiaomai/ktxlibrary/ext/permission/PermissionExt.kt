@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 
 /**
@@ -12,7 +13,45 @@ import androidx.fragment.app.FragmentActivity
  * on 2019/6/18 15:47
  */
 
-const val TAG ="ktx"
+const val TAG = "ktx"
+
+
+fun Fragment.request(vararg permissions: String, callbacks: PermissionsCallbackDSL.() -> Unit) {
+    val permissionsCallback = PermissionsCallbackDSL().apply { callbacks() }
+    val requestCode = PermissionsMap.put(permissionsCallback)
+
+    val needRequestPermissions = permissions.filter { !isGranted(it) }
+    if (needRequestPermissions.isEmpty()) {
+        permissionsCallback.onGranted()
+    } else {
+        val shouldShowRationalePermissions = mutableListOf<String>()
+        val shouldNotShowRationalePermissions = mutableListOf<String>()
+        for (permission in needRequestPermissions) {
+            if (activity != null && ActivityCompat.shouldShowRequestPermissionRationale(activity!!, permission))
+                shouldShowRationalePermissions.add(permission)
+            else
+                shouldNotShowRationalePermissions.add(permission)
+        }
+
+        if (shouldShowRationalePermissions.isNotEmpty()) {
+            permissionsCallback.onShowRationale(
+                PermissionRequest(
+                    getKtxPermissionFragmentByFragment(this),
+                    shouldShowRationalePermissions,
+                    requestCode
+                )
+            )
+        }
+
+
+        if (shouldNotShowRationalePermissions.isNotEmpty()) {
+            getKtxPermissionFragmentByFragment(this).requestPermissionsByFragment(
+                shouldNotShowRationalePermissions.toTypedArray(),
+                requestCode
+            )
+        }
+    }
+}
 
 /**
  * request permissions list in [permissions]
@@ -25,7 +64,10 @@ fun FragmentActivity.request(vararg permissions: String) {
  * request permissions list in [permissions]
  * @param callbacks DSL callback to handle request result
  */
-fun FragmentActivity.request(vararg permissions: String, callbacks: PermissionsCallbackDSL.() -> Unit) {
+fun FragmentActivity.request(
+    vararg permissions: String,
+    callbacks: PermissionsCallbackDSL.() -> Unit
+) {
 
     val permissionsCallback = PermissionsCallbackDSL().apply { callbacks() }
     val requestCode = PermissionsMap.put(permissionsCallback)
@@ -73,8 +115,24 @@ private fun getKtxPermissionFragment(activity: FragmentActivity): KtxPermissionF
     return fragment as KtxPermissionFragment
 }
 
+private fun getKtxPermissionFragmentByFragment(fragment: Fragment): KtxPermissionFragment {
+    var childFragment = fragment.childFragmentManager.findFragmentByTag(TAG)
+    if (childFragment == null) {
+        childFragment = KtxPermissionFragment()
+        fragment.childFragmentManager.beginTransaction().add(childFragment, TAG).commitNow()
+    }
+    return childFragment as KtxPermissionFragment
+}
+
 
 fun Activity.isGranted(permission: String): Boolean {
     return Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
             ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+}
+
+fun Fragment.isGranted(permission: String): Boolean {
+    return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || (context != null && ContextCompat.checkSelfPermission(
+        context!!,
+        permission
+    ) == PackageManager.PERMISSION_GRANTED)
 }

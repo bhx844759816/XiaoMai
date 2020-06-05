@@ -22,6 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
+        android:maxWidth="200dp"
         android:text="1.点击用户注册 2.填写用户基本信息"
         android:textColor="@color/defaultTextColor"
         android:textSize="15sp"

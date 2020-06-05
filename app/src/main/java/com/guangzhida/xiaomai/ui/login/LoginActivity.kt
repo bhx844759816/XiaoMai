@@ -1,6 +1,5 @@
 package com.guangzhida.xiaomai.ui.login
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Selection
 import android.text.method.HideReturnsTransformationMethod
@@ -8,7 +7,10 @@ import android.text.method.PasswordTransformationMethod
 import androidx.lifecycle.Observer
 import com.guangzhida.xiaomai.*
 import com.guangzhida.xiaomai.base.BaseActivity
+import com.guangzhida.xiaomai.event.LiveDataBus
+import com.guangzhida.xiaomai.event.LiveDataBusKey
 import com.guangzhida.xiaomai.event.userModelChangeLiveData
+import com.guangzhida.xiaomai.ext.isPhone
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.ui.login.viewmodel.LoginViewModel
 import com.guangzhida.xiaomai.utils.*
@@ -31,8 +33,8 @@ class LoginActivity : BaseActivity<LoginViewModel>() {
         idLoginTv.setOnClickListener {
             phone = inputPhone.text.toString().trim()
             password = inputPassword.text.toString().trim()
-            if (phone.isNullOrEmpty()) {
-                ToastUtils.toastShort("请输入手机号")
+            if (!phone!!.isPhone()) {
+                ToastUtils.toastShort("请输入正确的手机号")
                 return@setOnClickListener
             }
             if (password.isNullOrEmpty()) {
@@ -59,6 +61,7 @@ class LoginActivity : BaseActivity<LoginViewModel>() {
         mViewModel.mLoginResult.observe(this, Observer {
             if (it) {
                 userModelChangeLiveData.postValue(true)
+                LiveDataBus.with(LiveDataBusKey.LOGIN_KEY,Boolean::class.java).postValue(true)
                 finish()
             }
         })
@@ -77,6 +80,4 @@ class LoginActivity : BaseActivity<LoginViewModel>() {
             Selection.setSelection(spanText, spanText.length)
         }
     }
-
-
 }

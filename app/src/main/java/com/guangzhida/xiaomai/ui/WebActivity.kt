@@ -1,8 +1,10 @@
 package com.guangzhida.xiaomai.ui
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -44,6 +46,20 @@ class WebActivity : AppCompatActivity() {
         ): Boolean {
             return super.shouldOverrideUrlLoading(view, request)
         }
+
+        override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
+            LogUtils.i(url)
+            return super.shouldInterceptRequest(view, url)
+        }
+        override fun shouldInterceptRequest(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): WebResourceResponse? {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+              LogUtils.i(  request?.url?.path)
+            }
+            return super.shouldInterceptRequest(view, request)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +78,6 @@ class WebActivity : AppCompatActivity() {
             .createAgentWeb()
             .ready()
             .get()
-
         when (mType) {
             "AccountRegister" -> { //用户注册
                 mAgentWeb?.urlLoader?.loadUrl(url)
@@ -78,7 +93,19 @@ class WebActivity : AppCompatActivity() {
             "protocol" -> { //用户服务协议隐私政策
                 mAgentWeb?.urlLoader?.loadUrl(url)
             }
+            "activity"->{//活动页面
+                mAgentWeb?.urlLoader?.loadUrl(url)
+            }
+            "test"->{
+                mAgentWeb?.urlLoader?.loadUrl(url)
+            }
+            "ad"->{
+                mAgentWeb?.urlLoader?.loadUrl(url)
+            }
         }
+        val androidInterface = AndroidInterface(this)
+        mAgentWeb?.jsInterfaceHolder?.addJavaObject("android",androidInterface)
+
     }
 
     private fun initListener() {
@@ -87,7 +114,6 @@ class WebActivity : AppCompatActivity() {
             finish()
         }
         toolBar.setNavigationOnClickListener {
-            mAgentWeb?.back()
             if (mAgentWeb?.back() != true) {
                 setResult(Activity.RESULT_OK)
                 finish()

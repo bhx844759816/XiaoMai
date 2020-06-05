@@ -22,15 +22,10 @@ interface UserService {
     @POST("user/update_user_info")
     suspend fun updateUserInfo(@FieldMap params: Map<String, String>):ModifyUserModel
 
-    /**
-     * 用户登录获取token
-     */
     @FormUrlEncoded
-    @POST("jwt/token")
-    suspend fun loginForToken(
-        @Field("username") username: String,
-        @Field("password") password: String
-    ): UserModel
+    @POST("user/user_feedback/addUserFeedback")
+    suspend fun uploadUserFeedBack(@FieldMap params: Map<String, String>):BaseResult<String>
+
 
 
 

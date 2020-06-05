@@ -42,7 +42,7 @@ class ConversationAdapter(data: MutableList<ConversationModelWrap>) :
         val tvChatUnReadMessageCount = helper.getView<TextView>(R.id.tvChatUnReadMessageCount)
         val emMessage = item.emConversation?.lastMessage
         val unReadMsgCount = item.emConversation?.unreadMsgCount ?: 0
-        if (item.conversationEntity?.isTop == true) {
+        if (item.conversationEntity.isTop) {
             parent.setBackgroundResource(R.drawable.shape_pressed_bg)
         } else {
             parent.setBackgroundResource(R.drawable.shape_pressed_normal_bg)

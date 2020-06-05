@@ -33,7 +33,7 @@ class AddFriendsViewModel : BaseViewModel() {
      */
     fun doSearch(keyWord: String) {
         launchOnlyResult({
-            chatRepository.getUserInfoByNickNameOrPhone(phone = keyWord)
+            chatRepository.getUserInfoByNickNameOrPhone(nickNameOrPhone = keyWord)
         }, {
             mSearchResultLiveData.postValue(it)
         })

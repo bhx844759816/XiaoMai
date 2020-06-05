@@ -42,20 +42,7 @@ class AddFriendsActivity : BaseActivity<AddFriendsViewModel>() {
             }
         }
         mAdapter.mContentClickCallBack = {
-            val userEntity = UserEntity(it.id.toLong()).apply {
-                userName = it.mobilePhone
-                nickName = it.nickName
-                avatarUrl = it.headUrl ?: ""
-                age = it.age.toString()
-                sex = it.sex.toString()
-                singUp = it.signature ?: ""
-            }
-            startKtxActivity<PersonInfoActivity>(
-                values = listOf(
-                    Pair("State", 0),
-                    Pair("UserEntityGson", Gson().toJson(userEntity))
-                )
-            )
+            startKtxActivity<PersonInfoActivity>(value = Pair("userName", it.mobilePhone))
         }
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = mAdapter

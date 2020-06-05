@@ -16,6 +16,6 @@ data class InviteMessageEntity(
     val time: Long, //接收到消息得时间
     val reason: String,//添加好友的原因
     val userName: String, //当前用户的名称
-    var state: Int //0初始状态 1待验证我发送过去的  2同意好友  3拒绝好友
+    var state: Int //0初始状态 1待验证我发送过去的  2同意好友  3好友已删除
 )
 

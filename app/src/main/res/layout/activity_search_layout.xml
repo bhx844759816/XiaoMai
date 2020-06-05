@@ -19,6 +19,8 @@
             android:layout_weight="11"
             android:background="@drawable/shape_chat_search_bg"
             android:gravity="center_vertical"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:hint="请输入好友信息或者聊天记录进行检索"
             android:paddingLeft="10dp"
             android:textColor="#333333"

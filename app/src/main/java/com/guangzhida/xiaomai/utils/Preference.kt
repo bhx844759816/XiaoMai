@@ -16,7 +16,6 @@ class Preference<T>(val name: String, private val default: T) : ReadWritePropert
 
     companion object {
         const val USER_GSON = "user_gson" //用户对象
-        const val SERVICE_GSON = "service_gson" //客服对象
         const val SCHOOL_NET_ACCOUNT_GSON = "school_net_account_gson" //校园网账号对象GSON
         const val SCHOOL_INFO_GSON = "school_info_gson"//学校信息
         const val SCHOOL_SELECT_INFO_GSON = "school_select_info_gson"//学校信息

@@ -13,8 +13,10 @@ import com.guangzhida.xiaomai.dialog.BindAccountDialog
 import com.guangzhida.xiaomai.dialog.SelectSchoolDialog
 import com.guangzhida.xiaomai.event.schoolModelChangeLiveData
 import com.guangzhida.xiaomai.event.userModelChangeLiveData
+import com.guangzhida.xiaomai.ext.jumpLoginByState
 import com.guangzhida.xiaomai.ext.loadCircleImage
 import com.guangzhida.xiaomai.http.BASE_URL
+import com.guangzhida.xiaomai.ktxlibrary.ext.clickN
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.model.AccountModel
 import com.guangzhida.xiaomai.model.SchoolModel
@@ -54,23 +56,30 @@ class UserActivity : BaseActivity<UserViewModel>() {
         //个人中心
         rlUserCenter.setOnClickListener {
             if (BaseApplication.instance().mUserModel == null) {
-                ToastUtils.toastShort("请先登录")
                 startKtxActivity<LoginActivity>()
             } else {
                 startKtxActivity<UserCenterActivity>()
             }
         }
+
         //点击名称
         tvUserName.setOnClickListener {
             if (BaseApplication.instance().mUserModel == null) {
                 startKtxActivity<LoginActivity>()
+            } else {
+                startKtxActivity<UserMessageActivity>()
             }
         }
         //点击头像
         ivHeaderView.setOnClickListener {
             if (BaseApplication.instance().mUserModel == null) {
                 startKtxActivity<LoginActivity>()
+            } else {
+                startKtxActivity<UserMessageActivity>()
             }
+        }
+        rlUserFeedback.clickN {
+            startKtxActivity<UserFeedBackActivity>()
         }
         //系统设置
         rlSystemSetting.setOnClickListener {
@@ -97,4 +106,5 @@ class UserActivity : BaseActivity<UserViewModel>() {
         }
 
     }
+
 }

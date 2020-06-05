@@ -36,8 +36,11 @@ class HomeNetWork {
      */
 
     suspend fun doAccountVerify(url: String, params: Map<String, String?>): VerifyModel {
-        LogUtils.i("一键认证:${params.toString()}")
         return mService.doAccountVerify(url, params)
+    }
+
+    suspend fun doAccountVerify2(url: String, params: Map<String, String?>): ResponseBody {
+        return mService.doAccountVerify2(url, params)
     }
 
     /**
@@ -66,6 +69,32 @@ class HomeNetWork {
      */
     suspend fun bindSchoolAccount(url: String, params: Map<String, String?>): ResponseBody {
         return mService.bindSchoolAccount(url, params)
+    }
+
+    suspend fun doLoginBySchoolAccount(schoolAccount: String, schoolPassword: String): UserModel {
+        return mService.doLoginBySchoolAccount(schoolAccount, schoolPassword)
+    }
+
+    suspend fun doBindSchoolAccount(
+        schoolAccount: String,
+        schoolPassword: String,
+        id: String
+    ): UserModel {
+        return mService.doBindSchoolAccount(schoolAccount, schoolPassword, id)
+    }
+
+    /**
+     * 获取客服通过学校ID
+     */
+    suspend fun getServiceBySchoolId(schoolId: String): BaseResult<List<ServiceModel>> {
+        return mService.getServiceBySchoolId(schoolId)
+    }
+
+    /**
+     * 通过学校ID获取弹窗广告
+     */
+    suspend fun getPopAdBySchoolId(schoolId: String): BaseResult<PopAdModel> {
+        return mService.getPopAdBySchoolId(schoolId)
     }
 
     companion object {
