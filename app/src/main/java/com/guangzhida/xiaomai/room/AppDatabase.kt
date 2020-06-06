@@ -48,19 +48,6 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         LogUtils.i("db update MIGRATION_1_2")
         //会话表添加个字段
-        database.execSQL("ALTER TABLE ConversationEntity add type INTEGER NOT NULL")
-//        database.execSQL(
-//            "CREATE TABLE IF NOT EXISTS ServiceEntity (" +
-//                    "id TEXT PRIMARY KEY NOT NULL, " +
-//                    "age INTEGER NOT NULL, " +
-//                    "headId TEXT NOT NULL, " +
-//                    "headUrl TEXT NOT NULL, " +
-//                    "mobilePhone TEXT NOT NULL, " +
-//                    "nickName TEXT NOT NULL, " +
-//                    "userName TEXT NOT NULL, " +
-//                    "schoolName TEXT NOT NULL, " +
-//                    "schoolId TEXT NOT NULL" +
-//                    ")"
-//        );
+        database.execSQL("ALTER TABLE ConversationEntity add COLUMN type INTEGER NOT NULL DEFAULT 0")
     }
 }
