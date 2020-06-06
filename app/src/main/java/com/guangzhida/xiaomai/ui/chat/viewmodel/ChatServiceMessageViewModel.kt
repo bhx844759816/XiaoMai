@@ -178,7 +178,6 @@ open class ChatServiceMessageViewModel : BaseViewModel() {
                     voiceBody.setMessageStatusCallback(InnerEmCallBack(voiceBody))
                     EMClient.getInstance().chatManager().sendMessage(voiceBody)
                 }
-                saveConversation()
             } catch (e: Throwable) {
                 e.printStackTrace()
                 defUI.toastEvent.postValue("发送消息失败")
@@ -327,9 +326,7 @@ open class ChatServiceMessageViewModel : BaseViewModel() {
                     conversationEntity?.sex = mServiceModel?.sex.toString()
                     conversationEntity?.age = mServiceModel?.age.toString()
                     conversationEntity?.avatarUrl = mServiceModel?.headUrl ?: ""
-                    LogUtils.i("conversationEntity update=$conversationEntity")
                     mConversationDao?.update(conversationEntity)
-
                 }
             }
         }
