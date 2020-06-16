@@ -50,7 +50,7 @@
         <activity android:name=".ui.login.RegisterActivity" />
         <activity
             android:name=".ui.login.LoadingActivity"
-            android:theme="@style/FullScreen">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -71,12 +71,19 @@
         <activity android:name=".ui.chat.SearchContactListActivity" />
         <activity android:name=".ui.chat.SearchMessageListActivity" />
         <activity android:name=".ui.chat.ChatMessageRecordListActivity" />
+        <activity android:name=".ui.chat.AppointmentDetailsActivity" />
+        <activity android:name=".ui.chat.AppointmentPublishActivity" />
+        <activity android:name=".ui.chat.AppointmentUserDetailsActivity" />
+        <activity android:name=".ui.chat.AllSingUpUserActivity" />
+        <activity android:name=".ui.chat.ContactListActivity" />
         <activity android:name=".ui.user.UserActivity" />
         <activity android:name=".ui.user.UserCenterActivity" />
         <activity android:name=".ui.user.AboutUsActivity" />
         <activity android:name=".ui.user.UserMessageActivity" />
         <activity android:name=".ui.user.SettingActivity" />
         <activity android:name=".ui.user.UserFeedBackActivity" />
+        <activity android:name=".ui.user.MyPublishActivity" />
+        <activity android:name=".ui.user.MySignUpActivity" />
         <activity android:name=".ui.VerifyWebActivity" />
         <!--预览图片-->
         <activity android:name=".view.preview.PreviewResultListActivity" />
@@ -110,6 +117,6 @@
         <meta-data
             android:name="EASEMOB_APPKEY"
             android:value="1116191019107908#school" />
-        <service android:name=".chat.ChatService" />
+
     </application>
 </manifest>

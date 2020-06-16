@@ -6,6 +6,7 @@ import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.room.AppDatabase
+import com.guangzhida.xiaomai.room.entity.UserEntity
 import com.guangzhida.xiaomai.utils.LogUtils
 import com.hyphenate.EMCallBack
 import com.hyphenate.EMMessageListener
@@ -41,8 +42,10 @@ open class ChatMessageViewModel : BaseViewModel() {
     val haveMoreDataLiveData = MutableLiveData<List<EMMessage>>() //是否有更多数据
     val refreshResultLiveData = MutableLiveData<Boolean>() //下拉刷新回调
     val deleteFriendLiveData = MutableLiveData<Boolean>() //删除好友回调
+    val isFriendLiveData = MutableLiveData<Boolean>() //删除好友回调
     val sendMessageSuccessLiveData = MutableLiveData<EMMessage>() //发送消息成功
     val receiveMessageLiveData = MutableLiveData<EMMessage>() //接收到消息
+
 
 
     private val onEMMessageListener = object : EMMessageListener {
@@ -103,6 +106,8 @@ open class ChatMessageViewModel : BaseViewModel() {
             try {
                 //
                 withContext(Dispatchers.IO) {
+                    val userEntity = mUserDao?.queryUserByUserName(userName)
+                    isFriendLiveData.postValue(userEntity != null)
                     val conversationEntity =
                         mConversationDao?.queryConversationByUserName(userName)
                     if (conversationEntity != null) {
@@ -113,7 +118,6 @@ open class ChatMessageViewModel : BaseViewModel() {
                             )
                         )
                     } else {
-                        val userEntity = mUserDao?.queryUserByUserName(userName)
                         if (userEntity != null) {
                             mInitUserInfoObserver.postValue(
                                 Pair(
@@ -161,6 +165,8 @@ open class ChatMessageViewModel : BaseViewModel() {
             mInitConversationLiveData.postValue(listResult)
         }
     }
+
+
 
     /**
      * 发送文本消息

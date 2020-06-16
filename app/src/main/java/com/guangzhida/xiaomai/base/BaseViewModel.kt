@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.base
+﻿package com.guangzhida.xiaomai.base
 
 import android.util.Log
 import androidx.lifecycle.LifecycleObserver

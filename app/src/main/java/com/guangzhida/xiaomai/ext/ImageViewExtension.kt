@@ -23,11 +23,16 @@ fun ImageView.loadImage(uri: Uri?) {
 fun ImageView.loadImage(uri: String?, @DrawableRes holder: Int) {
     Glide.with(this).load(uri).apply(RequestOptions.placeholderOf(holder)).into(this)
 }
+fun ImageView.loadImage(uri: String?, @DrawableRes holder: Int, @DrawableRes error: Int) {
+    Glide.with(this).load(uri).apply(RequestOptions.placeholderOf(holder).error(error)).into(this)
+}
 
 fun ImageView.loadImage(resID: Int?, @DrawableRes holder: Int) {
     Glide.with(this).load(resID).apply(RequestOptions.placeholderOf(holder)).into(this)
 }
-
+fun ImageView.loadImage(resID: Int?) {
+    Glide.with(this).load(resID).into(this)
+}
 fun ImageView.loadImage(uri: String?, requestListener: RequestListener<Drawable?>) {
     Glide.with(this).load(uri).listener(requestListener).into(this)
 }

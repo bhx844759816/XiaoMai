@@ -18,24 +18,7 @@
              android:layout_gravity="center"
              >
          </net.lucode.hackware.magicindicator.MagicIndicator>
-<!--        <com.flyco.tablayout.CommonTabLayout-->
-<!--            android:id="@+id/tabLayout"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:layout_marginBottom="3dp"-->
-<!--            tl:tl_iconGravity="BOTTOM"-->
-<!--            tl:tl_iconMargin="-30dp"-->
-<!--            tl:tl_iconHeight="12dp"-->
-<!--            tl:tl_iconWidth="12dp"-->
-<!--            tl:tl_indicator_color="@color/colorAccent"-->
-<!--            tl:tl_indicator_corner_radius="1dp"-->
-<!--            tl:tl_indicator_height="2dp"-->
-<!--            tl:tl_tab_padding="10dp"-->
-<!--            tl:tl_tab_width="70dp"-->
-<!--            tl:tl_textBold="BOTH"-->
-<!--            tl:tl_textSelectColor="#282828"-->
-<!--            tl:tl_textUnselectColor="#999999" />-->
+
 
         <ImageView
             android:id="@+id/ivAddFriend"

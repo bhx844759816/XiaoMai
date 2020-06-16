@@ -61,6 +61,9 @@ object ChatHelper {
             )
             mInviteMessageDao?.insert(inviteMessage)
             notifier?.vibrateAndPlayTone()
+            //接收到好友邀请的时候发送消息
+
+            // TODO 需要发送好友邀请，主页面  联系人界面 互动界面需要监听 改变显示的小红点和好友信息
             messageCountChangeLiveData.postValue(true)
         }
 

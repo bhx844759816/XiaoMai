@@ -1,6 +1,8 @@
 package com.guangzhida.xiaomai.data.chat
 
 import com.guangzhida.xiaomai.base.BaseResult
+import com.guangzhida.xiaomai.base.PageResult
+import com.guangzhida.xiaomai.model.AppointmentModel
 import com.guangzhida.xiaomai.model.ChatUserModel
 import com.guangzhida.xiaomai.model.ServiceModel
 import com.guangzhida.xiaomai.model.ServiceProblemModel
@@ -88,6 +90,32 @@ class ChatRepository(netWork: ChatNetWork) {
     suspend fun getOnlineServer(schoolId: String): BaseResult<ServiceModel> {
         return mNetWork.getOnlineServer(schoolId)
     }
+
+    suspend fun submitAppointmentData(params: MutableMap<String, Any>): BaseResult<String> {
+        return mNetWork.submitAppointmentData(params)
+    }
+
+    suspend fun getAppointmentData(
+        schoolId: String,
+        userId: String,
+        limit: String, page: String
+    ): PageResult<AppointmentModel> {
+        return mNetWork.getAppointmentData(schoolId, userId, limit, page)
+    }
+
+    suspend fun signUpActivity(
+        schoolId: String,
+        userId: String,
+        aboutId: String,
+        isCancel: String
+    ): BaseResult<String> {
+        return mNetWork.signUpActivity(schoolId, userId, aboutId, isCancel)
+    }
+
+    suspend fun getSignUpUserByActivityId(activityId: String): BaseResult<List<ChatUserModel>>{
+        return mNetWork.getSignUpUserByActivityId(activityId)
+    }
+
 
     companion object {
 

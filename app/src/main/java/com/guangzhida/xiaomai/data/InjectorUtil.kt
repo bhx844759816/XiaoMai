@@ -2,6 +2,8 @@ package com.guangzhida.xiaomai.data
 
 import com.guangzhida.xiaomai.data.chat.ChatNetWork
 import com.guangzhida.xiaomai.data.chat.ChatRepository
+import com.guangzhida.xiaomai.data.common.CommonNetWork
+import com.guangzhida.xiaomai.data.common.CommonRepository
 import com.guangzhida.xiaomai.data.home.HomeNetWork
 import com.guangzhida.xiaomai.data.home.HomeRepository
 import com.guangzhida.xiaomai.data.login.LoginNetwork
@@ -21,4 +23,6 @@ object InjectorUtil {
     fun getUserRepository() = UserRepository.getInstance(UserNetWork.getInstance())
 
     fun getUpdateRepository() = UpdateRepository.getInstance(UpdateNetwork.getInstance())
+
+    fun getCommonRepository() = CommonRepository.getInstance(CommonNetWork.getInstance())
 }

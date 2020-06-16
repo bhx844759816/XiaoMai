@@ -14,7 +14,7 @@ class VerifyWebActivity : AppCompatActivity() {
     private var mAgentWeb: AgentWeb? = null
     private var mAccount = 12121 //账号
     private var mPassword = 11114222//密码
-    //    val insertJavaScript = """
+//    val insertJavaScript = """
 //            javascript:(function() {
 //            document.getElementById("user").value= '$mAccount';
 //            document.getElementById("pass").value= '$mPassword';

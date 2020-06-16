@@ -96,6 +96,7 @@ class HomeViewModel : BaseViewModel() {
                         if (BaseApplication.instance().mUserModel == null) {
                             //隐形调用登录方法尝试进行登录
                             val loginResult = withContext(Dispatchers.IO) {
+                                //
                                 val userModel =
                                     homeRepository.doLoginBySchoolAccount(account, password)
                                 if (userModel.status == 200) {
@@ -196,6 +197,7 @@ class HomeViewModel : BaseViewModel() {
             }
 
             override fun onError(code: Int, error: String?) {
+                ToastUtils.toastShort("聊天服务器登录失败")
                 bindResult.postValue(1) //绑定成功
             }
         })

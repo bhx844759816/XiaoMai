@@ -10,7 +10,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 const val BASE_URL = "http://www.app.guangzhida.cn:8762/api/admin/"
+const val BASE_URL_IMG = "http://www.app.guangzhida.cn:8762/api/admin"
 //const val BASE_URL = "http://192.168.1.74:8762/api/admin/"
+//const val BASE_URL_IMG = "http://192.168.1.74:8762/api/admin"
 
 class RetrofitManager {
     private var retrofit: Retrofit? = null

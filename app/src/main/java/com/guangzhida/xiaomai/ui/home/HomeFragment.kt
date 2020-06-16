@@ -17,6 +17,8 @@ import com.google.gson.reflect.TypeToken
 import com.guangzhida.xiaomai.*
 import com.guangzhida.xiaomai.base.BaseFragment
 import com.guangzhida.xiaomai.dialog.*
+import com.guangzhida.xiaomai.event.LiveDataBus
+import com.guangzhida.xiaomai.event.LiveDataBusKey.SCHOOL_MODEL_CHANGE_KEY
 import com.guangzhida.xiaomai.event.netChangeLiveData
 import com.guangzhida.xiaomai.event.schoolModelChangeLiveData
 import com.guangzhida.xiaomai.event.userModelChangeLiveData
@@ -35,6 +37,7 @@ import com.guangzhida.xiaomai.ui.login.LoginActivity
 import com.guangzhida.xiaomai.ui.user.UserActivity
 import com.guangzhida.xiaomai.utils.*
 import com.guangzhida.xiaomai.view.VerifyInternetManager
+import com.jaeger.library.StatusBarUtil
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.layout_home_center_grid.*
 
@@ -63,7 +66,6 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
     override fun initView(savedInstanceState: Bundle?) {
         initListener()
         registerLiveData()
-        showUserInfo()
         //获取本地存储的学校信息
         mSchoolModelList = mGson.fromJson<List<SchoolModel>>(mSchoolInfoGson, object :
             TypeToken<List<SchoolModel>>() {
@@ -125,7 +127,6 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
     override fun initListener() {
         //绑定账号
         idBindAccount.setOnClickListener {
-            //            mVerifyManager?.doVerify()
             if (mSchoolModel == null) {
                 ToastUtils.toastShort("请选择学校")
                 showSelectSchoolDialog()
@@ -162,13 +163,7 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
                 }
             }
         }
-        //个人中心
-        ivMessageNotify.setOnClickListener {
-            val intent = Intent(context, UserActivity::class.java)
-            intent.putExtra("AccountModel", Gson().toJson(mAccountModel))
-            intent.putExtra("SchoolModel", Gson().toJson(mSchoolModel))
-            startActivity(intent)
-        }
+
         //查询余额
         llQueryBalance.setOnClickListener {
             if (mSchoolModel == null) {
@@ -251,11 +246,6 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
             }
             if (checkAccountAndSchoolIsExit()) {
 //                startKtxActivity<VerifyWebActivity>()
-//                viewModel.doAccountVerify(
-//                    mSchoolModel!!.keyAuthentication,
-//                    mSchoolModel!!.logoutLogin,
-//                    mAccountModel!!
-//                )
                 activity?.let {
                     viewModel.defUI.showDialog.call()
                     VerifyInternetManager.doVerify(
@@ -263,12 +253,8 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
                         llWebParent,
                         mAccountModel?.user ?: "",
                         mAccountModel?.pass ?: ""
-                    ) {
-                        if (it) {
-                            viewModel.defUI.toastEvent.postValue("认证成功")
-                        } else {
-                            viewModel.defUI.toastEvent.postValue("认证失败")
-                        }
+                    ) { _, message ->
+                        viewModel.defUI.toastEvent.postValue(message)
                         viewModel.defUI.dismissDialog.postValue(null)
                     }
                 }
@@ -407,10 +393,6 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
             }
             updateTopCardInfo()
         })
-        //用户信息改变
-        userModelChangeLiveData.observe(this, Observer {
-            showUserInfo()
-        })
         //学校信息改变
         schoolModelChangeLiveData.observe(this, Observer {
             mSchoolModel = it
@@ -424,29 +406,13 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
                 }
             }
         })
-
+        //选择的学校改变的
+        LiveDataBus.with(SCHOOL_MODEL_CHANGE_KEY, SchoolModel::class.java).observe(this, Observer {
+            mSchoolModel = it
+            tvSchoolName.text = mSchoolModel?.name
+        })
     }
 
-
-    /**
-     * 更新用户信息
-     */
-    private fun showUserInfo() {
-        if (BaseApplication.instance().mUserModel != null) {
-            //加载头像
-            ivMessageNotify.loadCircleImage(
-                BASE_URL.substring(
-                    0,
-                    BASE_URL.length - 1
-                ) + BaseApplication.instance().mUserModel!!.headUrl
-            )
-        } else {
-            ivMessageNotify.loadImage(
-                R.mipmap.icon_default_header,
-                R.mipmap.icon_default_header
-            )
-        }
-    }
 
     /**
      * 检测账号的状态 是否购买套餐，是否套餐过期
@@ -554,6 +520,8 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
                     mSchoolModel = mSchoolModelList!![index]
                     mSchoolSelectInfoGson = Gson().toJson(mSchoolModel)
                     tvSchoolName.text = mSchoolModel?.name
+                    //选择学校改变的时候发送通知
+                    LiveDataBus.with(SCHOOL_MODEL_CHANGE_KEY).postValue(mSchoolModel)
                 }
             }
         }

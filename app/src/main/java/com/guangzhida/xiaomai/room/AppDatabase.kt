@@ -38,6 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
             Room.databaseBuilder(context, AppDatabase::class.java, "xiaomai.db")
                 .addMigrations(MIGRATION_1_2)
                 .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
                 .build()
     }
 
@@ -48,7 +49,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
         LogUtils.i("db update MIGRATION_1_2")
         //会话表添加个字段
-        database.execSQL("ALTER TABLE ConversationEntity add type INTEGER NOT NULL")
+        database.execSQL("ALTER TABLE ConversationEntity add type INTEGER NOT NULL DEFAULT 0")
 //        database.execSQL(
 //            "CREATE TABLE IF NOT EXISTS ServiceEntity (" +
 //                    "id TEXT PRIMARY KEY NOT NULL, " +

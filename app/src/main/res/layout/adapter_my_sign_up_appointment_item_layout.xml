@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+    <CheckBox
+        android:id="@+id/cbMarquee"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="15dp"
+        android:background="@drawable/select_checkbox_bg"
+        android:button="@null"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="135dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/ivPic"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:scaleType="fitXY"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@mipmap/test_img_001" />
+
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/item_title"
+                android:textSize="@dimen/titleTextSize"
+                app:layout_constraintLeft_toRightOf="@id/ivPic"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/ivPic"
+                tools:text="这里是活动标题，这里是活动标题，这里是活动标题" />
+
+            <TextView
+                android:id="@+id/tvDescribe"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/bottom_bar_default_text"
+                android:textSize="14sp"
+                app:layout_constraintLeft_toLeftOf="@id/tvTitle"
+                app:layout_constraintRight_toRightOf="@id/tvTitle"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                tools:text="这里是描述这里是描述这里是描述这里是描述这里是描述这里是描述这里是描述这里是描述这里是描述这里是描述" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:textColor="@color/item_title"
+                android:textSize="10sp"
+                app:layout_constraintBottom_toTopOf="@id/tvPeoples"
+                app:layout_constraintLeft_toLeftOf="@id/tvDescribe"
+                tools:text="参加日期:8月15日 18:30 - 21:00" />
+
+            <TextView
+                android:id="@+id/tvPeoples"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="#333333"
+                android:textSize="10sp"
+                app:layout_constraintBottom_toBottomOf="@id/ivPic"
+                app:layout_constraintLeft_toLeftOf="@id/tvDescribe"
+                tools:text="人数:19男 , 19女" />
+
+            <TextView
+                android:id="@+id/tvMoney"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ivPic"
+                tools:text="￥19.9(A费)" />
+
+            <TextView
+                android:id="@+id/tvSign"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="报名参加"
+                android:textColor="@color/colorAccent"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@id/tvMoney"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tvMoney" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/layer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#7dffffff"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</LinearLayout>

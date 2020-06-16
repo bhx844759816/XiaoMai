@@ -6,7 +6,10 @@ import android.view.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.WorkManager
+import com.fengchen.uistatus.UiStatusController
+import com.fengchen.uistatus.annotation.UiStatus
 import com.google.gson.Gson
+import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseFragment
@@ -31,7 +34,12 @@ import kotlinx.android.synthetic.main.fragment_conversation_layout.*
  */
 class ConversationFragment : BaseFragment<ConversationViewModel>() {
     private val mList = mutableListOf<ConversationModelWrap>()
-    private val mAdapter by lazy { ConversationAdapter(mList) }
+    private val mAdapter by lazy {
+        ConversationAdapter(mList).apply {
+            animationEnable = false
+        }
+    }
+    private lateinit var mUiStatusController: UiStatusController
     private val mMessageListener = object : EMMessageListener {
         override fun onMessageRecalled(messages: MutableList<EMMessage>?) {
 
@@ -59,15 +67,20 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
     override fun layoutId(): Int = R.layout.fragment_conversation_layout
 
     override fun initView(savedInstanceState: Bundle?) {
+        mUiStatusController = UiStatusController.get().bind(recyclerView)
         recyclerView.isNestedScrollingEnabled = false
         recyclerView.layoutManager = LinearLayoutManager(context)
         mAdapter.addHeaderView(initTopSearchView())
-        mAdapter.animationEnable = true
         recyclerView.adapter = mAdapter
         //下拉刷新样式
-        swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.colorAccent))
         initLiveDataObserver()
+        if (BaseApplication.instance().mUserModel == null) {
+            mUiStatusController.changeUiStatus(UiStatus.NOT_FOUND)
+        } else {
+            refresh()
+        }
     }
+
 
     override fun initListener() {
         //点击跳转到聊天界面
@@ -81,7 +94,7 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
                     nickName = it.conversationEntity.nickName,
                     headUrl = it.conversationEntity.avatarUrl,
                     sex = Integer.parseInt(it.conversationEntity.sex ?: "0"),
-                    age = Integer.parseInt(it.conversationEntity.age?:"0"),
+                    age = Integer.parseInt(it.conversationEntity.age ?: "0"),
                     username = it.conversationEntity.userName
                 )
                 startKtxActivity<ChatServiceActivity>(
@@ -97,7 +110,7 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
             showPopupMenu(item, view)
         }
         //下拉刷新
-        swipeRefreshLayout.setOnRefreshListener {
+        smartRefreshLayout.setOnRefreshListener {
             refresh()
         }
 
@@ -121,19 +134,29 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
     private fun initLiveDataObserver() {
         //用户切换
         userModelChangeLiveData.observe(this, Observer {
-            mList.clear()
-            mAdapter.notifyDataSetChanged()
-            refresh()
+            if (BaseApplication.instance().mUserModel != null) {
+                mList.clear()
+                mAdapter.notifyDataSetChanged()
+                refresh()
+            } else {
+                mUiStatusController.changeUiStatus(UiStatus.NOT_FOUND)
+            }
         })
         //接收到会话列表
         viewModel.mConversationListLiveData.observe(this, Observer {
-            mList.clear()
-            mList.addAll(it)
-            mAdapter.notifyDataSetChanged()
+            if (it.isNotEmpty()) {
+                mUiStatusController.changeUiStatus(UiStatus.CONTENT)
+                mList.clear()
+                mList.addAll(it)
+                mAdapter.notifyDataSetChanged()
+            } else {
+                mUiStatusController.changeUiStatus(UiStatus.EMPTY)
+            }
+
         })
         //刷新回调
         viewModel.mSwipeRefreshLiveData.observe(this, Observer {
-            swipeRefreshLayout.isRefreshing = false
+            smartRefreshLayout.finishRefresh()
         })
         //删除会话结果
         viewModel.deleteConversationResult.observe(this, Observer {
@@ -153,9 +176,11 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
 
     override fun onResume() {
         super.onResume()
-        refresh()
         //清除通知栏
         ChatHelper.cancelNotifyMessage()
+        if (BaseApplication.instance().mUserModel != null) {
+            refresh()
+        }
         EMClient.getInstance().chatManager().addMessageListener(mMessageListener)
     }
 

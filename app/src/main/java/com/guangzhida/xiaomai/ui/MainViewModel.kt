@@ -16,6 +16,8 @@ class MainViewModel : BaseViewModel() {
 
     /**
      * 获取好友请求
+     *
+     * TODO 需要重构 改变收到好友请求的时候才取值
      */
     fun getFriendInvite() {
         launchUI {

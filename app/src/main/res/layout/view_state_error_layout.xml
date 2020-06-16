@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/ivLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/icon_status_network_error"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvTipMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:text="网络连接错误"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/ivLogo"
+        app:layout_constraintLeft_toLeftOf="@id/ivLogo"
+        app:layout_constraintRight_toRightOf="@id/ivLogo" />
+    <TextView
+        android:id="@+id/tvRetry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:text="点击重新加载"
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toBottomOf="@id/tvTipMessage"
+        app:layout_constraintLeft_toLeftOf="@id/ivLogo"
+        app:layout_constraintRight_toRightOf="@id/ivLogo" />
+</androidx.constraintlayout.widget.ConstraintLayout>

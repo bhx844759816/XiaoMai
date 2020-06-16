@@ -15,15 +15,16 @@ class UserModel {
         var schoolName: Any,
         var sex: Int,
         var token: String,
+        var nickName: String,
         var username: String,
+        var mobilePhone: String,
         var signature: String?,
         var campusNetworkNum: String?,
-        var campusNetworkPwd: String?
+        var campusNetworkPwd: String?,
+        var originalPassword: String?
     ) {
         override fun toString(): String {
-            return "Data(age=$age, description=$description, headUrl='$headUrl', id='$id', " +
-                    "name='$name', password='$password', schoolName=$schoolName, sex=$sex, token='$token', " +
-                    "username='$username', signature='$signature',campusNetworkNum='$campusNetworkNum',campusNetworkPwd='$campusNetworkPwd')"
+            return "Data(age=$age, description=$description, headUrl='$headUrl', id='$id', name='$name', password='$password', schoolName=$schoolName, sex=$sex, token='$token', nickName='$nickName', username='$username', signature=$signature, campusNetworkNum=$campusNetworkNum, campusNetworkPwd=$campusNetworkPwd)"
         }
     }
 }

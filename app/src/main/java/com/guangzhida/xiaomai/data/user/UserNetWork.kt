@@ -3,6 +3,7 @@ package com.guangzhida.xiaomai.data.user
 import com.guangzhida.xiaomai.base.BaseResult
 import com.guangzhida.xiaomai.data.login.LoginService
 import com.guangzhida.xiaomai.http.RetrofitManager
+import com.guangzhida.xiaomai.model.AppointmentModel
 import com.guangzhida.xiaomai.model.ModifyUserModel
 import com.guangzhida.xiaomai.model.UploadMessageModel
 import com.guangzhida.xiaomai.model.UserModel
@@ -39,6 +40,38 @@ class UserNetWork {
      */
     suspend fun uploadUserFeedBack(params: Map<String, String>): BaseResult<String> {
         return mService.uploadUserFeedBack(params)
+    }
+
+    suspend fun getUserInfoByUserId(userId: String): UserModel {
+        return mService.getUserInfoByUserId(userId)
+    }
+
+    suspend fun getMyPublishAppointmentList(
+        userId: String,
+        schoolId: String
+    ): BaseResult<List<AppointmentModel>> {
+        return mService.getMyPublishAppointmentList(userId, schoolId)
+    }
+
+    suspend fun getMySignUpAppointmentList(
+        userId: String,
+        schoolId: String
+    ): BaseResult<List<AppointmentModel>> {
+        return mService.getMySignUpAppointmentList(userId, schoolId)
+    }
+
+    /**
+     * 删除我的发布
+     */
+    suspend fun deleteMyPublishAppointment(aboutId: String): BaseResult<String> {
+        return mService.deleteMyPublishAppointment(aboutId)
+    }
+
+    /**
+     * 删除我的报名
+     */
+    suspend fun deleteMySignUpAppointment(aboutId: String): BaseResult<String> {
+        return mService.deleteMySignUpAppointment(aboutId)
     }
 
     companion object {

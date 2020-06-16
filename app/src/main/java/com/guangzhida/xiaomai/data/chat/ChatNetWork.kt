@@ -1,7 +1,9 @@
 package com.guangzhida.xiaomai.data.chat
 
 import com.guangzhida.xiaomai.base.BaseResult
+import com.guangzhida.xiaomai.base.PageResult
 import com.guangzhida.xiaomai.http.RetrofitManager
+import com.guangzhida.xiaomai.model.AppointmentModel
 import com.guangzhida.xiaomai.model.ChatUserModel
 import com.guangzhida.xiaomai.model.ServiceModel
 import com.guangzhida.xiaomai.model.ServiceProblemModel
@@ -9,6 +11,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
+import retrofit2.http.FieldMap
 import java.io.File
 
 /**
@@ -100,6 +103,37 @@ class ChatNetWork {
      */
     suspend fun getOnlineServer(schoolId: String): BaseResult<ServiceModel> {
         return mService.getOnlineServer(schoolId)
+    }
+
+    /**
+     * 上传约吗发布的活动
+     */
+    suspend fun submitAppointmentData(params: MutableMap<String, Any>): BaseResult<String> {
+        return mService.submitAppointmentData(params)
+    }
+
+    /**
+     * 获取发布的约吗
+     */
+    suspend fun getAppointmentData(
+        schoolId: String,
+        userId: String,
+        limit: String, page: String
+    ): PageResult<AppointmentModel> {
+        return mService.getAppointmentData(schoolId, userId, limit, page)
+    }
+
+    suspend fun signUpActivity(
+        schoolId: String,
+        userId: String,
+        aboutId: String,
+        isCancel: String
+    ): BaseResult<String> {
+        return mService.signUpActivity(schoolId, userId, aboutId, isCancel)
+    }
+
+    suspend fun getSignUpUserByActivityId(activityId: String): BaseResult<List<ChatUserModel>>{
+        return mService.getSignUpUserByActivityId(activityId)
     }
 
     companion object {

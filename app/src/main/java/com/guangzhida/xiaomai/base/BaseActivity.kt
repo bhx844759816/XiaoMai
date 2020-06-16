@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.base
+﻿package com.guangzhida.xiaomai.base
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -26,7 +26,6 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(layoutId())
         StatusBarUtil.setColor(this,resources.getColor(R.color.white),0)
-//        StatusBarUtil.setColorNoTranslucent(this, resources.getColor(R.color.white))
         StatusBarTextUtils.setLightStatusBar(this, true)
         createViewModel()
         initView(savedInstanceState)

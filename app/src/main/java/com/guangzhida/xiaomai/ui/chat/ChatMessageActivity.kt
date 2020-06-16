@@ -19,6 +19,7 @@ import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseActivity
 import com.guangzhida.xiaomai.dialog.DeleteFriendDialog
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
+import com.guangzhida.xiaomai.ktxlibrary.ext.visible
 import com.guangzhida.xiaomai.room.entity.ConversationEntity
 import com.guangzhida.xiaomai.ui.chat.adapter.ChatMessageAdapter
 import com.guangzhida.xiaomai.ui.chat.adapter.ChatMultipleItem
@@ -189,7 +190,7 @@ class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         }
         //查询本地数据库中
         mUserName?.let {
-            rlChatSelect.visibility = View.VISIBLE
+            //
             if (list != null) {
                 mViewModel.init(it, state, list[list.size - 1].msgId, list.size)
             } else {
@@ -422,6 +423,11 @@ class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
         mViewModel.deleteFriendLiveData.observe(this, Observer {
             if (it) {
                 this.finish()
+            }
+        })
+        mViewModel.isFriendLiveData.observe(this, Observer {
+            if (it) {
+                rlChatSelect.visible()
             }
         })
 

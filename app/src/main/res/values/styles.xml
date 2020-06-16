@@ -10,7 +10,14 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@mipmap/icon_loading_bg</item>
+        <!--  <item name="android:windowContentOverlay">@null</item>
+          <item name="android:windowDisablePreview">true</item>-->
+    </style>
     <style name="DividerLineTheme">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0.5dp</item>

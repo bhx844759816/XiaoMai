@@ -1,9 +1,14 @@
 package com.guangzhida.xiaomai.ui
 
 import android.Manifest
+import android.app.Activity
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Observer
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.ashokvarma.bottomnavigation.BottomNavigationBar
@@ -15,14 +20,13 @@ import com.guangzhida.xiaomai.dialog.SchoolPhoneAccountLoginDialog
 import com.guangzhida.xiaomai.event.messageCountChangeLiveData
 import com.guangzhida.xiaomai.event.userModelChangeLiveData
 import com.guangzhida.xiaomai.ext.jumpLoginByState
-import com.guangzhida.xiaomai.ktxlibrary.ext.permission.request
-import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.receiver.WifiStateManager
-import com.guangzhida.xiaomai.ui.chat.fragment.ChatFragment
+import com.guangzhida.xiaomai.ui.chat.fragment.InteractionFragment
 import com.guangzhida.xiaomai.ui.home.HomeFragment
-import com.guangzhida.xiaomai.ui.login.LoginActivity
-import com.guangzhida.xiaomai.utils.LogUtils
+import com.guangzhida.xiaomai.ui.user.UserFragment
+import com.guangzhida.xiaomai.utils.StatusBarTextUtils
 import com.guangzhida.xiaomai.utils.ToastUtils
+import com.jaeger.library.StatusBarUtil
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
@@ -31,31 +35,32 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : BaseActivity<MainViewModel>() {
     private val mFragments = listOf(
         HomeFragment(),
-        ChatFragment()
+        InteractionFragment(),
+       UserFragment()
     )
     private var mOldPos = 0
     private var exitTime: Long = 0
 
     override fun initView(savedInstanceState: Bundle?) {
-//        checkPermission()
-        viewPager.adapter = MyFragmentPageAdapter()
-        viewPager.isUserInputEnabled = BaseApplication.instance().mUserModel != null
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        viewPager.adapter = MyFragmentPageAdapter2()
+        viewPager.offscreenPageLimit = 3
+        viewPager.addOnPageChangeListener(object :ViewPager.OnPageChangeListener{
+            override fun onPageScrollStateChanged(state: Int) {
+
+            }
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+            }
+
             override fun onPageSelected(position: Int) {
                 id_bottomNavigationBar.selectTab(position)
             }
-        })
-    }
 
-    private fun checkPermission() {
-        request(Manifest.permission.ACCESS_FINE_LOCATION) {
-            onShowRationale {
-                it.retry()
-            }
-            onGranted {
-                viewPager.adapter = MyFragmentPageAdapter()
-            }
-        }
+        })
     }
 
     override fun initListener() {
@@ -68,20 +73,8 @@ class MainActivity : BaseActivity<MainViewModel>() {
             }
 
             override fun onTabSelected(position: Int) {
-                if (position == 1) {
-                    if (BaseApplication.instance().mUserModel == null) {
-                        jumpLoginByState()
-                        id_bottomNavigationBar.selectTab(mOldPos, false)
-                    } else {
-                        changeTab(position)
-                    }
-                } else {
-                    changeTab(position)
-                }
+                changeTab(position)
             }
-        })
-        userModelChangeLiveData.observe(this, Observer {
-            viewPager.isUserInputEnabled = BaseApplication.instance().mUserModel != null
         })
         messageCountChangeLiveData.observe(this, Observer {
             if (BaseApplication.instance().mUserModel != null) {
@@ -90,11 +83,10 @@ class MainActivity : BaseActivity<MainViewModel>() {
         })
         //有好友请求过来
         mViewModel.mFriendInviteCount.observe(this, Observer {
-            LogUtils.i("mFriendInviteCount=$it")
             if (it > 0) {
-                (mFragments[1] as ChatFragment).showBadgeView()
+                (mFragments[1] as InteractionFragment).showBadgeView()
             } else {
-                (mFragments[1] as ChatFragment).hideBadgeView()
+                (mFragments[1] as InteractionFragment).hideBadgeView()
             }
             id_bottomNavigationBar.setUnReadMessageCount(it + ChatHelper.getUnReadMessageCount())
         })
@@ -117,10 +109,13 @@ class MainActivity : BaseActivity<MainViewModel>() {
 
     private fun changeTab(pos: Int) {
         viewPager.currentItem = pos
-        if (pos == 1) {
-            (mFragments[pos] as ChatFragment).selectDefault()
+        if(pos == 0 || pos == 1){
+            StatusBarUtil.setColorNoTranslucent(this, resources.getColor(R.color.white))
+            StatusBarTextUtils.setLightStatusBar(this, true)
+        }else{
+            StatusBarUtil.setTranslucentForImageViewInFragment(this,0,null)
+            StatusBarTextUtils.setLightStatusBar(this, false)
         }
-        mOldPos = pos
     }
 
     override fun onAttachedToWindow() {
@@ -150,6 +145,16 @@ class MainActivity : BaseActivity<MainViewModel>() {
         override fun createFragment(position: Int): Fragment {
             return mFragments[position]
         }
+    }
+
+
+    inner class MyFragmentPageAdapter2 :
+        FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        override fun getItem(position: Int): Fragment = mFragments[position]
+
+        override fun getCount(): Int = mFragments.size
+
+
     }
 
 }

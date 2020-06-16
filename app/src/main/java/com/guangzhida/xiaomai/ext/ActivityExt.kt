@@ -13,12 +13,14 @@ import com.guangzhida.xiaomai.ui.login.LoginActivity
 /**
  * 未登录时 判断当前的状态显示不同的登录界面
  */
-internal fun FragmentActivity.jumpLoginByState() {
+internal fun Activity.jumpLoginByState() {
     val mAccountModel = BaseApplication.instance().mAccountModel
     //未绑定的时候跳转到
     if (mAccountModel == null) {
         startKtxActivity<LoginActivity>()
     } else {
-        SchoolPhoneAccountLoginDialog.showDialog(this)
+        if(this is FragmentActivity){
+            SchoolPhoneAccountLoginDialog.showDialog(this)
+        }
     }
 }

@@ -70,34 +70,8 @@ class LoadingViewModel : BaseViewModel() {
      */
     private suspend fun loadingFinish() {
         withContext(Dispatchers.IO) {
-            if (!EMClient.getInstance().isConnected) {
-                EMClient.getInstance().logout(true)
-                EMClient.getInstance().login(
-                    BaseApplication.instance().mUserModel!!.username,
-                    BaseApplication.instance().mUserModel!!.password,
-                    object : EMCallBack {
-                        override fun onSuccess() {
-                            EMClient.getInstance().chatManager().loadAllConversations()
-                            loadingFinish.postValue(true)
-                        }
-
-                        override fun onProgress(progress: Int, status: String?) {
-                        }
-
-                        override fun onError(code: Int, error: String?) {
-                            LogUtils.i("error=$error")
-                            ToastUtils.ioToastShort("登录聊天服务器失败code=$code")
-                            BaseApplication.instance().mUserModel = null
-                            mUserGson = ""
-                            loadingFinish.postValue(true)
-                        }
-                    })
-            } else {
-                EMClient.getInstance().chatManager().loadAllConversations()
-                loadingFinish.postValue(true)
-            }
-
-
+            EMClient.getInstance().chatManager().loadAllConversations()
+            loadingFinish.postValue(true)
         }
     }
 

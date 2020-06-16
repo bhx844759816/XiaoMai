@@ -44,10 +44,19 @@ class MyBottomNavigationBar @JvmOverloads constructor(
         ).setInactiveIconResource(R.mipmap.icon_main_message_default)
             .setActiveColorResource(R.color.bottom_bar_select_text)
             .setInActiveColorResource(R.color.bottom_bar_default_text)
+
+        val userItemView = BottomNavigationItem(
+            R.mipmap.icon_main_my_select,
+            "我的"
+        ).setInactiveIconResource(R.mipmap.icon_main_my_default)
+            .setActiveColorResource(R.color.bottom_bar_select_text)
+            .setInActiveColorResource(R.color.bottom_bar_default_text)
+
         mBadgeItem = TextBadgeItem()
         workItemView.setBadgeItem(mBadgeItem)
         addItem(homeItemView)
             .addItem(workItemView)
+            .addItem(userItemView)
             .setBackgroundStyle(BACKGROUND_STYLE_STATIC)
             .setMode(MODE_FIXED)
             .setFirstSelectedPosition(0)

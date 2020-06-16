@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@mipmap/icon_back"
+
+        >
+
+        <TextView
+            android:id="@+id/tvPublish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="15dp"
+            android:text="发布"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <View
+        style="@style/DividerLineTheme"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolBar" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolBar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="16dp"
+                android:text="活动标题"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="#f9f9f9"
+                android:hint="请输入活动标题,最多20个字符"
+                android:maxLength="20"
+                android:padding="15dp"
+                android:textColor="@color/defaultTextColor"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+            <TextView
+                android:id="@+id/tvDec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="活动备注"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="@id/tvTitle"
+                app:layout_constraintTop_toBottomOf="@id/etTitle" />
+
+            <EditText
+                android:id="@+id/etDec"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="#f9f9f9"
+                android:hint="请输入备注信息"
+                android:padding="15dp"
+                android:textColor="@color/defaultTextColor"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/tvDec" />
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="活动地点"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="@id/tvDec"
+                app:layout_constraintTop_toBottomOf="@id/etDec" />
+
+            <EditText
+                android:id="@+id/etAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="#f9f9f9"
+                android:hint="请输入活动地点"
+                android:maxLength="20"
+                android:padding="15dp"
+                android:textColor="@color/defaultTextColor"
+                android:textSize="12sp"
+                app:layout_constraintTop_toBottomOf="@id/tvAddress" />
+
+            <TextView
+                android:id="@+id/tvActivityMoney"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="活动经费"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="@id/tvAddress"
+                app:layout_constraintTop_toBottomOf="@id/etAddress" />
+
+            <RadioGroup
+                android:id="@+id/rgSelectMoneyType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                app:layout_constraintLeft_toLeftOf="@id/tvActivityMoney"
+                app:layout_constraintTop_toBottomOf="@id/tvActivityMoney">
+
+                <RadioButton
+                    android:id="@+id/rbSelectMoneyTypeOne"
+                    android:layout_width="70dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/select_activity_money_type_bg"
+                    android:button="@null"
+                    android:checked="true"
+                    android:gravity="center"
+                    android:text="免费"
+                    android:textColor="@color/select_publish_activity_text_color" />
+
+                <RadioButton
+                    android:id="@+id/rbSelectMoneyTypeTwo"
+                    android:layout_width="70dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="15dp"
+                    android:background="@drawable/select_activity_money_type_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="A费"
+                    android:textColor="@color/select_publish_activity_text_color" />
+
+                <RadioButton
+                    android:id="@+id/rbSelectMoneyTypeThree"
+                    android:layout_width="70dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="15dp"
+                    android:background="@drawable/select_activity_money_type_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="男A"
+                    android:textColor="@color/select_publish_activity_text_color" />
+
+                <RadioButton
+                    android:id="@+id/rbSelectMoneyTypeFour"
+                    android:layout_width="70dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="15dp"
+                    android:background="@drawable/select_activity_money_type_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="女A"
+                    android:textColor="@color/select_publish_activity_text_color" />
+            </RadioGroup>
+
+            <EditText
+                android:id="@+id/etActivityMoney"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="#f9f9f9"
+                android:hint="请输入活动经费"
+                android:maxLength="20"
+                android:padding="15dp"
+                android:inputType="number"
+                android:textColor="@color/defaultTextColor"
+                android:textSize="12sp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/rgSelectMoneyType" />
+
+
+            <LinearLayout
+                android:id="@+id/llActivityPeoples"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="15dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/etActivityMoney">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="参与人数"
+                    android:textColor="#333333"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="男"
+                    android:textColor="#333333"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/etBoyPeoples"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3"
+                    android:minWidth="40dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="女"
+                    android:textColor="#333333"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/etGirlPeoples"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3"
+                    android:minWidth="40dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llActivityTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="15dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/llActivityPeoples">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="活动时间"
+                    android:textColor="#333333"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvSelectActivityTime"
+                    android:layout_width="130dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/shape_et_bg"
+                    android:gravity="center"
+                    android:hint="请选择活动日期"
+                    android:textColor="#999999"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llActivitySignEndTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="15dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/llActivityTime">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="截止日期"
+                    android:textColor="#333333"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvSignUpEndTime"
+                    android:layout_width="130dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/shape_et_bg"
+                    android:gravity="center"
+                    android:hint="请选择报名截止日期"
+                    android:textColor="#999999"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvUploadImg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="上传图片(最多上传9张)"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                app:layout_constraintLeft_toLeftOf="@id/tvAddress"
+                app:layout_constraintTop_toBottomOf="@id/llActivitySignEndTime" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/photoRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="15dp"
+                android:overScrollMode="never"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvUploadImg" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

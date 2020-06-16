@@ -46,8 +46,7 @@ class UserActivity : BaseActivity<UserViewModel>() {
         StatusBarUtil.setTranslucentForImageView(this, 0, toolBar)
         initUserEntity()
         tvSchoolName.text = mAccountModel?.name ?: "未绑定"
-        tvSchoolAccount.text =
-            if (mAccountModel?.user.isNullOrEmpty()) "未绑定" else mAccountModel?.user
+        tvSchoolAccount.text = if (mAccountModel?.user.isNullOrEmpty()) "未绑定" else mAccountModel?.user
     }
 
     override fun initListener() {

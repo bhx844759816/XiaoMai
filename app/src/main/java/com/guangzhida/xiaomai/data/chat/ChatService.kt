@@ -1,6 +1,8 @@
 package com.guangzhida.xiaomai.data.chat
 
 import com.guangzhida.xiaomai.base.BaseResult
+import com.guangzhida.xiaomai.base.PageResult
+import com.guangzhida.xiaomai.model.AppointmentModel
 import com.guangzhida.xiaomai.model.ChatUserModel
 import com.guangzhida.xiaomai.model.ServiceModel
 import com.guangzhida.xiaomai.model.ServiceProblemModel
@@ -107,4 +109,42 @@ interface ChatService {
     @FormUrlEncoded
     @POST("network/customer_service/getCustomerServiceByOnline")
     suspend fun getOnlineServer(@Field("schoolId") schoolId: String): BaseResult<ServiceModel>
+
+    /**
+     * 上传约吗数据
+     */
+    @FormUrlEncoded
+    @POST("network/activity_about/addActivityAbout")
+    suspend fun submitAppointmentData(@FieldMap params: MutableMap<String, Any>): BaseResult<String>
+
+    /**
+     * 获取当前学校发布的所有约吗数据
+     */
+    @FormUrlEncoded
+    @POST("network/activity_about/getAllActivityAbout")
+    suspend fun getAppointmentData(
+        @Field("schoolId") schoolId: String,
+        @Field("userId") userId: String,
+        @Field("limit") limit: String,
+        @Field("page") page: String
+    ): PageResult<AppointmentModel>
+
+    /**
+     * 报名活动
+     * @param aboutId 活动ID
+     * @param isCancel 1取消 0不取消
+     */
+    @FormUrlEncoded
+    @POST("network/activity_about/addAboutPeople")
+    suspend fun signUpActivity(
+        @Field("schoolId") schoolId: String,
+        @Field("userId") userId: String,
+        @Field("aboutId") aboutId: String,
+        @Field("isCancel") isCancel: String
+    ): BaseResult<String>
+
+
+    @FormUrlEncoded
+    @POST("network/activity_about/getSignUserByAboutId")
+    suspend fun getSignUpUserByActivityId(@Field("aboutId") activityId: String): BaseResult<List<ChatUserModel>>
 }

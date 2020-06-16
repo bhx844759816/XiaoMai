@@ -5,21 +5,26 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.lifecycle.Lifecycle
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.flyco.tablayout.listener.CustomTabEntity
+import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseFragment
-import com.guangzhida.xiaomai.ktxlibrary.ext.dp2px
-import com.guangzhida.xiaomai.ktxlibrary.ext.gone
-import com.guangzhida.xiaomai.ktxlibrary.ext.visible
+import com.guangzhida.xiaomai.ktxlibrary.ext.*
 import com.guangzhida.xiaomai.model.TabEntity
+import com.guangzhida.xiaomai.ui.chat.ContactListActivity
 import com.guangzhida.xiaomai.ui.chat.viewmodel.InteractionViewModel
+import com.guangzhida.xiaomai.utils.ToastUtils
 import kotlinx.android.synthetic.main.fragment_interaction_layout.*
-import kotlinx.android.synthetic.main.fragment_interaction_layout.tabLayout
-import kotlinx.android.synthetic.main.fragment_message.*
 import net.lucode.hackware.magicindicator.FragmentContainerHelper
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.CommonNavigator
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.CommonNavigatorAdapter
@@ -30,7 +35,7 @@ import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.ColorT
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.badge.BadgeAnchor
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.badge.BadgePagerTitleView
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.badge.BadgeRule
-import java.util.ArrayList
+import java.util.*
 
 /**
  * 互动的Fragment
@@ -45,7 +50,6 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
         AppointmentFragment() //约吗
     )
     private val mFragmentContainerHelper = FragmentContainerHelper()
-    private var mBadgeTextView: View? = null
     private var mOld = 0
     private var isShowBadgeView = false
 
@@ -54,14 +58,42 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
     override fun initView(savedInstanceState: Bundle?) {
         mTabEntities.add(TabEntity(mTitles[0]))
         mTabEntities.add(TabEntity(mTitles[1]))
-        viewPager.adapter = MyFragmentPageAdapter()
+        viewPager.adapter = MyFragmentPageAdapter2()
         mFragmentContainerHelper.handlePageSelected(0, false)
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-
-            }
-        })
         initTabLayout()
+
+    }
+
+    override fun initListener() {
+        viewPager.offscreenPageLimit = 2
+        viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {
+                tabLayout.onPageScrollStateChanged(state)
+            }
+
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                tabLayout.onPageScrolled(position, positionOffset, positionOffsetPixels)
+            }
+
+            override fun onPageSelected(position: Int) {
+                tabLayout.onPageSelected(position)
+                mOld = position
+            }
+
+        })
+
+        //跳转到联系人
+        ivUserContact.clickN {
+            if (BaseApplication.instance().mUserModel != null) {
+                startKtxActivity<ContactListActivity>()
+            } else {
+                ToastUtils.toastShort("登录后才可以查看")
+            }
+        }
     }
 
     /**
@@ -83,15 +115,6 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
                     }
                 }
                 badgePagerTitleView.innerPagerTitleView = simplePagerTitleView
-                if (index == 1) {
-                    mBadgeTextView = LayoutInflater.from(context)
-                        .inflate(R.layout.simple_red_dot_badge_layout, null);
-                    badgePagerTitleView.badgeView = mBadgeTextView;
-                    badgePagerTitleView.xBadgeRule = BadgeRule(BadgeAnchor.CONTENT_RIGHT, 0)
-                    badgePagerTitleView.yBadgeRule = BadgeRule(BadgeAnchor.CONTENT_TOP, 0)
-                    badgePagerTitleView.isAutoCancelBadge = false
-                    if (isShowBadgeView) mBadgeTextView?.visible() else mBadgeTextView?.gone()
-                }
                 return badgePagerTitleView
             }
 
@@ -99,27 +122,51 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
 
             override fun getIndicator(context: Context?): IPagerIndicator {
                 val indicator = LinePagerIndicator(context);
+                indicator.mode = LinePagerIndicator.MODE_EXACTLY;
+                indicator.lineHeight = context?.dp2px(4)?.toFloat() ?: 0f
+                indicator.lineWidth = context?.dp2px(40)?.toFloat() ?: 0f
+                indicator.roundRadius = context?.dp2px(2)?.toFloat() ?: 0f
+                indicator.yOffset = context?.dp2px(6)?.toFloat() ?: 0f
+                indicator.startInterpolator = AccelerateInterpolator();
+                indicator.endInterpolator = DecelerateInterpolator(2.0f);
                 indicator.setColors(Color.parseColor("#9245ec"))
                 return indicator;
             }
         }
         tabLayout.navigator = commonNavigator
-        val titleContainer = commonNavigator.titleContainer; // must after setNavigator
-        titleContainer.showDividers = LinearLayout.SHOW_DIVIDER_MIDDLE
-        titleContainer.dividerPadding = context?.dp2px(15) ?: 0
-        titleContainer.dividerDrawable = resources.getDrawable(R.drawable.simple_splitter)
         mFragmentContainerHelper.attachMagicIndicator(tabLayout)
     }
 
     private fun switchPage(index: Int) {
         viewPager.currentItem = index
+        mOld = index
     }
 
-    inner class MyFragmentPageAdapter : FragmentStateAdapter(this) {
-        override fun getItemCount(): Int = mFragments.size
+    inner class MyFragmentPageAdapter2 :
+        FragmentStatePagerAdapter(childFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        override fun getItem(position: Int): Fragment = mFragments[position]
 
-        override fun createFragment(position: Int): Fragment {
-            return mFragments[position]
+        override fun getCount(): Int = mFragments.size
+
+
+    }
+
+
+    /**
+     * 展示小红点
+     */
+    fun showBadgeView() {
+        if (lifecycle.currentState == Lifecycle.State.STARTED) {
+            ivUserContactMessageTips.visible()
+        }
+    }
+
+    /**
+     * 隐藏小红点
+     */
+    fun hideBadgeView() {
+        if (lifecycle.currentState == Lifecycle.State.CREATED) {
+            ivUserContactMessageTips.gone()
         }
     }
 }

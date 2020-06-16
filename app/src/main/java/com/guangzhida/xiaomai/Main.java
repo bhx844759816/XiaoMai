@@ -16,3 +16,25 @@ public class Main {
 
 
 }
+enum Singleton{
+    INSTANCE;
+}
+
+
+//class Singleton {
+//
+//
+//    private Singleton() {
+//
+//    }
+//
+//    private static class SingletonInstance {
+//        private static final Singleton instance = new Singleton();
+//    }
+//
+//    public static Singleton getInstance() {
+//        return SingletonInstance.instance;
+//    }
+//
+//
+//}
