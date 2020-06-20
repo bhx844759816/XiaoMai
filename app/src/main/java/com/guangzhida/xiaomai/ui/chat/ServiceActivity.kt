@@ -21,8 +21,10 @@ import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.SEND_SERVICE_MESSAGE_TIME_KEY
 import com.guangzhida.xiaomai.base.BaseActivity
+import com.guangzhida.xiaomai.dialog.ServerHelpDialog
 import com.guangzhida.xiaomai.ext.hideKeyboard
 import com.guangzhida.xiaomai.ext.jumpLoginByState
+import com.guangzhida.xiaomai.ktxlibrary.ext.clickN
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.model.AccountModel
 import com.guangzhida.xiaomai.model.ProblemStatusModel
@@ -66,7 +68,6 @@ import java.io.File
  */
 class ServiceActivity : BaseActivity<ServiceViewModel>() {
     //存储本地绑定的账号信息
-    private var mSchoolAccountInfoGson by Preference(Preference.SCHOOL_NET_ACCOUNT_GSON, "")
     private var mSchoolSelectInfoGson by Preference(Preference.SCHOOL_SELECT_INFO_GSON, "")
     private var mSchoolModel: SchoolModel? = null
     private val mDatas = mutableListOf<ServiceMultipleItem>()
@@ -121,6 +122,16 @@ class ServiceActivity : BaseActivity<ServiceViewModel>() {
         mAdapter.mConnectPeopleServiceCallBack = {
             connectPeopleService()
         }
+        //点击帮助item
+        mAdapter.mClickHelpItemCallBack = {
+            ServerHelpDialog.showDialog(this)
+        }
+        val mServerSendMultipleItem =
+            ServiceMultipleItem(ServiceMultipleItem.TYPE_SERVICE_SEND, "您好请问您有什么问题需要帮助？")
+//        val mHelpMultipleItem =
+//            ServiceMultipleItem(ServiceMultipleItem.TYPE_SERVICE_HELP_LIST, null)
+        mDatas.add(mServerSendMultipleItem)
+//        mDatas.add(mHelpMultipleItem)
         recyclerView.adapter = mAdapter
         mViewModel.getServiceProblemList()
 
@@ -139,7 +150,6 @@ class ServiceActivity : BaseActivity<ServiceViewModel>() {
             }
             //开启后台Service进行网络状况诊断
             //查询在线的客服 (后台动态分配客服)
-
         } else {
             jumpLoginByState()
         }
@@ -147,6 +157,9 @@ class ServiceActivity : BaseActivity<ServiceViewModel>() {
 
 
     override fun initListener() {
+        ivConnectPeopleServer.clickN {
+            connectPeopleService()
+        }
         // 获取到问题列表
         mViewModel.mServiceProblemListModel.observe(this, Observer {
             mListServiceProblems2.clear()
@@ -191,8 +204,7 @@ class ServiceActivity : BaseActivity<ServiceViewModel>() {
             val problemStatusModel = ProblemStatusModel(model, 0)
             mDatas.add(
                 ServiceMultipleItem(
-                    ServiceMultipleItem.TYPE_SERVICE_REPLY_PROBLEM,
-                    problemStatusModel
+                    ServiceMultipleItem.TYPE_SERVICE_REPLY_PROBLEM, problemStatusModel
                 )
             )
             mAdapter.notifyItemInserted(mDatas.size - 1)

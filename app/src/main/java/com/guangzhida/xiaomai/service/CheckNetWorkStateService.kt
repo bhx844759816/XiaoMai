@@ -17,6 +17,9 @@ import com.hyphenate.chat.EMCmdMessageBody
 import com.hyphenate.chat.EMMessage
 import java.util.concurrent.Executors
 
+/**
+ * 后台检测网络状况 并将检测结果保存到本地,校麦网管助手那边可以发送透传消息主动拉取保存在本地的网络诊断书
+ */
 class CheckNetWorkStateService : Service() {
     private val mExecutor = Executors.newSingleThreadExecutor()
     private var isChecking = false
@@ -101,6 +104,9 @@ class CheckNetWorkStateService : Service() {
      * 开始检测
      */
     private fun startCheck(userName: String, serverName: String) {
+        if (isChecking) {
+            return
+        }
         mExecutor.submit {
             isChecking = true
             val ip = NetworkUtils.getIPAddress(true);

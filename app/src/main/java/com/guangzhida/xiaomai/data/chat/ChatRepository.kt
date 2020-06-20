@@ -98,9 +98,11 @@ class ChatRepository(netWork: ChatNetWork) {
     suspend fun getAppointmentData(
         schoolId: String,
         userId: String,
-        limit: String, page: String
+        type: String,
+        limit: String,
+        page: String
     ): PageResult<AppointmentModel> {
-        return mNetWork.getAppointmentData(schoolId, userId, limit, page)
+        return mNetWork.getAppointmentData(schoolId, userId, type,limit, page)
     }
 
     suspend fun signUpActivity(

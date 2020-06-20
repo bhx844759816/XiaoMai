@@ -1,25 +1,17 @@
 package com.guangzhida.xiaomai.ui
 
-import android.Manifest
-import android.app.Activity
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Observer
-import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.ashokvarma.bottomnavigation.BottomNavigationBar
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseActivity
-import com.guangzhida.xiaomai.dialog.SchoolPhoneAccountLoginDialog
 import com.guangzhida.xiaomai.event.messageCountChangeLiveData
-import com.guangzhida.xiaomai.event.userModelChangeLiveData
-import com.guangzhida.xiaomai.ext.jumpLoginByState
 import com.guangzhida.xiaomai.receiver.WifiStateManager
 import com.guangzhida.xiaomai.ui.chat.fragment.InteractionFragment
 import com.guangzhida.xiaomai.ui.home.HomeFragment
@@ -36,7 +28,7 @@ class MainActivity : BaseActivity<MainViewModel>() {
     private val mFragments = listOf(
         HomeFragment(),
         InteractionFragment(),
-       UserFragment()
+        UserFragment()
     )
     private var mOldPos = 0
     private var exitTime: Long = 0
@@ -44,7 +36,7 @@ class MainActivity : BaseActivity<MainViewModel>() {
     override fun initView(savedInstanceState: Bundle?) {
         viewPager.adapter = MyFragmentPageAdapter2()
         viewPager.offscreenPageLimit = 3
-        viewPager.addOnPageChangeListener(object :ViewPager.OnPageChangeListener{
+        viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
 
             }
@@ -78,15 +70,21 @@ class MainActivity : BaseActivity<MainViewModel>() {
         })
         messageCountChangeLiveData.observe(this, Observer {
             if (BaseApplication.instance().mUserModel != null) {
+
                 mViewModel.getFriendInvite()
             }
         })
         //有好友请求过来
         mViewModel.mFriendInviteCount.observe(this, Observer {
             if (it > 0) {
-                (mFragments[1] as InteractionFragment).showBadgeView()
+                (mFragments[1] as InteractionFragment).showFiendBadgeView()
             } else {
-                (mFragments[1] as InteractionFragment).hideBadgeView()
+                (mFragments[1] as InteractionFragment).hideFriendBadgeView()
+            }
+            if(ChatHelper.getUnReadMessageCount()>0){
+                (mFragments[1] as InteractionFragment).showImBadgeView()
+            }else{
+                (mFragments[1] as InteractionFragment).hideImBadgeView()
             }
             id_bottomNavigationBar.setUnReadMessageCount(it + ChatHelper.getUnReadMessageCount())
         })
@@ -99,7 +97,6 @@ class MainActivity : BaseActivity<MainViewModel>() {
      * 检索是否有好友请求，有的话设置小红点 小红点数加一
      *
      */
-
     override fun onResume() {
         super.onResume()
         if (BaseApplication.instance().mUserModel != null) {
@@ -109,11 +106,11 @@ class MainActivity : BaseActivity<MainViewModel>() {
 
     private fun changeTab(pos: Int) {
         viewPager.currentItem = pos
-        if(pos == 0 || pos == 1){
+        if (pos == 0 || pos == 1) {
             StatusBarUtil.setColorNoTranslucent(this, resources.getColor(R.color.white))
             StatusBarTextUtils.setLightStatusBar(this, true)
-        }else{
-            StatusBarUtil.setTranslucentForImageViewInFragment(this,0,null)
+        } else {
+            StatusBarUtil.setTranslucentForImageViewInFragment(this, 0, null)
             StatusBarTextUtils.setLightStatusBar(this, false)
         }
     }

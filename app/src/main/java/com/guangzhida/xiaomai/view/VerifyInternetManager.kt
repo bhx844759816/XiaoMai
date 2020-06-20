@@ -2,6 +2,7 @@ package com.guangzhida.xiaomai.view
 
 import android.app.Activity
 import android.net.http.SslError
+import android.os.CountDownTimer
 import android.webkit.*
 import android.widget.LinearLayout
 import com.google.gson.Gson
@@ -21,23 +22,24 @@ import org.jsoup.Jsoup
  */
 object VerifyInternetManager {
     //    private val BASE_URL = "http://yonghu.guangzhida.cn"
-    private val HOST = "10.8.8.10"
+    private val HOST = "yonghu.guangzhida.cn"
     private val BASE_URL = "http://$HOST"
     private var mAgentWeb: AgentWeb? = null
-    // private var mAccount = "12121" //账号
-//    private var mPassword = "11114222"//密码
+    //private var mAccount = "12121" //账号
+    //private var mPassword = "11114222"//密码
     var mVerifyCallBack: ((Boolean, String) -> Unit)? = null
     private var mInsertJavaScrpit = ""
+    private var myCountDownTimer: MyCountDownTimer? = null
     private var mWebChromeClient = object : WebViewClient() {
         override fun onPageFinished(view: WebView?, url: String?) {
             LogUtils.i("onPageFinished url=$url")
-            if (url != null && url.contains("$BASE_URL/lfradius/portal/sxz/weblogin.html")) {
+            if (url != null && url.contains("$BASE_URL/lfradius/libs/portal/unify/portal.php/login/main")) {
                 view?.postDelayed({
                     view.loadUrl(mInsertJavaScrpit)
                 }, 200)
-            } else if (url != null && url.contains("$BASE_URL/lfradius/portal/sxz/success.html")) {
+            } else if (url != null && url.contains("$BASE_URL/lfradius/libs/portal/unify/portal.php/login/success")) {
                 mVerifyCallBack?.invoke(true, "认证成功")
-            } else if (url != null && url.contains("$BASE_URL/lfradius/portal/sxz/fail.html")) {
+            } else if (url != null && url.contains("$BASE_URL/lfradius/libs/portal/unify/portal.php/login/fail")) {
                 view?.loadUrl(
                     "javascript:window.local_obj.showVerifyErrorHtml('<head>'+"
                             + "document.getElementsByTagName('html')[0].innerHTML+'</head>');"
@@ -100,20 +102,36 @@ object VerifyInternetManager {
         mInsertJavaScrpit = buildString {
             append(
                 """
-            javascript:(function() {
-             document.getElementById("user").value= '$account';
-             document.getElementById("pass").value= '$passWord';
-             var object = document.forms['_userregistr'];
-             object.usrname.value = object.user.value;
-             object.passwd.value = object.password1.value;
-             object.target ="_top";
-             object.action = document.location.protocol+'//$HOST/lfradius/libs/portal/20191107/portalweb.php?router=huawei&run=login';
-             object.submit();
-             })(); """
+        javascript:(function() {
+             document.getElementsByName("usrname")[0].value= '${account}';
+             document.getElementsByName("passwd")[0].value= '${passWord}';
+             document.forms['_wifi_login'].submit();
+             })(); 
+              """
             )
         }
         LogUtils.i(mInsertJavaScrpit)
         mAgentWeb?.urlLoader?.loadUrl("http://www.baidu.com")
+        myCountDownTimer = MyCountDownTimer(8000, 1000)
+        myCountDownTimer?.start()
+
+    }
+
+    //倒计时函数
+    class MyCountDownTimer(
+        millisInFuture: Long,
+        countDownInterval: Long
+    ) :
+        CountDownTimer(millisInFuture, countDownInterval) {
+        override fun onTick(l: Long) { //防止计时过程中重复点击
+
+        }
+
+        override fun onFinish() { //重新给Button设置文字
+            mVerifyCallBack?.invoke(false, "认证失败，请重试")
+            mAgentWeb?.destroy()
+            mAgentWeb = null
+        }
     }
 
     /**
@@ -139,12 +157,15 @@ object VerifyInternetManager {
 
     fun verifyErrorHtml(str: String?) {
         str?.let {
+            //            val document = Jsoup.parse(it)
+//            document.getElementById("")
             val error = it.substring(
-                it.indexOf("</script>失败原因：") + "</script>失败原因：".length,
-                it.indexOf("<br>")
+                it.indexOf("</strong>") + "</strong>".length,
+                it.indexOf("<a")
             )
-
             mVerifyCallBack?.invoke(false, error.trim())
+            myCountDownTimer?.cancel()
+            myCountDownTimer = null
         }
     }
 
@@ -152,6 +173,8 @@ object VerifyInternetManager {
         if (html != null && html.isNotEmpty()) {
             val document = Jsoup.parse(html)
             mVerifyCallBack?.invoke(document.body().childrenSize() > 0, "认证成功")
+            myCountDownTimer?.cancel()
+            myCountDownTimer = null
         }
     }
 

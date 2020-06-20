@@ -1,10 +1,11 @@
-package com.guangzhida.xiaomai.ui.chat.viewmodel
+package com.guangzhida.xiaomai.ui.appointment.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
+import com.guangzhida.xiaomai.model.ChatUserModel
 import com.guangzhida.xiaomai.model.SchoolModel
 import com.guangzhida.xiaomai.model.UserModel
 import com.guangzhida.xiaomai.utils.Preference
@@ -18,7 +19,7 @@ class AppointmentDetailsViewModel : BaseViewModel() {
     }
     private val mChatRepository = InjectorUtil.getChatRepository()
     private val mUserRepository = InjectorUtil.getUserRepository()
-
+    val mChatUserModelObserver = MutableLiveData<List<ChatUserModel>>()
     val mSingUpResultObserver = MutableLiveData<Boolean>()
     val mUserInfoObserver = MutableLiveData<UserModel.Data>()
 
@@ -67,5 +68,24 @@ class AppointmentDetailsViewModel : BaseViewModel() {
         }
     }
 
+
+
+    /**
+     * 获取已报名的用户列表
+     */
+    fun getSignUpUserList(activityId: String) {
+        launchUI {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    mChatRepository.getSignUpUserByActivityId(activityId)
+                }
+                if (result.isSuccess()) {
+                    mChatUserModelObserver.postValue(result.data)
+                }
+            } catch (t: Throwable) {
+                t.printStackTrace()
+            }
+        }
+    }
 
 }

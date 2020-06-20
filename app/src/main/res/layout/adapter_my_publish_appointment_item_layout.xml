@@ -18,7 +18,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="135dp">
+        android:layout_height="wrap_content">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/parent"
@@ -28,8 +28,8 @@
 
             <ImageView
                 android:id="@+id/ivPic"
-                android:layout_width="85dp"
-                android:layout_height="85dp"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
                 android:scaleType="fitXY"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:textColor="@color/item_title"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toTopOf="@id/tvPeoples"
                 app:layout_constraintLeft_toLeftOf="@id/tvDescribe"
                 tools:text="参加日期:8月15日 18:30 - 21:00" />
@@ -81,8 +81,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:textColor="#333333"
-                android:textSize="10sp"
+                android:textColor="@color/item_title"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="@id/ivPic"
                 app:layout_constraintLeft_toLeftOf="@id/tvDescribe"
                 tools:text="人数:19男 , 19女" />
@@ -91,13 +91,15 @@
                 android:id="@+id/tvMoney"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="5dp"
-                android:textColor="#333333"
+                android:textColor="@color/item_title"
                 android:textSize="16sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ivPic"
                 tools:text="￥19.9(A费)" />
+
+
 
             <TextView
                 android:id="@+id/tvSign"

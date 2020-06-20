@@ -14,6 +14,7 @@ class AllSingUpUserViewModel : BaseViewModel() {
     private val mChatRepository = InjectorUtil.getChatRepository()
 
     val mChatUserModelObserver = MutableLiveData<List<ChatUserModel>>()
+    val mRequestErrorObserver = MutableLiveData<Boolean>()
 
     /**
      * 获取已报名的用户列表
@@ -26,9 +27,12 @@ class AllSingUpUserViewModel : BaseViewModel() {
                 }
                 if (result.isSuccess()) {
                     mChatUserModelObserver.postValue(result.data)
+                } else {
+                    mRequestErrorObserver.postValue(false)
                 }
             } catch (t: Throwable) {
                 t.printStackTrace()
+                mRequestErrorObserver.postValue(false)
             }
         }
     }

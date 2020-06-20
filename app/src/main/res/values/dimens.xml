@@ -6,6 +6,7 @@
     <dimen name="dialog_loading_width">100dp</dimen>
     <dimen name="dialog_corner_radius">8dp</dimen>
     <dimen name="titleTextSize">16sp</dimen>
+    <dimen name="defaultTextSize">13sp</dimen>
     <dimen name="dimension_50">50dp</dimen>
     <dimen name="titleSize">19sp</dimen>
     <dimen name="bar_height_userdef">@dimen/dimension_50</dimen>

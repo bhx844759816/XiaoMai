@@ -12,6 +12,12 @@ import com.guangzhida.xiaomai.utils.LogUtils
 
 /**
  * 更新用户的本地会话对象
+ * 在ChatHelper中接收到消息得时候，开启后台任务将这个人的信息保存到本地,通过调用接口查询用户
+ * 信息将信息保存到ConversationEntity表中
+ *
+ * 因为接收到的消息有普通用户发送来的消息,和客服消息,所以需要从不同的接口去查询
+ *
+ *
  */
 class UpdateConversationTask(context: Context, workerParameters: WorkerParameters) :
     Worker(context, workerParameters) {

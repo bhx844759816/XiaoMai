@@ -7,6 +7,7 @@ import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.model.AppointmentModel
 import com.guangzhida.xiaomai.model.SchoolModel
+import com.guangzhida.xiaomai.ui.appointment.adapter.AppointmentMultipleItem
 import com.guangzhida.xiaomai.utils.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,8 +21,8 @@ class MySignUpViewModel : BaseViewModel() {
 
     val mPublishListObserver = MutableLiveData<List<AppointmentModel>>()
     val mPublishListErrorObserver = MutableLiveData<Boolean>()
-    val mDeleteItemObserver = MutableLiveData<AppointmentModel>()
-
+    val mDeleteItemObserver = MutableLiveData<AppointmentMultipleItem>()
+    val mDeleteItemFinishObserver = MutableLiveData<Boolean>()
     fun getList() {
         launchUI {
             try {
@@ -35,7 +36,7 @@ class MySignUpViewModel : BaseViewModel() {
                     mPublishListObserver.postValue(result.data)
                 } else {
                     defUI.toastEvent.postValue(result.message)
-                    mPublishListErrorObserver.postValue(true)
+                    mPublishListObserver.postValue(result.data)
                 }
             } catch (t: Throwable) {
                 t.printStackTrace()
@@ -48,13 +49,13 @@ class MySignUpViewModel : BaseViewModel() {
     /**
      * 删除我的报名
      */
-    fun deleteMySignUp(list: MutableList<AppointmentModel>) {
+    fun deleteMySignUp(list: MutableList<AppointmentMultipleItem>) {
         launchUI {
             try {
                 defUI.showDialog.call()
                 list.forEach {
                     val result = withContext(Dispatchers.IO) {
-                        mRepository.deleteMySignUpAppointment(it.id.toString())
+                        mRepository.deleteMySignUpAppointment(it.item.id.toString())
                     }
                     if (result.isSuccess()) {
                         mDeleteItemObserver.postValue(it)
@@ -64,6 +65,7 @@ class MySignUpViewModel : BaseViewModel() {
                 e.printStackTrace()
             } finally {
                 defUI.dismissDialog.call()
+                mDeleteItemFinishObserver.postValue(true)
             }
         }
     }

@@ -13,9 +13,6 @@
 
 ****** 每次退出登录的时候清空所有的表信息
 
-Only the original thread that created a view hierarchy can touch its views.
-
-
 &wlanacip=10.15.10.1&wlanuserip=10.15.10.15&mac=60:ee:5c:23:38:20&url=http%3A%2F%2F
 
 15890057315

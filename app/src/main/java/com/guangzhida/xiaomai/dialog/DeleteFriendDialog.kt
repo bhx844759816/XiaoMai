@@ -20,6 +20,7 @@ object DeleteFriendDialog {
     fun showDialog(
         context: Context,
         owner: LifecycleOwner,
+        item:String,
         callback: (() -> Unit)?
     ) {
         val view =
@@ -29,6 +30,7 @@ object DeleteFriendDialog {
         val dialog = MaterialDialog(context, BottomSheet(LayoutMode.WRAP_CONTENT))
             .customView(view = view, noVerticalPadding = true)
             .lifecycleOwner(owner)
+        tvDeleteFriend.text = item
         tvDeleteFriend.setOnClickListener {
             dialog.dismiss()
             callback?.invoke()

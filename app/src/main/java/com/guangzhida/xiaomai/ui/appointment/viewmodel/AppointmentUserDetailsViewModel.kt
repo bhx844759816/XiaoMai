@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat.viewmodel
+package com.guangzhida.xiaomai.ui.appointment.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import com.guangzhida.xiaomai.base.BaseViewModel

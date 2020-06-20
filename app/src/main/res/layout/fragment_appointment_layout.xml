@@ -10,16 +10,69 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-        <FrameLayout
+
+        <LinearLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/rgSelectParent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rbSelectAll"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:checked="true"
+                    android:gravity="center"
+                    android:text="显示全部"
+                    android:textColor="@color/select_appointment_type_text_color" />
+                <RadioButton
+                    android:id="@+id/rbSelectPlay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="约玩"
+                    android:textColor="@color/select_appointment_type_text_color" />
+                <RadioButton
+                    android:id="@+id/rbSelectCar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="约车"
+                    android:textColor="@color/select_appointment_type_text_color" />
+
+
+
+                <RadioButton
+                    android:id="@+id/rbSelectWork"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="约工作"
+                    android:textColor="@color/select_appointment_type_text_color" />
+            </RadioGroup>
+
+            <View style="@style/DividerLineTheme" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:overScrollMode="never"/>
-        </FrameLayout>
+                android:overScrollMode="never" />
+        </LinearLayout>
 
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 

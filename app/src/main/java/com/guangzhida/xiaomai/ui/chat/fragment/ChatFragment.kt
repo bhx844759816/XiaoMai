@@ -139,14 +139,14 @@ class ChatFragment : BaseFragment<ChatViewModel>() {
      */
     fun showBadgeView() {
         isShowBadgeView = true
-        if (lifecycle.currentState == Lifecycle.State.STARTED) {
+        if (lifecycle.currentState >= Lifecycle.State.STARTED) {
             mBadgeTextView?.visible()
         }
     }
 
     fun hideBadgeView() {
         isShowBadgeView = false
-        if (lifecycle.currentState == Lifecycle.State.CREATED) {
+        if (lifecycle.currentState >= Lifecycle.State.CREATED) {
             mBadgeTextView?.gone()
         }
     }

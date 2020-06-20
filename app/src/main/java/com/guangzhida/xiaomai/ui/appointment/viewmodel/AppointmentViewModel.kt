@@ -1,13 +1,11 @@
-package com.guangzhida.xiaomai.ui.chat.viewmodel
+package com.guangzhida.xiaomai.ui.appointment.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.model.AppointmentModel
 import com.guangzhida.xiaomai.model.SchoolModel
-import com.guangzhida.xiaomai.utils.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -22,18 +20,25 @@ class AppointmentViewModel : BaseViewModel() {
     val mRefreshObserver = MutableLiveData<Boolean>() //刷新结果的回调
     val mResultListObserver = MutableLiveData<Pair<Boolean, List<AppointmentModel>>>()
     val mSchoolModelListData = MutableLiveData<List<SchoolModel>>()
+    var mType = ""
     /**
      * 获取数据分页
      */
-    fun getData(isRefresh: Boolean, schoolId: String) {
+    fun getData(isRefresh: Boolean, schoolId: String, type: String) {
         launchUI {
             try {
                 if (isRefresh) {
                     pageNum = 1
                 }
+                if (mType != type) {
+                    pageNum = 1
+                    mType = type
+                }
                 val result = withContext(Dispatchers.IO) {
                     mRepository.getAppointmentData(
-                        schoolId, BaseApplication.instance().mUserModel!!.id,
+                        schoolId,
+                        BaseApplication.instance().mUserModel!!.id,
+                        type,
                         pageSize.toString(), pageNum.toString()
                     )
                 }
@@ -42,14 +47,13 @@ class AppointmentViewModel : BaseViewModel() {
                         pageNum++
                     }
                     mResultListObserver.postValue(Pair(isRefresh, result.data.rows))
+                    mRefreshObserver.postValue(true)
                 } else {
                     mRefreshObserver.postValue(false)
                 }
             } catch (t: Throwable) {
                 t.printStackTrace()
                 mRefreshObserver.postValue(false)
-            } finally {
-                mRefreshObserver.postValue(true)
             }
         }
     }
@@ -77,7 +81,8 @@ class AppointmentViewModel : BaseViewModel() {
             try {
                 defUI.showDialog.call()
                 val result = withContext(Dispatchers.IO) {
-                    mRepository.signUpActivity(schoolId,
+                    mRepository.signUpActivity(
+                        schoolId,
                         BaseApplication.instance().mUserModel!!.id,
                         aboutId,
                         "0"

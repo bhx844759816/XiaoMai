@@ -64,6 +64,7 @@ class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
     private var mCurPlayChatMultipleItem: ChatMultipleItem? = null
     private var mConversationEntity: ConversationEntity? = null
     private lateinit var mAdapter: ChatMessageAdapter
+    private var isFriend = false
     private val mRecordSaveFile by lazy {
         File(
             getExternalFilesDir("voice"),
@@ -280,8 +281,13 @@ class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             finish()
         }
         rlChatSelect.setOnClickListener {
-            DeleteFriendDialog.showDialog(this, this) {
-                mViewModel.deleteFriends()
+            val item = if (isFriend) "删除好友" else "添加好友"
+            DeleteFriendDialog.showDialog(this, this, item = item) {
+                if(isFriend){
+                    mViewModel.deleteFriends()
+                }else{
+                    mViewModel.addFriend()
+                }
             }
 
         }
@@ -426,9 +432,7 @@ class ChatMessageActivity : BaseActivity<ChatMessageViewModel>(),
             }
         })
         mViewModel.isFriendLiveData.observe(this, Observer {
-            if (it) {
-                rlChatSelect.visible()
-            }
+            isFriend = it
         })
 
     }

@@ -113,7 +113,7 @@
                 android:layout_marginTop="10dp"
                 android:background="#f9f9f9"
                 android:hint="请输入活动地点"
-                android:maxLength="20"
+                android:maxLength="10"
                 android:padding="15dp"
                 android:textColor="@color/defaultTextColor"
                 android:textSize="12sp"

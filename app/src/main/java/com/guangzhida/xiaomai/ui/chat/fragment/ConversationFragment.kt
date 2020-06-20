@@ -3,6 +3,7 @@ package com.guangzhida.xiaomai.ui.chat.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.WorkManager
@@ -13,6 +14,8 @@ import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseFragment
+import com.guangzhida.xiaomai.event.LiveDataBus
+import com.guangzhida.xiaomai.event.LiveDataBusKey
 import com.guangzhida.xiaomai.event.userModelChangeLiveData
 import com.guangzhida.xiaomai.ktxlibrary.ext.startKtxActivity
 import com.guangzhida.xiaomai.model.ConversationModelWrap
@@ -23,6 +26,7 @@ import com.guangzhida.xiaomai.ui.chat.SearchActivity
 import com.guangzhida.xiaomai.ui.chat.adapter.ConversationAdapter
 import com.guangzhida.xiaomai.ui.chat.viewmodel.ConversationViewModel
 import com.guangzhida.xiaomai.utils.LogUtils
+import com.guangzhida.xiaomai.utils.NetworkUtils
 import com.hyphenate.EMMessageListener
 import com.hyphenate.chat.EMClient
 import com.hyphenate.chat.EMMessage
@@ -63,7 +67,8 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
         override fun onMessageRead(messages: MutableList<EMMessage>?) {
         }
     }
-
+    private var mNeedRefresh = false //控制列表是否需要刷新 只有点击聊天的时候在onResume的时候刷新
+    private var mErrorView: View? = null
     override fun layoutId(): Int = R.layout.fragment_conversation_layout
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -85,6 +90,7 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
     override fun initListener() {
         //点击跳转到聊天界面
         mAdapter.mClickContentCallBack = {
+            mNeedRefresh = true
             //不是客服聊天的话跳转到ChatMessageActivity
             if (it.conversationEntity.type != 1) {
                 val params = Pair("userName", it.conversationEntity.userName)
@@ -127,6 +133,21 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
         return view
     }
 
+    private fun initErrorConnectView(): View {
+        mErrorView =
+            LayoutInflater.from(context).inflate(R.layout.view_im_disconnect_widget_layout, null)
+        val tvWarning = mErrorView?.findViewById<TextView>(R.id.tvWarning)
+        if (context != null && NetworkUtils.isConnected(context)) {
+            tvWarning?.text = "和服务器断开连接"
+        } else {
+            tvWarning?.text = "网络连接出错，请检查网络设置"
+            mErrorView!!.setOnClickListener {
+                startActivity(Intent(android.provider.Settings.ACTION_WIFI_SETTINGS))
+            }
+        }
+        return mErrorView!!
+    }
+
 
     /**
      * 初始化数据观察
@@ -157,6 +178,7 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
         //刷新回调
         viewModel.mSwipeRefreshLiveData.observe(this, Observer {
             smartRefreshLayout.finishRefresh()
+            mNeedRefresh = false
         })
         //删除会话结果
         viewModel.deleteConversationResult.observe(this, Observer {
@@ -171,14 +193,27 @@ class ConversationFragment : BaseFragment<ConversationViewModel>() {
                 refresh()
             }
         })
-
+        //
+        LiveDataBus.with(LiveDataBusKey.IM_DISCONNECT_SERVER_KEY, Boolean::class.java).observe(this,
+            Observer {
+                if (mErrorView == null) {
+                    mAdapter.addHeaderView(initErrorConnectView(), 0)
+                }
+            })
+        LiveDataBus.with(LiveDataBusKey.IM_CONNECT_SERVER_KEY, Boolean::class.java).observe(this,
+            Observer {
+                mErrorView?.let {
+                    mAdapter.removeHeaderView(it)
+                    mErrorView = null
+                }
+            })
     }
 
     override fun onResume() {
         super.onResume()
         //清除通知栏
         ChatHelper.cancelNotifyMessage()
-        if (BaseApplication.instance().mUserModel != null) {
+        if (BaseApplication.instance().mUserModel != null && mNeedRefresh) {
             refresh()
         }
         EMClient.getInstance().chatManager().addMessageListener(mMessageListener)

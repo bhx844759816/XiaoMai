@@ -39,4 +39,5 @@
     <string name="modifyAccountTipsContent">您的套餐还未到期，更换套餐，套餐剩余时长及账户余额将被清零，且无法找回。</string>
     <string name="tips">提示</string>
     <string name="bindAccountSchoolTips">您账号注册的校区与选择的校区不一致，请统一您的注册及使用校区 。</string>
+    <string name="login_other_device_remind">你的账号在其他设备登录。如非本人操作，则密码可能已泄露，建议前往修改密码。</string>
 </resources>

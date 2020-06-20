@@ -118,9 +118,10 @@ class ChatNetWork {
     suspend fun getAppointmentData(
         schoolId: String,
         userId: String,
+        type: String,
         limit: String, page: String
     ): PageResult<AppointmentModel> {
-        return mService.getAppointmentData(schoolId, userId, limit, page)
+        return mService.getAppointmentData(schoolId, userId,type, limit, page)
     }
 
     suspend fun signUpActivity(

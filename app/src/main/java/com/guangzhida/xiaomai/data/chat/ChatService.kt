@@ -125,6 +125,7 @@ interface ChatService {
     suspend fun getAppointmentData(
         @Field("schoolId") schoolId: String,
         @Field("userId") userId: String,
+        @Field("type") type: String,
         @Field("limit") limit: String,
         @Field("page") page: String
     ): PageResult<AppointmentModel>

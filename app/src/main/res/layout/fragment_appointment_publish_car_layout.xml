@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/tvStartAddressTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="16dp"
+        android:text="出发地点"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/etStartAddressTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#f9f9f9"
+        android:hint="请输入出发地点，最多6个字符"
+        android:maxLength="6"
+        android:padding="15dp"
+        android:textColor="@color/defaultTextColor"
+        android:textSize="12sp"
+        app:layout_constraintTop_toBottomOf="@id/tvStartAddressTitle" />
+
+    <TextView
+        android:id="@+id/tvEndAddressTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="到达地点"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvStartAddressTitle"
+        app:layout_constraintTop_toBottomOf="@id/etStartAddressTitle" />
+
+    <EditText
+        android:id="@+id/etEndAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#f9f9f9"
+        android:hint="请输入到达地点，最多6个字符"
+        android:maxLength="6"
+        android:padding="15dp"
+        android:textColor="@color/defaultTextColor"
+        android:textSize="12sp"
+        app:layout_constraintTop_toBottomOf="@id/tvEndAddressTitle" />
+
+    <TextView
+        android:id="@+id/tvCarTypeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="出行方式"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="@id/tvEndAddressTitle"
+        app:layout_constraintTop_toBottomOf="@id/etEndAddress" />
+
+    <RadioGroup
+        android:id="@+id/rgCarType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvCarTypeTitle"
+        app:layout_constraintTop_toBottomOf="@+id/tvCarTypeTitle">
+
+        <RadioButton
+            android:id="@+id/rbCarTypeOne"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:background="@drawable/select_activity_money_type_bg"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="出租车"
+            android:textColor="@color/select_publish_activity_text_color" />
+
+        <RadioButton
+            android:id="@+id/rbCarTypeTwo"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/select_activity_money_type_bg"
+            android:button="@null"
+            android:gravity="center"
+            android:text="公共大巴"
+            android:textColor="@color/select_publish_activity_text_color" />
+
+        <RadioButton
+            android:id="@+id/rbCarTypeThree"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/select_activity_money_type_bg"
+            android:button="@null"
+            android:gravity="center"
+            android:text="电动车"
+            android:textColor="@color/select_publish_activity_text_color" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tvActivityMoney"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="约车费用"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        app:layout_constraintLeft_toLeftOf="@+id/rgCarType"
+        app:layout_constraintTop_toBottomOf="@+id/rgCarType" />
+
+    <RadioGroup
+        android:id="@+id/rgSelectMoneyType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@id/tvActivityMoney"
+        app:layout_constraintTop_toBottomOf="@id/tvActivityMoney">
+
+        <RadioButton
+            android:id="@+id/rbSelectMoneyTypeOne"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:background="@drawable/select_activity_money_type_bg"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="免费"
+            android:textColor="@color/select_publish_activity_text_color" />
+
+        <RadioButton
+            android:id="@+id/rbSelectMoneyTypeTwo"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/select_activity_money_type_bg"
+            android:button="@null"
+            android:gravity="center"
+            android:text="A费"
+            android:textColor="@color/select_publish_activity_text_color" />
+
+        <RadioButton
+            android:id="@+id/rbSelectMoneyTypeThree"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/select_activity_money_type_bg"
+            android:button="@null"
+            android:gravity="center"
+            android:text="男A"
+            android:textColor="@color/select_publish_activity_text_color" />
+
+        <RadioButton
+            android:id="@+id/rbSelectMoneyTypeFour"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/select_activity_money_type_bg"
+            android:button="@null"
+            android:gravity="center"
+            android:text="女A"
+            android:textColor="@color/select_publish_activity_text_color" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/etActivityMoney"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#f9f9f9"
+        android:hint="请输入活动经费"
+        android:inputType="number"
+        android:maxLength="20"
+        android:padding="15dp"
+        android:textColor="@color/defaultTextColor"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/rgSelectMoneyType" />
+
+
+    <LinearLayout
+        android:id="@+id/llActivityPeoples"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="15dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etActivityMoney">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="同程人数"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/etBoyPeoples"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:background="@drawable/shape_et_bg"
+            android:inputType="number"
+            android:maxLength="3"
+            android:minWidth="45dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="5dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="5dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="人"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llActivityTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="15dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/llActivityPeoples">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="出发日期"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvSelectActivityTime"
+            android:layout_width="130dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="20dp"
+            android:background="@drawable/shape_et_bg"
+            android:gravity="center"
+            android:hint="请选择出发日期"
+            android:textColor="#999999"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llActivitySignEndTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="15dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/llActivityTime">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="截止日期"
+            android:textColor="#333333"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvSignUpEndTime"
+            android:layout_width="130dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="20dp"
+            android:background="@drawable/shape_et_bg"
+            android:gravity="center"
+            android:hint="请选择报名截止日期"
+            android:textColor="#999999"
+            android:textSize="12sp" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

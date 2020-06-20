@@ -5,7 +5,7 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.ext.loadFilletRectangle
@@ -16,90 +16,187 @@ import com.guangzhida.xiaomai.ktxlibrary.ext.gone
 import com.guangzhida.xiaomai.ktxlibrary.ext.visible
 import com.guangzhida.xiaomai.ktxlibrary.span.KtxSpan
 import com.guangzhida.xiaomai.model.AppointmentModel
+import com.guangzhida.xiaomai.ui.appointment.adapter.AppointmentMultipleItem
+import com.guangzhida.xiaomai.ui.appointment.adapter.AppointmentMultipleItem.Companion.APPOINTMENT_CAR
+import com.guangzhida.xiaomai.ui.appointment.adapter.AppointmentMultipleItem.Companion.APPOINTMENT_PLAY
+import com.guangzhida.xiaomai.ui.appointment.adapter.AppointmentMultipleItem.Companion.APPOINTMENT_WORK
 
-class MySingUpAppointmentAdapter(list: MutableList<AppointmentModel>) :
-    BaseQuickAdapter<AppointmentModel, BaseViewHolder>(
-        R.layout.adapter_my_publish_appointment_item_layout,
-        list
-    ) {
+class MySingUpAppointmentAdapter(data: MutableList<AppointmentMultipleItem>) :
+    BaseMultiItemQuickAdapter<AppointmentMultipleItem, BaseViewHolder>(data) {
+
+
+    init {
+        addItemType(APPOINTMENT_PLAY, R.layout.adapter_my_publish_appointment_item_layout)
+        addItemType(APPOINTMENT_CAR, R.layout.adapter_my_publish_appointment_item_car_layout)
+        addItemType(APPOINTMENT_WORK, R.layout.adapter_my_publish_appointment_item_work_layout)
+    }
+
     var mItemClickCallBack: ((AppointmentModel) -> Unit)? = null
     var mItemCheckCallBack: ((AppointmentModel, Boolean) -> Unit)? = null
-
-    override fun convert(helper: BaseViewHolder, item: AppointmentModel) {
-        helper.setText(R.id.tvTitle, item.title)
-        helper.setText(R.id.tvDescribe, item.content)
-        helper.setText(R.id.tvDate, buildString {
-            append("参加日期: ")
-            append(item.activityStartTime.formatDateTime("yyyy/MM/dd HH:mm"))
-        })
-        helper.setText(R.id.tvPeoples, buildString {
-            append("人数: ")
-            append(item.boyCount)
-            append("男,")
-            append(item.girlCount)
-            append("女")
-        })
+    override fun convert(helper: BaseViewHolder, item: AppointmentMultipleItem) {
         val tvMoney = helper.getView<TextView>(R.id.tvMoney)
         val tvSign = helper.getView<TextView>(R.id.tvSign)
-        val ivPic = helper.getView<ImageView>(R.id.ivPic)
         val cbMarquee = helper.getView<CheckBox>(R.id.cbMarquee)
         val layer = helper.getView<View>(R.id.layer)
-        if (item.feeType == 0) {
-            tvMoney.text = "免费"
-        } else {
-            val type = when (item.feeType) {
-                1 -> {
-                    "(A费)"
-                }
-                2 -> {
-                    "(男)"
-                }
-                3 -> {
-                    "(女)"
+        val data = item.item
 
+        when (item.itemType) {
+            APPOINTMENT_PLAY, APPOINTMENT_WORK -> {
+                helper.setText(R.id.tvTitle, data.title)
+                helper.setText(R.id.tvDescribe, data.content)
+                helper.setText(R.id.tvDate, buildString {
+                    append("参加日期: ")
+                    append(data.activityStartTime.formatDateTime())
+                })
+                helper.setText(R.id.tvPeoples, buildString {
+                    append("人数: ")
+                    append(data.boyCount)
+                    append("男,")
+                    append(data.girlCount)
+                    append("女")
+                })
+                val ivPic = helper.getView<ImageView>(R.id.ivPic)
+                val photoPic = if (data.activityPic != null && data.activityPic.isNotEmpty()) {
+                    data.activityPic.split(",")[0]
+                } else {
+                    ""
                 }
-                else -> "(A费)"
+                ivPic.loadFilletRectangle(
+                    "$BASE_URL$photoPic",
+                    holder = R.mipmap.icon_img_error_holder_w,
+                    roundingRadius = 5
+                )
+                if (data.type == 1) {
+                    if (data.feeType == 0) {
+                        tvMoney.text = "免费"
+                    } else {
+                        val type = when (data.feeType) {
+                            1 -> {
+                                "(A费)"
+                            }
+                            2 -> {
+                                "(男)"
+                            }
+                            3 -> {
+                                "(女)"
+
+                            }
+                            else -> "(A费)"
+                        }
+                        KtxSpan().with(tvMoney).text("￥${data.activityMoney}", isNewLine = false)
+                            .text(type, isNewLine = false, textSize = 12).show { }
+                    }
+                } else {
+                    val type = when (data.feeType) {
+                        1 -> {
+                            "(日结)"
+                        }
+                        2 -> {
+                            "(周结)"
+                        }
+                        3 -> {
+                            "(月结)"
+
+                        }
+                        else -> "(日结)"
+                    }
+                    KtxSpan().with(tvMoney).text("￥${data.activityMoney}", isNewLine = false)
+                        .text(type, isNewLine = false, textSize = 12).show { }
+                }
             }
-            KtxSpan().with(tvMoney).text("$${item.activityMoney}", isNewLine = false)
-                .text(type, isNewLine = false, textSize = 12).show { }
-        }
-        val photoPic = item.activityPic.split(",")[0]
-        ivPic.loadFilletRectangle(
-            "$BASE_URL$photoPic",
-            holder = R.mipmap.test_img_001,
-            roundingRadius = 5
-        )
-        if (item.isExpire == 1) {
-            tvSign.text = "已结束"
-        } else  {
-            tvSign.text = "已报名"
-        }
+            APPOINTMENT_CAR -> {
+                val tvLeaveTime = helper.getView<TextView>(R.id.tvLeaveTime)
+                val tvPeoples = helper.getView<TextView>(R.id.tvPeoples)
+                val tvStartAddress = helper.getView<TextView>(R.id.tvStartAddress)
+                val tvEndAddress = helper.getView<TextView>(R.id.tvArrivalAddress)
+                tvStartAddress.text = data.startAddress
+                tvEndAddress.text = data.endAddress
+                tvPeoples.text = buildString {
+                    append("人数：")
+                    append(data.boyCount)
+                    append("人")
+                }
+                tvLeaveTime.text = buildString {
+                    append("出发时间：")
+                    append(data.activityStartTime.formatDateTime())
+                }
+                val carType = when (data.walkType) {
+                    1 -> {
+                        "公共大巴"
+                    }
+                    2 -> {
+                        "出租车"
+                    }
+                    3 -> {
+                        "电动车"
+                    }
+                    else -> {
+                        "大巴"
+                    }
+                }
+                helper.setText(R.id.tvCarType, carType)
 
-        if (item.isEdit) {
+                if (data.feeType == 0) {
+                    tvMoney.text = "免费"
+                } else {
+                    val type = when (data.feeType) {
+                        1 -> {
+                            "(A费)"
+                        }
+                        2 -> {
+                            "(男A)"
+                        }
+                        3 -> {
+                            "(女A)"
+
+                        }
+                        else -> "(A费)"
+                    }
+                    KtxSpan().with(tvMoney).text("￥${data.activityMoney}", isNewLine = false)
+                        .text(type, isNewLine = false, textSize = 12).show { }
+                }
+            }
+        }
+        if (data.isEdit) {
             //没有过期且没有人报名的
             cbMarquee.visible()
-            if (item.isChecked) {
-                layer.visible()
-            } else {
+            if (data.count > 0 && data.isExpire == 0) {
+                cbMarquee.visibility = View.INVISIBLE
                 layer.gone()
+            } else {
+                if (data.isChecked) {
+                    layer.visible()
+                } else {
+                    layer.gone()
+                }
             }
         } else {
             cbMarquee.gone()
             layer.gone()
         }
         cbMarquee.setOnCheckedChangeListener { _, isChecked ->
-            item.isChecked = isChecked
-            mItemCheckCallBack?.invoke(item, isChecked)
-            if (isChecked) {
-                layer.visible()
-            } else {
+            data.isChecked = isChecked
+            mItemCheckCallBack?.invoke(data, isChecked)
+            if (data.count > 0 && data.isExpire == 0) {
+                cbMarquee.visibility = View.INVISIBLE
                 layer.gone()
+            } else {
+                if (isChecked) {
+                    layer.visible()
+                } else {
+                    layer.gone()
+                }
             }
         }
-        cbMarquee.isChecked = item.isChecked
+        if (data.isExpire == 1) {
+            tvSign.text = "已结束"
+        } else {
+            tvSign.text = "已报名"
+        }
+        cbMarquee.isChecked = data.isChecked
         helper.getView<ConstraintLayout>(R.id.parent).clickN {
-            if (!item.isEdit) {
-                mItemClickCallBack?.invoke(item)
+            if (!data.isEdit) {
+                mItemClickCallBack?.invoke(data)
             }
         }
     }

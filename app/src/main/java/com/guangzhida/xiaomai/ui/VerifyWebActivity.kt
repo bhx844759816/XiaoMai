@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_web.*
 
 class VerifyWebActivity : AppCompatActivity() {
     private var mAgentWeb: AgentWeb? = null
-    private var mAccount = 12121 //账号
+    private var mAccount = 15225580881 //账号
     private var mPassword = 11114222//密码
 //    val insertJavaScript = """
 //            javascript:(function() {
@@ -21,30 +21,35 @@ class VerifyWebActivity : AppCompatActivity() {
 //            document.forms['_'].submit();
 //            })();"""
 
+//    val insertJavaScript = """
+//            javascript:(function() {
+//             document.getElementsByName("usrname")[0].value= '$mAccount';
+//             document.getElementsByName("password")[0].value= '$mPassword';
+//             var object = document.forms['_userregistr'];
+//             object.usrname.value = object.user.value;
+//             object.passwd.value = object.password1.value;
+//             object.target ="_top";
+//             object.action = document.location.protocol+'//10.8.8.10/lfradius/libs/portal/20191107/portalweb.php?router=huawei&run=login';
+//             object.submit();
+//             })(); """
     val insertJavaScript = """
             javascript:(function() {
-             document.getElementById("user").value= '$mAccount';
-             document.getElementById("pass").value= '$mPassword';
-             var object = document.forms['_userregistr'];
-             object.usrname.value = object.user.value;
-             object.passwd.value = object.password1.value;
-             object.target ="_top";
-             object.action = document.location.protocol+'//10.8.8.10/lfradius/libs/portal/20191107/portalweb.php?router=huawei&run=login';
-             object.submit();
+             document.getElementsByName("usrname")[0].value= '$mAccount';
+             document.getElementsByName("passwd")[0].value= '$mPassword';
+             document.forms['_wifi_login'].submit();
              })(); """
     private var mWebChromeClient = object : WebViewClient() {
         override fun onPageFinished(view: WebView?, url: String?) {
             LogUtils.i("onPageFinished url=$url")
-            if (url != null && url.contains("http://10.8.8.10/lfradius/portal/sxz/weblogin.html")) {
+            if (url != null && url.contains("http://yonghu.guangzhida.cn/lfradius/libs/portal/unify/portal.php/login/main")) {
                 view?.postDelayed({
                     LogUtils.i("onPageFinished loadUrl=$insertJavaScript")
                     view.loadUrl(insertJavaScript)
                 }, 200)
-            } else if (url != null && url.contains("http://10.8.8.10/lfradius/portal/sxz/success.html")) {
+            } else if (url != null && url.contains("http://yonghu.guangzhida.cn/lfradius/libs/portal/unify/portal.php/login/success")) {
                 //Success
 
-
-            } else if (url != null && url.contains("http://10.8.8.10/lfradius/portal/sxz/success.html")) {
+            } else if (url != null && url.contains("http://yonghu.guangzhida.cn/lfradius/portal/sxz/success.html")) {
                //error zhuru
 
             }

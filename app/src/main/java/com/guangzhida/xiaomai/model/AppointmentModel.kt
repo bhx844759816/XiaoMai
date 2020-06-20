@@ -1,15 +1,21 @@
 package com.guangzhida.xiaomai.model
 
+import java.io.Serializable
+
+
 data class AppointmentModel(
     val id: Long,
     val schoolId: Long,
     val userId: Long,
+    val type: Int,
     val title: String,
     val content: String,
     val signEndTime: Long,
     val activityStartTime: Long,
     val activityAddress: String,
-    val activityPic: String,
+    val startAddress: String,
+    val endAddress: String,
+    val activityPic: String?,
     val activityMoney: Double,
     val boyCount: Int,
     val girlCount: Int,
@@ -17,12 +23,13 @@ data class AppointmentModel(
     val isExpire: Int,
     val isSign: Int,
     val count: Int,
+    val walkType: Int,//1大巴 2出租车 3电动车
     val examineTime: Long,
     @Transient
     var isChecked: Boolean,//不进行序列化 是否选中
     @Transient
     var isEdit: Boolean//是否可编辑
-)
+) : Serializable
 
 
 //{"id":"1270962418546909186","schoolId":"1188013109260849154",

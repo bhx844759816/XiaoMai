@@ -478,7 +478,7 @@ class HomeFragment : BaseFragment<HomeViewModel>() {
                 .cancelOnTouchOutside(false)
                 .cornerRadius(8f)
                 .title(text = "提示")
-                .message(text = "用户您好，系统检测到您使用的套餐为运营商账号，请确定您使用的运营商账号")
+                .message(text = "用户您好，系统检测到您使用的套餐必须绑定运营商账号，请确定您使用的运营商账号")
                 .input(
                     hint = "请输入运营商账号",
                     inputType = InputType.TYPE_CLASS_PHONE,

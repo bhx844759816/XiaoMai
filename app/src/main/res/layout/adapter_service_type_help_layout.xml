@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/ivHelpItemOne"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@mipmap/icon_server_help_item_one"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/ivHelpItemTwo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@mipmap/icon_server_help_item_two"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/ivHelpItemThree"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@mipmap/icon_server_help_item_three"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/ivHelpItemFour"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@mipmap/icon_server_help_item_four"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/ivHelpItemFive"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@mipmap/icon_server_help_item_five"
+        android:scaleType="fitXY" />
+
+</LinearLayout>

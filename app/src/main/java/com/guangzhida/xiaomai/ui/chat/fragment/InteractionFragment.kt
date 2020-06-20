@@ -7,22 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Lifecycle
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.R
 import com.guangzhida.xiaomai.base.BaseFragment
+import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.ktxlibrary.ext.*
 import com.guangzhida.xiaomai.model.TabEntity
+import com.guangzhida.xiaomai.ui.appointment.fragment.AppointmentFragment
 import com.guangzhida.xiaomai.ui.chat.ContactListActivity
 import com.guangzhida.xiaomai.ui.chat.viewmodel.InteractionViewModel
+import com.guangzhida.xiaomai.utils.LogUtils
 import com.guangzhida.xiaomai.utils.ToastUtils
 import kotlinx.android.synthetic.main.fragment_interaction_layout.*
 import net.lucode.hackware.magicindicator.FragmentContainerHelper
@@ -52,6 +51,8 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
     private val mFragmentContainerHelper = FragmentContainerHelper()
     private var mOld = 0
     private var isShowBadgeView = false
+    private var mBadgeTextView: View? = null
+
 
     override fun layoutId(): Int = R.layout.fragment_interaction_layout
 
@@ -115,6 +116,15 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
                     }
                 }
                 badgePagerTitleView.innerPagerTitleView = simplePagerTitleView
+                if (index == 0) {
+                    mBadgeTextView = LayoutInflater.from(context)
+                        .inflate(R.layout.simple_red_dot_badge_layout, null);
+                    badgePagerTitleView.badgeView = mBadgeTextView;
+                    badgePagerTitleView.xBadgeRule = BadgeRule(BadgeAnchor.CONTENT_RIGHT, 0)
+                    badgePagerTitleView.yBadgeRule = BadgeRule(BadgeAnchor.CONTENT_TOP, 0)
+                    badgePagerTitleView.isAutoCancelBadge = false
+                    if (isShowBadgeView) mBadgeTextView?.visible() else mBadgeTextView?.gone()
+                }
                 return badgePagerTitleView
             }
 
@@ -151,12 +161,20 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (ChatHelper.getUnReadMessageCount() > 0) {
+            mBadgeTextView?.visible()
+        } else {
+            mBadgeTextView?.gone()
+        }
+    }
 
     /**
      * 展示小红点
      */
-    fun showBadgeView() {
-        if (lifecycle.currentState == Lifecycle.State.STARTED) {
+    fun showFiendBadgeView() {
+        if (lifecycle.currentState >= Lifecycle.State.STARTED) {
             ivUserContactMessageTips.visible()
         }
     }
@@ -164,9 +182,32 @@ class InteractionFragment : BaseFragment<InteractionViewModel>() {
     /**
      * 隐藏小红点
      */
-    fun hideBadgeView() {
-        if (lifecycle.currentState == Lifecycle.State.CREATED) {
+    fun hideFriendBadgeView() {
+        if (lifecycle.currentState >= Lifecycle.State.CREATED) {
             ivUserContactMessageTips.gone()
         }
     }
+
+    /**
+     * 展示聊天小红点
+     */
+    fun showImBadgeView() {
+        isShowBadgeView = true
+        LogUtils.i("showImBadgeView")
+        if (lifecycle.currentState >= Lifecycle.State.STARTED) {
+            LogUtils.i("showImBadgeView 2 ")
+            mBadgeTextView?.visible()
+        }
+    }
+
+    /**
+     * 隐藏聊天小红点
+     */
+    fun hideImBadgeView() {
+        isShowBadgeView = false
+        if (lifecycle.currentState >= Lifecycle.State.CREATED) {
+            mBadgeTextView?.gone()
+        }
+    }
+
 }

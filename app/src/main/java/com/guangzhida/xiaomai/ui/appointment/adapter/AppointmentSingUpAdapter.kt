@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat.adapter
+package com.guangzhida.xiaomai.ui.appointment.adapter
 
 import android.widget.ImageView
 import android.widget.TextView

@@ -6,6 +6,7 @@ import com.guangzhida.xiaomai.base.BaseViewModel
 import com.guangzhida.xiaomai.chat.ChatHelper
 import com.guangzhida.xiaomai.data.InjectorUtil
 import com.guangzhida.xiaomai.room.AppDatabase
+import com.guangzhida.xiaomai.room.entity.InviteMessageEntity
 import com.guangzhida.xiaomai.room.entity.UserEntity
 import com.guangzhida.xiaomai.utils.LogUtils
 import com.hyphenate.EMCallBack
@@ -45,7 +46,6 @@ open class ChatMessageViewModel : BaseViewModel() {
     val isFriendLiveData = MutableLiveData<Boolean>() //删除好友回调
     val sendMessageSuccessLiveData = MutableLiveData<EMMessage>() //发送消息成功
     val receiveMessageLiveData = MutableLiveData<EMMessage>() //接收到消息
-
 
 
     private val onEMMessageListener = object : EMMessageListener {
@@ -167,7 +167,6 @@ open class ChatMessageViewModel : BaseViewModel() {
     }
 
 
-
     /**
      * 发送文本消息
      * @param friendId 好友ID
@@ -234,13 +233,49 @@ open class ChatMessageViewModel : BaseViewModel() {
         }
     }
 
+    /**
+     * 添加好友
+     */
+    fun addFriend() {
+        launchGo({
+            val userEntity = mUserDao?.queryUserByUserName(mChatUserName)
+            if (userEntity == null) {
+                EMClient.getInstance().contactManager()
+                    .addContact(mChatUserName, "请求加好友")
+                val inviteMessageEntity =
+                    mInviteMessageDao?.queryInviteMessageByFrom(mChatUserName)
+                if (inviteMessageEntity != null) {
+                    mInviteMessageDao?.delete(inviteMessageEntity)
+                }
+                val result = mRepository.getUserInfoByNickNameOrPhone(mChatUserName)
+                if (result.isSuccess() && result.data.isNotEmpty()) {
+                    val userModel = result.data[0]
+                    val insertInviteMessageEntity = InviteMessageEntity(
+                        nickName = userModel.nickName,
+                        headerUrl = userModel.headUrl,
+                        from = userModel.mobilePhone,
+                        time = System.currentTimeMillis(),
+                        reason = "请求加好友",
+                        userName = BaseApplication.instance().mUserModel!!.username,
+                        state = 1
+                    )
+                    mInviteMessageDao?.insert(insertInviteMessageEntity)
+                    defUI.toastEvent.postValue("添加好友成功")
+                } else {
+                    defUI.toastEvent.postValue("查询不到用户信息")
+                }
+            } else {
+                defUI.toastEvent.postValue("已经是好友啦，不能重复添加")
+            }
+        })
+    }
+
 
     /**
      * 删除好友
      */
     fun deleteFriends() {
         launchGo({
-
             //查询本地的好友
             val userEntity = mUserDao?.queryUserByUserName(mChatUserName)
             val result = mRepository.removeFriend(userEntity!!.uid.toString())

@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat
+package com.guangzhida.xiaomai.ui.appointment.fragment
 
 import android.Manifest
 import android.content.Intent
@@ -6,62 +6,55 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
 import android.widget.TextView
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.datetime.dateTimePicker
-import com.afollestad.materialdialogs.lifecycle.lifecycleOwner
 import com.bigkoo.pickerview.builder.TimePickerBuilder
 import com.bigkoo.pickerview.listener.OnTimeSelectListener
 import com.guangzhida.xiaomai.R
-import com.guangzhida.xiaomai.base.BaseActivity
+import com.guangzhida.xiaomai.base.BaseFragment
 import com.guangzhida.xiaomai.event.LiveDataBus
-import com.guangzhida.xiaomai.event.LiveDataBusKey.PUBLISH_APPOINTMENT_FINISH_KEY
+import com.guangzhida.xiaomai.event.LiveDataBusKey
 import com.guangzhida.xiaomai.ktxlibrary.ext.*
-import com.guangzhida.xiaomai.ui.chat.viewmodel.AppointmentPublishViewModel
+import com.guangzhida.xiaomai.ui.appointment.viewmodel.AppointmentPublishViewModel
 import com.guangzhida.xiaomai.ui.home.adapter.PhotoMultipleItem
 import com.guangzhida.xiaomai.ui.user.adapter.FeedBackPhotoAdapter
+import com.guangzhida.xiaomai.utils.ToastUtils
 import com.guangzhida.xiaomai.view.SpacesItemDecoration
 import com.guangzhida.xiaomai.view.custom.CustomImgPickerPresenter
 import com.guangzhida.xiaomai.view.preview.PreviewResultListActivity
 import com.ypx.imagepicker.ImagePicker
 import com.ypx.imagepicker.bean.MimeType
 import com.ypx.imagepicker.bean.SelectMode
-import kotlinx.android.synthetic.main.activity_appointment_publish_layout.*
+import kotlinx.android.synthetic.main.fragment_appointment_publish_play_layout.*
 import permissions.dispatcher.ktx.withPermissionsCheck
 import top.zibin.luban.Luban
 import top.zibin.luban.OnCompressListener
 import java.io.File
-
+import java.util.*
 
 /**
- * 发布约吗页面
+ * 发布约吗 - 约玩
  */
-class AppointmentPublishActivity : BaseActivity<AppointmentPublishViewModel>() {
+class AppointmentPublishPlayFragment : BaseFragment<AppointmentPublishViewModel>() {
     private val mPhotoMultipleItemList = mutableListOf<PhotoMultipleItem>()
     private val mPhotoList = arrayListOf<String>()
     private val mImgSaveDir by lazy {
-        getExternalFilesDir("pic")?.absolutePath
+        context?.getExternalFilesDir("pic")?.absolutePath
             ?: Environment.getExternalStorageDirectory().absolutePath + "/xiaomai/pic"
     }
     private val mAdapter by lazy {
         FeedBackPhotoAdapter(mPhotoMultipleItemList)
     }
 
-
-    override fun layoutId(): Int = R.layout.activity_appointment_publish_layout
+    override fun layoutId(): Int = R.layout.fragment_appointment_publish_play_layout
 
     override fun initView(savedInstanceState: Bundle?) {
-        photoRecyclerView.layoutManager = GridLayoutManager(this, 3)
-        photoRecyclerView.addItemDecoration(SpacesItemDecoration(dp2px(10), 3))
+        photoRecyclerView.layoutManager = GridLayoutManager(context, 3)
+        photoRecyclerView.addItemDecoration(SpacesItemDecoration(context?.dp2px(10) ?: 0, 3))
         mPhotoMultipleItemList.add(PhotoMultipleItem())
         photoRecyclerView.adapter = mAdapter
     }
 
     override fun initListener() {
-        toolBar.setNavigationOnClickListener {
-            finish()
-        }
         rgSelectMoneyType.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.rbSelectMoneyTypeOne -> {
@@ -78,7 +71,7 @@ class AppointmentPublishActivity : BaseActivity<AppointmentPublishViewModel>() {
         }
         mAdapter.mContentClickCallBack = {
             val intent = Intent(
-                this,
+                activity,
                 PreviewResultListActivity::class.java
             )
             intent.putStringArrayListExtra("imgUrls", mPhotoList)
@@ -107,24 +100,15 @@ class AppointmentPublishActivity : BaseActivity<AppointmentPublishViewModel>() {
         tvSignUpEndTime.clickN {
             showDateTimePickerDialog(tvSignUpEndTime)
         }
-
-        tvPublish.clickN {
-            doSubmit()
-        }
-
-        mViewModel.mSubmitResultObserver.observe(this, Observer {
+        viewModel.mSubmitResultObserver.observe(this, androidx.lifecycle.Observer {
             if (it) {
-                LiveDataBus.with(PUBLISH_APPOINTMENT_FINISH_KEY).postValue(true)
-                finish()
+                LiveDataBus.with(LiveDataBusKey.PUBLISH_APPOINTMENT_FINISH_KEY).postValue(true)
+                activity?.finish()
             }
         })
     }
 
-
-    /**
-     * 发布
-     */
-    private fun doSubmit() {
+    fun publish() {
         val title = etTitle.text.toString().trim()
         val dec = etDec.text.toString().trim()
         val address = etAddress.text.toString().trim()
@@ -135,52 +119,53 @@ class AppointmentPublishActivity : BaseActivity<AppointmentPublishViewModel>() {
         val girlPeoples = etGirlPeoples.text.toString().trim()
         val moneyType = getMoneyType()
         if (title.isEmpty()) {
-            toast("请输入标题")
+            ToastUtils.toastShort("请输入标题")
             return
         }
         if (dec.isEmpty()) {
-            toast("请输入描述")
+            ToastUtils.toastShort("请输入描述")
             return
         }
         if (address.isEmpty()) {
-            toast("请输入活动地址")
+            ToastUtils.toastShort("请输入活动地址")
             return
         }
         if (moneyType > 0) {
             if (money.isEmpty()) {
-                toast("请输入活动经费")
+                ToastUtils.toastShort("请输入活动经费")
                 return
             }
         }
         if (boyPeoples.isEmpty() && girlPeoples.isEmpty()) {
-            toast("请至少输入一个参与人数")
+            ToastUtils.toastShort("请至少输入一个参与人数")
             return
         }
         if (activityTime.isEmpty()) {
-            toast("请选择活动开始时间")
+            ToastUtils.toastShort("请选择活动开始时间")
             return
         }
         if (signUpTime.isEmpty()) {
-            toast("请选择报名截止时间")
+            ToastUtils.toastShort("请选择报名截止时间")
             return
         }
-        if (mPhotoList.isEmpty()) {
-            toast("请至少上传一张图片")
-            return
-        }
-        mViewModel.doSubmit(
+        viewModel.doSubmit(
+            1,
             title,
             dec,
             address,
+            "",
             moneyType,
             money,
             activityTime,
             signUpTime,
             boyPeoples,
             girlPeoples,
+            "",
+            "",
             mPhotoList
         )
     }
+
 
     private fun getMoneyType(): Int {
         return when {
@@ -202,25 +187,28 @@ class AppointmentPublishActivity : BaseActivity<AppointmentPublishViewModel>() {
         }
     }
 
+
     /**
      * 展示日期时间选择器
      */
     private fun showDateTimePickerDialog(tv: TextView) {
-        TimePickerBuilder(this,
+        val startDate = Calendar.getInstance()
+        val endDate = Calendar.getInstance()
+        endDate.add(Calendar.MONTH, +1);//把月份减三个月
+        TimePickerBuilder(context,
             OnTimeSelectListener { date, _ ->
                 tv.text = date.time.formatDateTime("yyyy/MM/dd HH:mm")
             })
             .setType(BooleanArray(6) {
-                it < 5
+                it < 4
             })
             .setSubmitColor(Color.WHITE)//确定按钮文字颜色
             .setCancelColor(Color.WHITE)//取消按钮文字颜色
-            .isCyclic(true)
+            .setRangDate(startDate, endDate)//起始终止年月日设定
+//          .isCyclic(true)
             .build()
             .show(true)
-
     }
-
 
     private fun addPhoto() {
         withPermissionsCheck(Manifest.permission.WRITE_EXTERNAL_STORAGE, onShowRationale = {
@@ -249,7 +237,7 @@ class AppointmentPublishActivity : BaseActivity<AppointmentPublishViewModel>() {
                 .setDefaultOriginal(true)
                 //设置单选模式，当maxCount==1时，可执行单选（下次选中会取消上一次选中）
                 .setSelectMode(SelectMode.MODE_SINGLE)
-                .pick(this) {
+                .pick(activity) {
                     if (it.isNotEmpty()) {
                         val filePathList = it.map { item ->
                             item.path
@@ -264,7 +252,7 @@ class AppointmentPublishActivity : BaseActivity<AppointmentPublishViewModel>() {
      * 压缩图片
      */
     private fun compressImg(imagePath: List<String>) {
-        Luban.with(this)
+        Luban.with(context)
             .load(imagePath)
             .ignoreBy(100)
             .setTargetDir(mImgSaveDir)

@@ -1,4 +1,4 @@
-package com.guangzhida.xiaomai.ui.chat.viewmodel
+package com.guangzhida.xiaomai.ui.appointment.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
@@ -21,16 +21,25 @@ class AppointmentPublishViewModel : BaseViewModel() {
     }
 
     val mSubmitResultObserver = MutableLiveData<Boolean>()
+
+
+    /**
+     * @param type 1约玩 2约车 3约工作
+     */
     fun doSubmit(
+        type: Int,
         title: String,
         dec: String,
         address: String,
+        walkType: String,
         moneyType: Int,
         money: String,
         activityTime: String,
         signUpEndTime: String,
         boyPeoples: String,
         girlPeoples: String,
+        startAddress: String,
+        endAddress: String,
         photos: List<String>
     ) {
         launchUI {
@@ -43,24 +52,29 @@ class AppointmentPublishViewModel : BaseViewModel() {
                         if (File(filePath).exists()) {
                             val result = mCommonRepository.uploadImg(File(filePath))
                             if (result.status == 200) {
-//                                val photoId = result.message.split(":")[0]
+//                              val photoId = result.message.split(":")[0]
                                 val photoUrl = result.message.split(":")[1]
                                 photoPics.add(photoUrl)
                             }
                         }
                     }
-                    LogUtils.i("上传图片 photoPics=${photoPics}")
-                    if (photoPics.size > 1) {
-                        photoPics.joinToString(separator = ",")
+                    if (photoPics.isNotEmpty()) {
+                        if (photoPics.size > 1) {
+                            photoPics.joinToString(separator = ",")
+                        } else {
+                            photoPics[0]
+                        }
                     } else {
-                        photoPics[0]
+                        ""
                     }
                 }
                 LogUtils.i("上传图片=${activityPic}")
+                params["type"] = type
                 params["schoolId"] = mSchoolModel.id
                 params["userId"] = BaseApplication.instance().mUserModel!!.id
                 params["title"] = title
                 params["content"] = dec
+                params["walkType"] = walkType
                 params["signEndTime"] = signUpEndTime
                 params["activityStartTime"] = activityTime
                 params["activityAddress"] = address
@@ -69,6 +83,8 @@ class AppointmentPublishViewModel : BaseViewModel() {
                 params["boyCount"] = boyPeoples
                 params["girlCount"] = girlPeoples
                 params["feeType"] = moneyType
+                params["startAddress"] = startAddress
+                params["endAddress"] = endAddress
                 val submitResult = withContext(Dispatchers.IO) {
                     mChatRepository.submitAppointmentData(params)
                 }

@@ -66,7 +66,7 @@ class BaseApplication : MultiDexApplication() {
             //全局设置（优先级最低）
             layout.setEnableAutoLoadMore(true)
             layout.setEnableOverScrollDrag(false)
-            layout.setEnableOverScrollBounce(true)
+            layout.setEnableOverScrollBounce(false)
             layout.setEnableLoadMoreWhenContentNotFull(false)
             layout.setEnableScrollContentWhenRefreshed(true)
             layout.setEnableFooterFollowWhenNoMoreData(true) //显示底部布局
@@ -98,6 +98,8 @@ class BaseApplication : MultiDexApplication() {
                 R.id.tvRetry,
                 null
             )
+            .addUiStatusConfig(UiStatus.WIDGET_ELFIN,R.layout.view_im_disconnect_widget_layout)
+
 
     }
 

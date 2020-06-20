@@ -8,6 +8,10 @@ import android.os.Process
 import androidx.work.*
 import com.guangzhida.xiaomai.BaseApplication
 import com.guangzhida.xiaomai.NETWORK_CHECK_RESULT_FILENAME
+import com.guangzhida.xiaomai.event.LiveDataBus
+import com.guangzhida.xiaomai.event.LiveDataBusKey.IM_CONNECT_SERVER_KEY
+import com.guangzhida.xiaomai.event.LiveDataBusKey.IM_DISCONNECT_SERVER_KEY
+import com.guangzhida.xiaomai.event.LiveDataBusKey.IM_KICKED_BY_OTHER_DEVICE
 import com.guangzhida.xiaomai.event.messageCountChangeLiveData
 import com.guangzhida.xiaomai.ktxlibrary.ext.readTxtFile
 import com.guangzhida.xiaomai.room.AppDatabase
@@ -15,7 +19,9 @@ import com.guangzhida.xiaomai.room.entity.InviteMessageEntity
 import com.guangzhida.xiaomai.task.UpdateConversationTask
 import com.guangzhida.xiaomai.ui.chat.ChatMessageActivity
 import com.guangzhida.xiaomai.utils.LogUtils
+import com.hyphenate.EMConnectionListener
 import com.hyphenate.EMContactListener
+import com.hyphenate.EMError
 import com.hyphenate.EMMessageListener
 import com.hyphenate.chat.*
 import java.util.concurrent.Executors
@@ -154,6 +160,25 @@ object ChatHelper {
     }
 
     /**
+     * 与服务器的连接监听
+     */
+    private val mConnectListener = object : EMConnectionListener {
+        override fun onConnected() {
+            LiveDataBus.with(IM_CONNECT_SERVER_KEY).postValue(true)
+        }
+
+        override fun onDisconnected(error: Int) {
+            LogUtils.i("IM onDisconnected errorCode =$error")
+            if (error == EMError.USER_LOGIN_ANOTHER_DEVICE || error == EMError.USER_KICKED_BY_OTHER_DEVICE) {
+                //其他设备登录账号
+                LiveDataBus.with(IM_KICKED_BY_OTHER_DEVICE).postValue(true)
+            }
+            //断开连接
+            LiveDataBus.with(IM_DISCONNECT_SERVER_KEY).postValue(true)
+        }
+    }
+
+    /**
      * 初始化环信
      */
     fun init(context: Context, packageName: String) {
@@ -254,6 +279,7 @@ object ChatHelper {
     private fun setGlobalListeners() {
         EMClient.getInstance().contactManager().setContactListener(myContactListener)
         EMClient.getInstance().chatManager().addMessageListener(myEMMessageListener)
+        EMClient.getInstance().addConnectionListener(mConnectListener)
     }
 
     /**
